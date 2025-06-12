@@ -14,7 +14,7 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ## Development Notes
 
-### 🔜 Sprint #1 (started on 12 June 2025; ended on <i>TBA</i>)
+### ✅ Sprint #1 (started on 12 June 2025; ended on 12 June 2025)
 - Configure git repository and initialize README with app workflow and database design overview
 - Starting backend & frontend apps and installing their dependencies
 - Dockerizing frontend, backend and postgresDB
