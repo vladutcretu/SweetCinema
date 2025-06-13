@@ -32,6 +32,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # Developer apps
+    "movies",
     # 3rd party apps
     "rest_framework",
     "drf_spectacular",

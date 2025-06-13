@@ -16,7 +16,7 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 # 3rd party apps
 from drf_spectacular.views import (
@@ -39,4 +39,6 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc",
     ),
+    # Movies app
+    path("api/movies/", include("movies.urls")),
 ]
