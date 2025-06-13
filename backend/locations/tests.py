@@ -116,7 +116,7 @@ class SeatListViewTest(APITestCase):
         self.assertEqual(response.data[0]["theater"]["city"]["name"], "Baku")
 
 
-# Test for views.py
+# Test for urls.py
 class URLTests(TestCase):
     def test_cities_url_resolves(self):
         resolver = resolve("/api/locations/cities/")

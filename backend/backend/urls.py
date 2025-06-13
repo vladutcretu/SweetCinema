@@ -43,4 +43,6 @@ urlpatterns = [
     path("api/movies/", include("movies.urls")),
     # Locations app
     path("api/locations/", include("locations.urls")),
+    # Showtimes app
+    path("api/showtimes/", include("showtimes.urls")),
 ]

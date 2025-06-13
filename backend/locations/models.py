@@ -25,6 +25,9 @@ class Theater(models.Model):
         ordering = ["city__name", "name"]
 
     def save(self, *args, **kwargs):
+        """
+        Method to create Seat objects when Theater rows and columns are introduced.
+        """
         super().save(*args, **kwargs)
 
         # Create rows * colums Seat objects

@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     # Developer apps
     "movies",
     "locations",
+    "showtimes",
     # 3rd party apps
     "rest_framework",
     "drf_spectacular",
