@@ -41,4 +41,6 @@ urlpatterns = [
     ),
     # Movies app
     path("api/movies/", include("movies.urls")),
+    # Locations app
+    path("api/locations/", include("locations.urls")),
 ]

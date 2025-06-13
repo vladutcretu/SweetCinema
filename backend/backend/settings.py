@@ -34,9 +34,11 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     # Developer apps
     "movies",
+    "locations",
     # 3rd party apps
     "rest_framework",
     "drf_spectacular",
+    "django_filters",
     # Default apps
     "django.contrib.admin",
     "django.contrib.auth",
@@ -140,6 +142,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
     ],
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
 
 # DRF-spectacular settings
