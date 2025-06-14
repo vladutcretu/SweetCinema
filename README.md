@@ -15,7 +15,9 @@ SweetCinema is an open-source educational project inspired by an idea from [road
 Check the file [NOTES.md](NOTES.md) to see Release Notes or Development Notes.
 
 ## Technology stack
-- ⚙️ Backend: [Django REST Framework](https://www.django-rest-framework.org) with:
+- ⚙️ Backend: [Django REST Framework](https://www.django-rest-framework.org) with
+    - 🧰 [Django ORM](https://docs.djangoproject.com/en/5.2/topics/db/queries/) for interactions with database.
+    - 🐛 [Django unittest](https://docs.djangoproject.com/en/5.1/topics/testing/overview/), [DRF Testing](https://www.django-rest-framework.org/api-guide/testing/) and [Postman](https://www.postman.com) for tests.
     - 🧶 [Ruff](https://docs.astral.sh/ruff/) for linting and code formatting.
     - 📄 [DRF-spectacular](https://drf-spectacular.readthedocs.io/en/latest/) for OpenAPI documentation.
 - 💾 Database: [PostgresQL](https://www.postgresql.org/).

@@ -14,7 +14,15 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ## Development Notes
 
-### 🔜 Sprint #2 (started on 13 June 2025; ended on <i>TBA</i>)
+### 🔜 Sprint #3 (started on 14 June 2025; ended on <i>TBA</i>)
+- Build core design elements: `header`, `navbar`, `footer`
+- Develop the following pages: 
+    - `main page`: draw movie cards (fetch data from `GET /api/movies/`) and add link to `movie details page`
+    - `movie details page`: show detailed informations about a single movie (fetch data from `GET /api/movies/{id}/`), about showtimes informations (fetch data from `GET /api/showtimes/`) and add link to `showtime details page` (fetch data from `GET /api/showtimes/{id}/`)
+    - `showtime details page`: show detailed informations about a single showtime (fetch data from `GET /api/showtimes/{id}/`), about theater and seats (fetch data from `GET /api/locations/theaters/{id}/` and `GET /api/locations/seats/`) and add links to `reserve a ticket` and `buy a ticket`.
+- Do backend updates to ensure good working user workflow: choose `City` > choose `Movie` (see `Genre`) > choose `Showtime` (see `Theater` & `Seat`)
+
+### ✅ Sprint #2 (started on 13 June 2025; ended on 13 June 2025)
 - Start `movies` app and create `Movie`, `Genre`, `MovieGenre` models, alongside with the following API endpoints: 
     - `GET /api/movies/`: list all the `Movie` objects
     - `GET /api/genres/`: list all the `Genre` objects
