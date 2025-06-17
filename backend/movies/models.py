@@ -18,6 +18,7 @@ class Movie(models.Model):
     title = models.CharField(max_length=55)
     description = models.TextField(max_length=255)
     genres = models.ManyToManyField(Genre, related_name="movies")
+    poster = models.URLField()
 
     class Meta:
         verbose_name_plural = "Movies"

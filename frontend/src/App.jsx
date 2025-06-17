@@ -1,21 +1,26 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+
 import Header from './components/base/Header'
 import Footer from './components/base/Footer'
 
-import { useCityContext } from './contexts/CityContext'
+import MovieList from './pages/MovieList'
+import MovieDetail from './pages/MovieDetail'
 
 function App() {
-  // Test save City data selected by user and show City data to main content
-  const {selectedCityId, setSelectedCityId, selectedCityName, setSelectedCityName} = useCityContext()
-
   return (
     <>
-    <div className='page-layout'>
-      <Header />
-      <main className='main'>
-        <p>User selected the following City location: ID {selectedCityId}, name: {selectedCityName}</p>
-      </main>
-      <Footer />
-    </div>
+    <Router>
+      <div className='page-layout'>
+        <Header />
+        <main className='main'>
+          <Routes>
+            <Route path='/' element={<MovieList />} />
+            <Route path='/movie/' element={<MovieDetail />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </Router>
     </>
   )
 }
