@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 
 import './MovieList.css'
 
-function MovieCard({ imgSrc, imgAlt, movieTitle, movieDescription, movieGenres }) {
+function MovieCard({ imgSrc, imgAlt, movieTitle, movieDescription, movieGenres, movieId }) {
     return (
         <>
         <div className="movie-card">
@@ -12,9 +12,8 @@ function MovieCard({ imgSrc, imgAlt, movieTitle, movieDescription, movieGenres }
             </div>
             <div className="movie-card-info">
                 <h3>{movieTitle}</h3>
-                <p>{movieDescription}</p>
                 <p>{movieGenres}</p>
-                <button><Link to={`/movie/`}>See show times</Link></button>
+                <button><Link to={`/movie/${movieId}`}>See show times</Link></button>
             </div>
         </div>
         </>
@@ -62,6 +61,7 @@ function MovieList() {
                     movieTitle={movie.title}
                     movieDescription={movie.description}
                     movieGenres={movie.genres.map(genre => genre.name).join(", ")}
+                    movieId={movie.id}
                 />
             ))}
         </div>

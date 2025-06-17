@@ -15,7 +15,7 @@ function App() {
         <main className='main'>
           <Routes>
             <Route path='/' element={<MovieList />} />
-            <Route path='/movie/' element={<MovieDetail />} />
+            <Route path='/movie/:movieId' element={<MovieDetail />} />
           </Routes>
         </main>
         <Footer />
