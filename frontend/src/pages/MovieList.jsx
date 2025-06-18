@@ -13,7 +13,7 @@ function MovieCard({ imgSrc, imgAlt, movieTitle, movieDescription, movieGenres, 
             <div className="movie-card-info">
                 <h3>{movieTitle}</h3>
                 <p>{movieGenres}</p>
-                <button><Link to={`/movie/${movieId}`}>See show times</Link></button>
+                <button><Link to={`/movie/${movieId}`}>See showtimes</Link></button>
             </div>
         </div>
         </>

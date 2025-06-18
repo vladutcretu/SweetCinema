@@ -9,13 +9,14 @@ function ShowtimeCard({
     showtimeDate,
     showtimeHour,
     showtimeTheaterName,
+    showtimeId
 }) {
     return (
         <>
         <div className="showtimes-grid">
             <div className="showtime-card">
                 <h3>{showtimeDate}, {showtimeHour} - {showtimeTheaterName}</h3>
-                <button>See show time</button>
+                <button><Link to={`/showtime/${showtimeId}`}>See showtime</Link></button>  
             </div>
         </div>
         </>
@@ -29,7 +30,6 @@ function MoviePresentation({
     movieGenres,
     movieDescription 
 }) {
-
     // Get Movie ID parameter to fetch with it
     const { movieId } = useParams()
 
@@ -86,12 +86,13 @@ function MoviePresentation({
                 <h1>Showtimes</h1>
                 {loading && <p>Showtime list is loading</p>}
                 {error && <p>{error}</p>}
-                {!loading && !error && showtimes.length === 0 && (<p>Currently there's no show time for this movie.</p>)}
+                {!loading && !error && showtimes.length === 0 && (<p>Currently there's no showtime for this movie.</p>)}
                 {!loading && !error && showtimes.length > 0 && showtimes.map(showtime => (
                     <ShowtimeCard key={showtime.id}
                         showtimeDate={showtime.date}
                         showtimeHour={showtime.time}
                         showtimeTheaterName={showtime.theater.name}
+                        showtimeId={showtime.id}
                     />
                 ))}
             </div>

@@ -5,6 +5,7 @@ import Footer from './components/base/Footer'
 
 import MovieList from './pages/MovieList'
 import MovieDetail from './pages/MovieDetail'
+import ShowtimeDetail from './pages/ShowtimeDetail'
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Routes>
             <Route path='/' element={<MovieList />} />
             <Route path='/movie/:movieId' element={<MovieDetail />} />
+            <Route path='/showtime/:showtimeId' element={<ShowtimeDetail />} />
           </Routes>
         </main>
         <Footer />
