@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from "react-router-dom"
 
+import { useCityContext } from '../contexts/CityContext'
+
 import './MovieDetail.css'
 
 function ShowtimeCard({
@@ -13,7 +15,7 @@ function ShowtimeCard({
         <div className="showtimes-grid">
             <div className="showtime-card">
                 <h3>{showtimeDate}, {showtimeHour} - {showtimeTheaterName}</h3>
-                <button>Get ticket</button>
+                <button>See show time</button>
             </div>
         </div>
         </>
@@ -27,6 +29,40 @@ function MoviePresentation({
     movieGenres,
     movieDescription 
 }) {
+
+    // Get Movie ID parameter to fetch with it
+    const { movieId } = useParams()
+
+    // Get City ID to use saved City data selected by user to fetch with it
+    const {selectedCityId} = useCityContext()
+
+    // Fetch Showtime data for Movie Presentation Card
+    const [showtimes, setShowtimes] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+
+    useEffect(() => {
+        const getShowtimeList = async() => {
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/api/showtimes/?movie=${movieId}&theater__city=${selectedCityId}`)
+                if (!response.ok) {
+                    throw new Error (`HTTP error! Response status: ${response.status}`)
+                }
+                else {
+                    const data = await response.json()
+                    console.log(data)
+                    setShowtimes(data)
+                }
+            } catch (error) {
+                console.error('Fetching Showtime error', error)
+                setError('Showtimes cannot be loaded. Please try again!')
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        getShowtimeList()
+    }, [movieId, selectedCityId])
 
     return (
     <>
@@ -48,12 +84,16 @@ function MoviePresentation({
                 <h3>Duration: </h3>
                 <hr /><br /><hr />
                 <h1>Showtimes</h1>
-                <ShowtimeCard key={1}
-                    showtimeDate="2025-06-14"
-                    showtimeHour="17:00"
-                    showtimeTheaterName="Hall #1"
-                />
-                <></>
+                {loading && <p>Showtime list is loading</p>}
+                {error && <p>{error}</p>}
+                {!loading && !error && showtimes.length === 0 && (<p>Currently there's no show time for this movie.</p>)}
+                {!loading && !error && showtimes.length > 0 && showtimes.map(showtime => (
+                    <ShowtimeCard key={showtime.id}
+                        showtimeDate={showtime.date}
+                        showtimeHour={showtime.time}
+                        showtimeTheaterName={showtime.theater.name}
+                    />
+                ))}
             </div>
         </div>
     </div>
@@ -96,7 +136,7 @@ function MovieDetail() {
     <>
     {loading && <p>Movie detail is loading</p>}
     {error && <p>{error}</p>}
-    {movie && (
+    {!loading && !error && movie && (
         <MoviePresentation key={movie.id}
             imgSrc={movie.poster}
             imgAlt={movie.title + " poster"}

@@ -54,7 +54,8 @@ function MovieList() {
         <div className="movies-grid">
             {loading && <p>Movie list is loading</p>}
             {error && <p>{error}</p>}
-            {movies.map(movie => (
+            {!loading && !error && movies.length === 0 && (<p>Currently there's no movies to show.</p>)}
+            {!loading && !error && movies.length > 0 && movies.map(movie => (
                 <MovieCard key={movie.id}
                     imgSrc={movie.poster}
                     imgAlt={movie.title + " poster"}

@@ -4,16 +4,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('movies', '0002_alter_genre_options'),
+        ("movies", "0002_alter_genre_options"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='movie',
-            name='poster',
-            field=models.URLField(default='https://imgur.com'),
+            model_name="movie",
+            name="poster",
+            field=models.URLField(default="https://imgur.com"),
             preserve_default=False,
         ),
     ]
