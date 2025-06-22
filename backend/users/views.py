@@ -1,7 +1,8 @@
 # Django
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
-# DRF 
+# DRF
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -10,13 +11,17 @@ from rest_framework import status
 import requests
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
+from rest_framework_simplejwt.tokens import RefreshToken
+
+# App
+from .serializers import UserSerializer
 
 # Create your views here.
 
 
 class AuthGoogle(APIView):
     """
-    View that receives the `authorization code` from the frontend (after user logs in with Google account), 
+    View that receives the `authorization code` from the frontend (after user logs in with Google account),
     exchanges the `id_token` with Google, validates the `id_token` using google-auth,
     and returns the user data (Google account's data).
     """
@@ -34,36 +39,40 @@ class AuthGoogle(APIView):
         token = self.exchange_code_for_token(code)
         if not token:
             return Response(
-                {"error": "Token exchange failed"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Token exchange failed"}, status=status.HTTP_400_BAD_REQUEST
             )
 
         # Get only `id_token` from the fully version of `token` response
         id_token = token.get("id_token")
         if not id_token:
             return Response(
-                {"error": "No id_token in response"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "No id_token in response"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Validează id_token cu google-auth
-        # Validate 
+        # Validate id_token using google-auth library
         user_info = self.validate_id_token(id_token)
         if not user_info:
             return Response(
                 {"error": "ID Token validation failed"},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Return user_info now | Create / Retrieve user account later
+        # Create / Retrieve user account using user's Google mail address
+        user_email = user_info.get("email")
+        user_name = user_info.get("name")
+        user = self.create_or_retrieve_user(user_email, user_name)
+
+        # Generate JWT access and refresh
+        tokens = self.generate_jwt(user)
+
         return Response(
-            {"user": user_info}, 
-            status=status.HTTP_200_OK
+            {"user": UserSerializer(user).data, "tokens": tokens},
+            status=status.HTTP_200_OK,
         )
 
     def exchange_code_for_token(self, code):
         """
-        Exchange authorization code to Google to obtain OAuth2 token, 
+        Exchange authorization code to Google to obtain OAuth2 token,
         that include the id_token used for user authentication.
         """
         token_endpoint = "https://oauth2.googleapis.com/token"
@@ -101,3 +110,28 @@ class AuthGoogle(APIView):
         except ValueError as e:
             print(f"ID token validation error: {e}")
             return None
+
+    def create_or_retrieve_user(self, email, name):
+        """
+        Check given email adress to create a new account with it or,
+        if already existing, to retrieve it.
+        """
+        User = get_user_model()
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                "username": email.split("@")[0],
+                "first_name": name.split(" ")[0],
+            },
+        )
+        return user
+
+    def generate_jwt(self, user):
+        """
+        Get and return JWT refresh and access for user created or retrieved.
+        """
+        refresh = RefreshToken.for_user(user)
+        return {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }

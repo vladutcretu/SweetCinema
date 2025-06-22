@@ -19,7 +19,10 @@ function GoogleAuth() {
         .then(data => {
             // Handle the response from backend
             if (data?.user) {
-                console.log('Login successful:', data.user)
+                console.log('Login successful:', data)
+                localStorage.setItem("username", data.user.username)
+                localStorage.setItem("access_token", data.tokens.access);
+                localStorage.setItem("refresh_token", data.tokens.refresh);
             } else {
                 console.error('Unexpected response format:', data)
             }

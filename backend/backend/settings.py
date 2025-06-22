@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "django_filters",
     "corsheaders",
+    "rest_framework_simplejwt",
     # Default apps
     "django.contrib.admin",
     "django.contrib.auth",
@@ -145,7 +147,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # https://www.django-rest-framework.org/
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
 }
 
 # DRF-spectacular settings
@@ -165,6 +172,13 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://frontend:5173",
 ]
+
+# Simple JWT settings
+# https://django-rest-framework-simplejwt.readthedocs.io/en/latest/settings.html
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+}
 
 
 # Importing Environment (ENV) variables from .env file from main director
