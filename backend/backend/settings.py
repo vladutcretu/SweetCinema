@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "movies",
     "locations",
     "showtimes",
+    "users",
     # 3rd party apps
     "rest_framework",
     "drf_spectacular",
@@ -144,9 +145,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # https://www.django-rest-framework.org/
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
-    ],
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
 
@@ -167,3 +165,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://frontend:5173",
 ]
+
+
+# Importing Environment (ENV) variables from .env file from main director
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")

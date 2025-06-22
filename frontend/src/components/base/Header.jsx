@@ -5,6 +5,7 @@ import Container from 'react-bootstrap/Container'
 import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar'
 import NavDropdown from 'react-bootstrap/NavDropdown'
+import GoogleAuth from '../auth/GoogleAuth'
 
 function HeaderNav() {
     // Fetch City data for Locations dropdown
@@ -57,13 +58,10 @@ function HeaderNav() {
                                 setSelectedCityName(city.name)
                             }}>{city.name}</NavDropdown.Item>
                         ))}
-                        {/* <NavDropdown.Item href="/">City #1</NavDropdown.Item>
-                        <NavDropdown.Item href="/">City #2</NavDropdown.Item>
-                        <NavDropdown.Item href="/">City #3</NavDropdown.Item> */}
                         <NavDropdown.Divider />
                         <NavDropdown.Item href="/">Ask for new location</NavDropdown.Item>
                     </NavDropdown>
-                <Nav.Link href="/">Log In</Nav.Link>
+                <Nav.Link><GoogleAuth /></Nav.Link>
                 </Nav>
             </Navbar.Collapse>
             </Container>
