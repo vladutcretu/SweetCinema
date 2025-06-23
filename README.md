@@ -25,6 +25,8 @@ Check the file [NOTES.md](NOTES.md) to see Release Notes or Development Notes.
 - 🧩Other tools:
     - 🗓️ [Jira](https://www.atlassian.com/software/jira) for planning work.
     - 🐋 [Docker Compose](https://www.docker.com/) for local development.
+    - 🔐[@react-oauth/google](https://www.npmjs.com/package/@react-oauth/google), [google-auth](https://pypi.org/project/google-auth/) and [djangorestframework-simplejwt](https://pypi.org/project/djangorestframework-simplejwt/) for authentication and authorization with Google OAuth2.0 and JWT.
+    
 
 
 ## Technical architecture
@@ -49,6 +51,12 @@ Check the file [NOTES.md](NOTES.md) to see Release Notes or Development Notes.
     DB_PASSWORD=your_password    # Postgres password
     DB_HOST=db                   # Don't edit to match the Postgres service name from docker-compose
     DB_PORT=5432                 # Don't edit to match default Postgres port
+
+    GOOGLE_CLIENT_ID=your_app_client_id # Read https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid
+    GOOGLE_CLIENT_SECRET=your_app_client_secret # Copy from the same place as client_id
+
+    VITE_API_URL=http://127.0.0.1:8000/api
+    VITE_GOOGLE_CLIENT_ID=your_app_client_id # Same value as the GOOGLE_CLIENT_ID variable
     ```
 
 3. Build and run the containers:

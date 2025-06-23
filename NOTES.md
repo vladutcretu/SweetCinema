@@ -35,14 +35,46 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ## Development Notes
 
-### 🔜 Sprint #4 (started on 22 June 2025; ended on <i>TBA</i>)
+### 🔜 Sprint #5 (started on 23 June 2025; ended on <i>TBA</i>)
+- Start `tickets` app and create `Booking` and `Payment` models
+- Use the foreign key relationships between models `Booking`, `Showtime`, `Seat` (via `Theater`) to check the status of a `Seat` object for a `Showtime` in `Booking` table entries as is following: 
+	- no instance of `Booking` for `Showtime` + `Seat` means the `Seat` object is unoccupied
+	- instance of `Booking` for `Showtime` + `Seat` with status=reserved/purchased means the `Seat` object is reserved/purchased
+- Create, respecting the above logic, the API endpoint `GET /api/showtimes/{id}/seats/` with following sample response:
+```json
+	[
+        {
+            "id": 1, "row": 1, "column": 1, "status": "available"
+        },
+        {
+            "id": 2, "row": 1, "column": 2, "status": "reserved"
+        }, 
+        {
+            "id": 3, "row": 1, "column": 3, "status": "purchased"
+        },
+        {
+            "id": 4, "row": 1, "column": 4, "status": "reserved by me"
+        },
+        {
+            "id": 5, "row": 1, "column": 5, "status": "purchased by me"
+        }
+    ]
+```
+- Fetch the above mentioned endpoint in `showtime detail page` to present the status of every seat of the theater for the specific showtime
+- Set, on the previously mentioned page, for every one of the newly implemented seat representation two options: reserve a seat and pay a seat 
+	- Reserve a seat: fetch `POST /api/tickets/reserve/` (sending informations about `Showtime` and `Seat` objects) that will create a `Booking` instance with status=reserved and return a confirmation message afterwards
+	- Pay a seat: fetch `POST /api/tickets/pay/` (sending informations about `Showtime` and `Seat` objects) that will create a `Booking` instance with status=pending_payment and redirect user to `payment create page`, where user will introduce data to `POST /api/tickets/payment/{bookingId}/`; if data is correct and `Payment` status is accepted then update `Booking` status to purchased
+- Delete all `Booking` instances that have status=reserved when associated `Showtime`'s time value is 30 minutes before it starts.
+- Assure methods and checks to not double book a seat or to prevent a seat to have too much time with status=payment_pending.
+
+### ✅ Sprint #4 (started on 22 June 2025; ended on 23 June 2025)
 - Implement signing up & logging in with Google account using OAuth2.0 and JWT, respecting the following workflow:
 	- Create `users` app and `POST /api/auth/google/` endpoint to receive the `id_token` from the frontend after the user logs in with their Google account
     - Validate the `id_token` on the backend and create or retrieve the user account
     - Generate a JWT and return to the frontend to store it in `localStorage`
     - Create `POST /api/token/verify/` to validate the token when needed
 	- Display `reserve ticket` & `buy ticket` options from `ShowtimeDetail` page to logged in users only
-	- Build`logout` button to remove the token from `localStorage`
+	- Build `logout` button to remove the token from `localStorage`
 
 ### ✅ Sprint #3 (started on 14 June 2025; ended on 18 June 2025)
 - Build core design elements: `header`, `navbar`, `footer`
