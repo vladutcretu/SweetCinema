@@ -1,5 +1,12 @@
+// React, dependencies & packages
 import { useEffect, useState } from "react"
 import { useParams, Link } from "react-router-dom"
+
+// App
+import { useAuthContext } from "../contexts/AuthContext"
+
+// Write components here
+
 
 function SeatPresentation({ theaterId }) {
     // Fetch Showtime data for Seat presentation
@@ -29,6 +36,9 @@ function SeatPresentation({ theaterId }) {
         getSeatList()
     }, [theaterId])
 
+    // Use auth status from context to show Reserve/Buy buttons
+    const { isAuthenticated } = useAuthContext()
+
     return (
         <>
         {loading && <p>Seat list is loading</p>}
@@ -37,8 +47,8 @@ function SeatPresentation({ theaterId }) {
         {!loading && !error && seats.length > 0 && seats.map(seat => (
             <div key={seat.id} style={{backgroundColor: 'green'}}>
                 <h1>Seat ID {seat.id}: row {seat.row}, column {seat.column}</h1>
-                <button>Reserve a ticket</button>
-                <button>Buy a ticket</button>
+                {isAuthenticated ? (<button>Reserve a ticket</button>) : (<p>Please log in to reserve a ticket.</p>)}
+                {isAuthenticated ? (<button>Buy a ticket</button>) : (<p>Please log in to buy a ticket.</p>)}
             </div>
         ))}
         </>

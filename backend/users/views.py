@@ -99,7 +99,10 @@ class AuthGoogle(APIView):
         """
         try:
             id_info = id_token.verify_oauth2_token(
-                token, google_requests.Request(), settings.GOOGLE_CLIENT_ID
+                token,
+                google_requests.Request(),
+                settings.GOOGLE_CLIENT_ID,
+                clock_skew_in_seconds=10,
             )
             return {
                 "email": id_info.get("email"),

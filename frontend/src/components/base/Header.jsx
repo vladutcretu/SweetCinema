@@ -1,11 +1,18 @@
-import { useState, useEffect } from 'react'
-import { useCityContext } from '../../contexts/CityContext'
-
+// Styles
 import Container from 'react-bootstrap/Container'
 import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar'
 import NavDropdown from 'react-bootstrap/NavDropdown'
+
+// React, dependencies & packages
+import { useState, useEffect } from 'react'
+
+// App
+import { useCityContext } from '../../contexts/CityContext'
 import GoogleAuth from '../auth/GoogleAuth'
+
+// Write components here
+
 
 function HeaderNav() {
     // Fetch City data for Locations dropdown

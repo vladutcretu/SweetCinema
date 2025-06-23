@@ -1,4 +1,8 @@
+// React, dependencies & packages
 import { createContext, useState, useContext } from "react";
+
+// Write components here
+
 
 const CityContext = createContext()
 
