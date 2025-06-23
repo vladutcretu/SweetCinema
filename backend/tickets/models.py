@@ -1,0 +1,62 @@
+from django.db import models
+from django.contrib.auth import get_user_model
+
+# App
+from showtimes.models import Showtime
+from locations.models import Seat
+
+# Create your models here.
+
+
+User = get_user_model()
+
+
+class BookingStatus(models.TextChoices):
+    RESERVED = "reserved", "Reserved"
+    PENDING_PAYMENT = "pending_payment", "Pending Payment"
+    PURCHASED = "purchased", "Purchased"
+
+
+class Booking(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    showtime = models.ForeignKey(Showtime, on_delete=models.CASCADE)
+    seat = models.ForeignKey(Seat, on_delete=models.CASCADE)
+    status = models.CharField(
+        max_length=55, choices=BookingStatus.choices, default=BookingStatus.RESERVED
+    )
+    booked_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Bookings"
+        ordering = ["id"]
+        unique_together = ("showtime", "seat")
+
+    def __str__(self):
+        return f"{self.showtime.date} {self.showtime.time}, {self.seat}: {self.status}"
+
+
+class PaymentMethod(models.TextChoices):
+    VISA = "visa", "VISA"
+    MASTERCARD = "mastercard", "MasterCard"
+
+
+class PaymentStatus(models.TextChoices):
+    DECLINED = "declined", "Declined"
+    ACCEPTED = "accepted", "Accepted"
+
+
+class Payment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE)
+    amount = models.FloatField()
+    method = models.CharField(max_length=55, choices=PaymentMethod.choices)
+    status = models.CharField(max_length=55, choices=PaymentStatus.choices)
+    paid_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Payments"
+        ordering = ["id"]
+
+    def __str__(self):
+        return f"{self.booking.showtime.date} {self.booking.showtime.time}, {self.booking.seat}: {self.status}"

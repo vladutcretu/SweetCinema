@@ -4,11 +4,15 @@ import { useParams, Link } from "react-router-dom"
 
 // App
 import { useAuthContext } from "../contexts/AuthContext"
+const api_url = import.meta.env.VITE_API_URL
 
 // Write components here
 
 
-function SeatPresentation({ theaterId }) {
+function SeatPresentation() {
+    // Get Showtime ID parameter to fetch with it
+    const { showtimeId } = useParams()
+
     // Fetch Showtime data for Seat presentation
     const [seats, setSeats] = useState([])
     const [loading, setLoading] = useState(true)
@@ -17,7 +21,7 @@ function SeatPresentation({ theaterId }) {
     useEffect(() => {
         const getSeatList = async() => {
             try {
-                const response = await fetch(`http://127.0.0.1:8000/api/locations/seats/?theater=${theaterId}`)
+                const response = await fetch(`${api_url}/showtimes/${showtimeId}/seats/`)
                 if (!response.ok) {
                     throw new Error(`HTTP error! Response status: ${response.status}`)
                 } else {
@@ -34,10 +38,16 @@ function SeatPresentation({ theaterId }) {
         }
 
         getSeatList()
-    }, [theaterId])
+    }, [showtimeId])
 
     // Use auth status from context to show Reserve/Buy buttons
     const { isAuthenticated } = useAuthContext()
+
+    const statusColors = {
+        available: 'lightgreen',
+        reserved: 'lightblue',
+        purchased: 'lightcoral',
+    }
 
     return (
         <>
@@ -45,10 +55,16 @@ function SeatPresentation({ theaterId }) {
         {error && <p>{error}</p>}
         {!loading && !error && seats.length === 0 && (<p>Currently there's no seats for this showtime.</p>)}
         {!loading && !error && seats.length > 0 && seats.map(seat => (
-            <div key={seat.id} style={{backgroundColor: 'green'}}>
-                <h1>Seat ID {seat.id}: row {seat.row}, column {seat.column}</h1>
-                {isAuthenticated ? (<button>Reserve a ticket</button>) : (<p>Please log in to reserve a ticket.</p>)}
-                {isAuthenticated ? (<button>Buy a ticket</button>) : (<p>Please log in to buy a ticket.</p>)}
+            <div key={seat.id} style={{ backgroundColor: statusColors[seat.status] || 'gray', padding: '10px', margin: '10px', borderRadius: '5px' }}>
+                <h1>Seat ID {seat.id}: row {seat.row}, column {seat.column} - status: {seat.status}</h1>
+                {isAuthenticated ? ( seat.status === 'available' ? (
+                    <>
+                        <button>Reserve a ticket</button>
+                        <button>Buy a ticket</button>
+                    </>
+                ) : ( <p>Can't reserve / pay a ticket for this seat due to his status.</p> )
+                ) : ( <p>Please log in to reserve or buy a ticket.</p>)
+                }
             </div>
         ))}
         </>
@@ -67,7 +83,7 @@ function ShowtimePresentation() {
     useEffect(() => {
         const getShowtimeDetail = async() => {
             try {
-                const response = await fetch(`http://127.0.0.1:8000/api/showtimes/${showtimeId}/`)
+                const response = await fetch(`${api_url}/showtimes/${showtimeId}/`)
                 if (!response.ok) {
                     throw new Error(`HTTP error! Response status: ${response.status}`)
                 } else {
@@ -95,8 +111,7 @@ function ShowtimePresentation() {
                 <h1>Showtime detail ID {showtime.id}: {showtime.date}, {showtime.time} - {showtime.theater.name} ({showtime.theater.city.name})</h1>
                 <p>Ticket price: {showtime.price} EUR</p>
                 <>Capacity info: {showtime.theater.rows} rows, {showtime.theater.columns} columns</>
-                <SeatPresentation key={showtime.theater.id}
-                    theaterId={showtime.theater.id}/>
+                <SeatPresentation key={showtime.theater.id}/>
             </div>
         )}
         </>

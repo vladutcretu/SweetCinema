@@ -1,10 +1,13 @@
 # Django
 from django.utils import timezone
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 
 # DRF
 from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
 
 # 3rd party apps
 from django_filters.rest_framework import DjangoFilterBackend
@@ -12,6 +15,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 # App
 from .models import Showtime
 from .serializers import ShowtimeSerializer
+from tickets.models import Booking, BookingStatus
 
 # Create your views here.
 
@@ -43,3 +47,49 @@ class ShowtimeRetrieveView(RetrieveAPIView):
     queryset = Showtime.objects.all()
     serializer_class = ShowtimeSerializer
     permission_classes = [AllowAny]
+
+
+class ShowtimeSeatsListView(APIView):
+    """
+    View to list all Seat objects and their status for a Showtime requested by ID.
+    """
+
+    def get(self, request, pk):
+        # Get the Showtime object requested by ID (pk)
+        showtime = get_object_or_404(Showtime, id=pk)
+        # Get the Theater object linked to requested Showtime object
+        theater = showtime.theater
+        # Get all Seat objects of the Theater linked to requested Showtime object
+        seats = theater.seats.all()  # seats is related_name of the Seat-Theater link
+        # Get all Booking objects linked to request Showtime object
+        bookings = Booking.objects.filter(showtime=showtime)
+        # Create a dict with key=seat_id of Booking object and value=booking (a Booking object)
+        booked_map = {(booking.seat_id): booking for booking in bookings}
+
+        # Start from an empty list and for every Seat object, check if it's exists in Booking objects,
+        # then set his status accordingly and add Seat to the list that got returned at the end of iterations
+        data = []
+
+        for seat in seats:
+            booking = booked_map.get(seat.id)
+
+            if not booking:
+                status = "available"
+            elif (
+                booking.status == BookingStatus.RESERVED
+                or booking.status == BookingStatus.PENDING_PAYMENT
+            ):
+                status = "reserved"
+            elif booking.status == BookingStatus.PURCHASED:
+                status = "purchased"
+
+            data.append(
+                {
+                    "id": seat.id,
+                    "row": seat.row,
+                    "column": seat.column,
+                    "status": status,
+                }
+            )
+
+        return Response(data)

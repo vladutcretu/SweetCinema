@@ -34,9 +34,10 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     # Developer apps
-    "movies",
     "locations",
+    "movies",
     "showtimes",
+    "tickets",
     "users",
     # 3rd party apps
     "rest_framework",

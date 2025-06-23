@@ -39,12 +39,14 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc",
     ),
-    # Movies app
-    path("api/movies/", include("movies.urls")),
     # Locations app
     path("api/locations/", include("locations.urls")),
+    # Movies app
+    path("api/movies/", include("movies.urls")),
     # Showtimes app
     path("api/showtimes/", include("showtimes.urls")),
+    # Tickets app
+    path("api/tickets/", include("tickets.urls")),
     # Users app
     path("api/users/", include("users.urls")),
 ]
