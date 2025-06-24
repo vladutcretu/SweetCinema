@@ -8,6 +8,7 @@ import Footer from './components/base/Footer'
 import MovieList from './pages/MovieList'
 import MovieDetail from './pages/MovieDetail'
 import ShowtimeDetail from './pages/ShowtimeDetail'
+import PaymentCreate from './pages/PaymentCreate'
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
             <Route path='/' element={<MovieList />} />
             <Route path='/movie/:movieId/' element={<MovieDetail />} />
             <Route path='/showtime/:showtimeId/' element={<ShowtimeDetail />} />
+            <Route path='/payment/:bookingId' element={<PaymentCreate />} />
           </Routes>
         </main>
         <Footer />

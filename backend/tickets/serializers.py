@@ -24,13 +24,13 @@ class BookingCreateReserveSerializer(serializers.ModelSerializer):
 
         # Get Showtime object with received showtime_id or raise error if it doesn't exist
         try:
-            showtime = Showtime.objects.get(id=showtime_id)  # noqa: F841
+            showtime = Showtime.objects.get(id=showtime_id)
         except Showtime.DoesNotExist:
             raise serializers.ValidationError("Showtime does not exist")
 
         # Get Seat object with received seat_id or raise error if it doesn't exist
         try:
-            seat = Seat.objects.get(id=seat_id)  # noqa: F841
+            seat = Seat.objects.get(id=seat_id)
         except Seat.DoesNotExist:
             raise serializers.ValidationError("Seat does not exist.")
 
@@ -53,6 +53,48 @@ class BookingCreateReserveSerializer(serializers.ModelSerializer):
             showtime_id=validated_data["showtime_id"],
             seat_id=validated_data["seat_id"],
             status=BookingStatus.RESERVED,
+        )
+
+
+class BookingCreatePaymentSerializer(serializers.ModelSerializer):
+    showtime_id = serializers.IntegerField(write_only=True)
+    seat_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = Booking
+        fields = ["showtime_id", "seat_id"]
+
+    def validate(self, data):
+        showtime_id = data["showtime_id"]
+        seat_id = data["seat_id"]
+
+        try:
+            showtime = Showtime.objects.get(id=showtime_id)
+        except Showtime.DoesNotExist:
+            raise serializers.ValidationError("Showtime does not exist.")
+        
+        try:
+            seat = Seat.objects.get(id=seat_id)
+        except Seat.DoesNotExist:
+            raise serializers.ValidationError("Seat does not exist.")
+
+        if showtime.theater != seat.theater:
+            raise serializers.ValidationError(
+                "Seat does not belong to the Theater set for this Showtime."
+            )
+        
+        if Booking.objects.filter(showtime_id=showtime_id, seat_id=seat_id).exists():
+            raise serializers.ValidationError("Seat is already reserved or purchased.")
+
+        return data
+    
+    def create(self, validated_data):
+        user = self.context["request"].user
+        return Booking.objects.create(
+            user=user,
+            showtime_id=validated_data["showtime_id"],
+            seat_id=validated_data["seat_id"],
+            status=BookingStatus.PENDING_PAYMENT,
         )
 
 

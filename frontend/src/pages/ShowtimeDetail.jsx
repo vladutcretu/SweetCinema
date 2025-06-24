@@ -5,6 +5,7 @@ import { useParams, Link } from "react-router-dom"
 // App
 import { useAuthContext } from "../contexts/AuthContext"
 import TicketReserve from "../components/TicketReserve"
+import TicketPay from "../components/TicketPay"
 const api_url = import.meta.env.VITE_API_URL
 
 // Write components here
@@ -60,9 +61,8 @@ function SeatPresentation() {
                 <h1>Seat ID {seat.id}: row {seat.row}, column {seat.column} - status: {seat.status}</h1>
                 {isAuthenticated ? ( seat.status === 'available' ? (
                     <>
-                        {/* <button><Link to={'/reserve_ticket/'}>Reserve ticket</Link></button> */}
                         <TicketReserve showtimeId={showtimeId} seatId={seat.id} onSuccess={getSeatList} />
-                        <button>Buy a ticket</button>
+                        <TicketPay showtimeId={showtimeId} seatId={seat.id} />
                     </>
                 ) : ( <p>Can't reserve / pay a ticket for this seat due to his status.</p> )
                 ) : ( <p>Please log in to reserve or buy a ticket.</p>)
