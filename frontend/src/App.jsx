@@ -1,5 +1,7 @@
+// React, dependencies & packages
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
+// App
 import Header from './components/base/Header'
 import Footer from './components/base/Footer'
 
@@ -16,8 +18,8 @@ function App() {
         <main className='main'>
           <Routes>
             <Route path='/' element={<MovieList />} />
-            <Route path='/movie/:movieId' element={<MovieDetail />} />
-            <Route path='/showtime/:showtimeId' element={<ShowtimeDetail />} />
+            <Route path='/movie/:movieId/' element={<MovieDetail />} />
+            <Route path='/showtime/:showtimeId/' element={<ShowtimeDetail />} />
           </Routes>
         </main>
         <Footer />

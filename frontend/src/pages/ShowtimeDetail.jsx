@@ -4,6 +4,7 @@ import { useParams, Link } from "react-router-dom"
 
 // App
 import { useAuthContext } from "../contexts/AuthContext"
+import TicketReserve from "../components/TicketReserve"
 const api_url = import.meta.env.VITE_API_URL
 
 // Write components here
@@ -18,25 +19,25 @@ function SeatPresentation() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
 
-    useEffect(() => {
-        const getSeatList = async() => {
-            try {
-                const response = await fetch(`${api_url}/showtimes/${showtimeId}/seats/`)
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Response status: ${response.status}`)
-                } else {
-                    const data = await response.json()
-                    console.log(data)
-                    setSeats(data)
-                }
-            } catch (error) {
-                console.error('Fetching Seat error', error)
-                setError('Seat cannot be loaded. Please try again!')
-            } finally {
-                setLoading(false)
+    const getSeatList = async() => {
+        try {
+            const response = await fetch(`${api_url}/showtimes/${showtimeId}/seats/`)
+            if (!response.ok) {
+                throw new Error(`HTTP error! Response status: ${response.status}`)
+            } else {
+                const data = await response.json()
+                console.log(data)
+                setSeats(data)
             }
+        } catch (error) {
+            console.error('Fetching Seat error', error)
+            setError('Seat cannot be loaded. Please try again!')
+        } finally {
+            setLoading(false)
         }
+    }
 
+    useEffect(() => {
         getSeatList()
     }, [showtimeId])
 
@@ -59,7 +60,8 @@ function SeatPresentation() {
                 <h1>Seat ID {seat.id}: row {seat.row}, column {seat.column} - status: {seat.status}</h1>
                 {isAuthenticated ? ( seat.status === 'available' ? (
                     <>
-                        <button>Reserve a ticket</button>
+                        {/* <button><Link to={'/reserve_ticket/'}>Reserve ticket</Link></button> */}
+                        <TicketReserve showtimeId={showtimeId} seatId={seat.id} onSuccess={getSeatList} />
                         <button>Buy a ticket</button>
                     </>
                 ) : ( <p>Can't reserve / pay a ticket for this seat due to his status.</p> )
