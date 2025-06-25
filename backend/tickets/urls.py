@@ -1,12 +1,17 @@
 from django.urls import path
 
 # App
-from .views import BookingCreateReserveView, BookingCreatePaymentView, BookingListView, PaymentListView
+from .views import (
+    BookingCreateReserveView,
+    BookingCreatePaymentView,
+    BookingRetrieveView,
+    PaymentCreateView,
+)
 
 # Create your urls here.
 urlpatterns = [
     path("reserve/", BookingCreateReserveView.as_view(), name="reserve-create"),
     path("pay/", BookingCreatePaymentView.as_view(), name="pay-create"),
-    path("bookings/", BookingListView.as_view(), name="booking-list"),
-    path("payments/", PaymentListView.as_view(), name="payment-list"),
+    path("booking/<int:pk>/", BookingRetrieveView.as_view(), name="booking-detail"),
+    path("pay/<int:booking_id>/", PaymentCreateView.as_view(), name="payment-create"),
 ]

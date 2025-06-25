@@ -2,11 +2,22 @@
 from rest_framework import serializers
 
 # App
-from .models import Booking, BookingStatus, Payment
+from .models import Booking, BookingStatus, Payment, PaymentMethod
 from showtimes.models import Showtime
 from locations.serializers import Seat
+from showtimes.serializers import ShowtimeSerializer
+from locations.serializers import SeatSerializer
 
 # Create your serializers here.
+
+
+class BookingSerializer(serializers.ModelSerializer):
+    showtime = ShowtimeSerializer(read_only=True)
+    seat = SeatSerializer(read_only=True)
+
+    class Meta:
+        model = Booking
+        fields = ["id", "user", "showtime", "seat", "status"]
 
 
 class BookingCreateReserveSerializer(serializers.ModelSerializer):
@@ -72,7 +83,7 @@ class BookingCreatePaymentSerializer(serializers.ModelSerializer):
             showtime = Showtime.objects.get(id=showtime_id)
         except Showtime.DoesNotExist:
             raise serializers.ValidationError("Showtime does not exist.")
-        
+
         try:
             seat = Seat.objects.get(id=seat_id)
         except Seat.DoesNotExist:
@@ -82,12 +93,12 @@ class BookingCreatePaymentSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Seat does not belong to the Theater set for this Showtime."
             )
-        
+
         if Booking.objects.filter(showtime_id=showtime_id, seat_id=seat_id).exists():
             raise serializers.ValidationError("Seat is already reserved or purchased.")
 
         return data
-    
+
     def create(self, validated_data):
         user = self.context["request"].user
         return Booking.objects.create(
@@ -98,13 +109,16 @@ class BookingCreatePaymentSerializer(serializers.ModelSerializer):
         )
 
 
-class BookingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Booking
-        fields = ["id", "user", "showtime", "seat", "status", "booked_at", "updated_at"]
+class PaymentCreateSerializer(serializers.ModelSerializer):
+    amount = serializers.FloatField(write_only=True)
+    method = serializers.CharField(write_only=True)
 
-
-class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
-        fields = ["id", "booking", "amount", "method", "status", "paid_at"]
+        fields = ["amount", "method"]
+
+    def validate_method(self, value):
+        if value not in PaymentMethod.values:
+            raise serializers.ValidationError("Method must be an accepted method.")
+        else:
+            return value

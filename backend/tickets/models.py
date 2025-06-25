@@ -14,6 +14,7 @@ User = get_user_model()
 class BookingStatus(models.TextChoices):
     RESERVED = "reserved", "Reserved"
     PENDING_PAYMENT = "pending_payment", "Pending Payment"
+    FAILED_PAYMENT = "failed_payment", "Failed Payment"
     PURCHASED = "purchased", "Purchased"
 
 
@@ -33,7 +34,10 @@ class Booking(models.Model):
         unique_together = ("showtime", "seat")
 
     def __str__(self):
-        return f"{self.showtime.date} {self.showtime.time}, {self.seat} - {self.status}, {self.booked_at.strftime('%d %b %Y %H:%M:%S')}"
+        return (
+            f"{self.showtime.date} {self.showtime.time}, {self.seat} - "\
+            f"{self.status}, {self.booked_at.strftime('%d %b %Y %H:%M:%S')}, {self.updated_at.strftime('%d %b %Y %H:%M:%S')}"
+        )
 
 
 class PaymentMethod(models.TextChoices):
@@ -56,7 +60,10 @@ class Payment(models.Model):
 
     class Meta:
         verbose_name_plural = "Payments"
-        ordering = ["id"]
+        ordering = ["-id"]
 
     def __str__(self):
-        return f"{self.booking.showtime.date} {self.booking.showtime.time}, {self.booking.seat}: {self.status}"
+        return (
+            f"{self.booking.showtime.date} {self.booking.showtime.time}, {self.booking.seat} "\
+            f"- {self.status}, {self.paid_at.strftime('%d %b %Y %H:%M:%S')}"
+        )
