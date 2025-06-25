@@ -31,11 +31,10 @@ class Booking(models.Model):
     class Meta:
         verbose_name_plural = "Bookings"
         ordering = ["-id"]
-        unique_together = ("showtime", "seat")
 
     def __str__(self):
         return (
-            f"{self.showtime.date} {self.showtime.time}, {self.seat} - "\
+            f"{self.showtime.date} {self.showtime.time}, {self.seat} - "
             f"{self.status}, {self.booked_at.strftime('%d %b %Y %H:%M:%S')}, {self.updated_at.strftime('%d %b %Y %H:%M:%S')}"
         )
 
@@ -64,6 +63,6 @@ class Payment(models.Model):
 
     def __str__(self):
         return (
-            f"{self.booking.showtime.date} {self.booking.showtime.time}, {self.booking.seat} "\
+            f"{self.booking.showtime.date} {self.booking.showtime.time}, {self.booking.seat} "
             f"- {self.status}, {self.paid_at.strftime('%d %b %Y %H:%M:%S')}"
         )

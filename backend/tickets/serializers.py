@@ -52,7 +52,11 @@ class BookingCreateReserveSerializer(serializers.ModelSerializer):
             )
 
         # Check if already exists a Booking object with received showtime_id & seat_id objects
-        if Booking.objects.filter(showtime_id=showtime_id, seat_id=seat_id).exists():
+        if (
+            Booking.objects.filter(showtime_id=showtime_id, seat_id=seat_id)
+            .exclude(status=BookingStatus.FAILED_PAYMENT)
+            .exists()
+        ):
             raise serializers.ValidationError("Seat is already reserved or purchased.")
 
         return data
@@ -94,7 +98,11 @@ class BookingCreatePaymentSerializer(serializers.ModelSerializer):
                 "Seat does not belong to the Theater set for this Showtime."
             )
 
-        if Booking.objects.filter(showtime_id=showtime_id, seat_id=seat_id).exists():
+        if (
+            Booking.objects.filter(showtime_id=showtime_id, seat_id=seat_id)
+            .exclude(status=BookingStatus.FAILED_PAYMENT)
+            .exists()
+        ):
             raise serializers.ValidationError("Seat is already reserved or purchased.")
 
         return data

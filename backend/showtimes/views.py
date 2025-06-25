@@ -62,13 +62,15 @@ class ShowtimeSeatsListView(APIView):
         # Get all Seat objects of the Theater linked to requested Showtime object
         seats = theater.seats.all()  # seats is related_name of the Seat-Theater link
         # Get all Booking objects linked to request Showtime object
-        bookings = Booking.objects.filter(showtime=showtime)
+        bookings = Booking.objects.filter(showtime=showtime).exclude(
+            status=BookingStatus.FAILED_PAYMENT
+        )
         # Create a dict with key=seat_id of Booking object and value=booking (a Booking object)
         booked_map = {(booking.seat_id): booking for booking in bookings}
 
         # Start from an empty list and for every Seat object, check if it's exists in Booking objects,
         # then set his status accordingly and add Seat to the list that got returned at the end of iterations
-        data = []
+        seat_status_list = []
 
         for seat in seats:
             booking = booked_map.get(seat.id)
@@ -83,7 +85,7 @@ class ShowtimeSeatsListView(APIView):
             elif booking.status == BookingStatus.PURCHASED:
                 status = "purchased"
 
-            data.append(
+            seat_status_list.append(
                 {
                     "id": seat.id,
                     "row": seat.row,
@@ -92,4 +94,4 @@ class ShowtimeSeatsListView(APIView):
                 }
             )
 
-        return Response(data)
+        return Response(seat_status_list)
