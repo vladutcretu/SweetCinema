@@ -1,0 +1,128 @@
+// React, dependencies & packages
+import React, { useEffect, useState } from 'react'
+
+// App
+const api_url = import.meta.env.VITE_API_URL
+
+// Write components here
+
+
+const UserManagement = () => {
+    // Fetch User data
+    const [users, setUsers] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+    const accessToken = localStorage.getItem('access_token')
+
+    useEffect(() => {
+        const getUserList = async() => {
+            try {
+                const response = await fetch(`${api_url}/users/`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json/',
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                })
+                if (!response.ok) {
+                    throw new Error (`HTTP error! Response status: ${response.status}`)
+                } else {
+                    const data = await response.json()
+                    console.log(data)
+                    setUsers(data)
+                }
+            } catch (error) {
+                console.error('Fetching User error', error)
+                setError('Users cannot be loaded. Please try again!')
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        getUserList()
+    }, [])
+
+    // Filter data using Search Bar
+    const [searchTerm, setSearchTerm] = useState("")
+
+    const handleChangeSearch = (event) => {
+        setSearchTerm(event.target.value)
+    }
+
+    const filteredUsers = users.filter(user => 
+        user.username.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+
+    // Promote / Demote user
+    const [userId, setUserId] = useState("")
+    const [action, setAction] = useState("")
+
+    const handleButtonActions = (userId, action) => {
+        setUserId(userId)
+        setAction(action)
+    }
+
+    const handleSubmitActions = (event) => {
+        event.preventDefault()
+        alert(`${action} completed: USER ID ${userId} group updated!`)
+    }
+
+
+  return (
+    <>
+        <h3>User Management</h3>
+
+        {/* Search Bar */}
+        <div>
+            <label>Search user:</label>
+            <input type="text" value={searchTerm} onChange={handleChangeSearch} placeholder="Type username..."></input>
+        </div>
+
+        {/* User data */}
+        <table style={{ border: "1px solid black", width: "100%" }}>
+            <thead>
+                <tr>
+                    <th style={{ border: "1px solid black" }}>ID</th>
+                    <th style={{ border: "1px solid black" }}>Email</th>
+                    <th style={{ border: "1px solid black" }}>Username</th>
+                    <th style={{ border: "1px solid black" }}>Groups</th>
+                    <th style={{ border: "1px solid black" }}>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {loading && (<tr><td colSpan="4">User list is loading...</td></tr>)}
+                {error && (<tr><td colSpan="4">{error}</td></tr>)}
+                {!loading && !error && filteredUsers.length === 0 && (
+                    <tr>
+                        <td colSpan="4">Currently there are no users to show.</td>
+                    </tr>
+                )}
+                {!loading && !error && filteredUsers.length > 0 && filteredUsers.map(user => (
+                    <tr key={user.id}>
+                        <td style={{ border: "1px solid black" }}>{user.id}</td>
+                        <td style={{ border: "1px solid black" }}>{user.email}</td>
+                        <td style={{ border: "1px solid black" }}>{user.username}</td>
+                        <td style={{ border: "1px solid black" }}>{user.groups.join(", ")}</td>
+                        {/* Promote / Demote buttons */}
+                        <td style={{ border: "1px solid black" }}>
+                            <form onSubmit={handleSubmitActions}>
+                                <button  type="submit" onClick={() =>
+                                    handleButtonActions(user.id, "Promote to Manager")
+                                }>Promote to Manager</button>
+                                <button  type="submit" onClick={() =>
+                                    handleButtonActions(user.id, "Promote to Employee")
+                                }>Promote to Employee</button>
+                                <button type="submit" onClick={() =>
+                                    handleButtonActions(user.id, "Demote to User")
+                                }>Demote to User</button>
+                            </form>
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    </>
+  )
+}
+
+export default UserManagement

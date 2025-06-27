@@ -4,8 +4,10 @@ from django.contrib.auth import get_user_model
 
 # DRF
 from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAdminUser
 
 # 3rd party
 import requests
@@ -18,6 +20,8 @@ from .serializers import UserSerializer
 
 # Create your views here.
 
+
+User = get_user_model()
 
 class AuthGoogle(APIView):
     """
@@ -119,7 +123,6 @@ class AuthGoogle(APIView):
         Check given email adress to create a new account with it or,
         if already existing, to retrieve it.
         """
-        User = get_user_model()
         user, created = User.objects.get_or_create(
             email=email,
             defaults={
@@ -138,3 +141,14 @@ class AuthGoogle(APIView):
             "refresh": str(refresh),
             "access": str(refresh.access_token),
         }
+
+
+class UserListView(ListAPIView):
+    """
+    View to list all User objects.
+    Available to `Admins` only; required token authentication.
+    """
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]
