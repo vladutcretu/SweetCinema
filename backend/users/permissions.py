@@ -9,7 +9,7 @@ class IsInGroup(BasePermission):
     Global permission class for import and use on permission_classes attributes on API views.
     It checks user to be part of a group.
     """
-        
+
     group_name = None
 
     def has_permission(self, request, view):

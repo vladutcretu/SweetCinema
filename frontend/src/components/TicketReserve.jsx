@@ -1,13 +1,14 @@
 // App
+import { useAuthContext } from "../contexts/AuthContext"
 const api_url = import.meta.env.VITE_API_URL
 
 // Write components here
 
 
 function TicketReserve({ showtimeId, seatId, onSuccess }) {
+    const { accessToken } = useAuthContext()
 
     const postTicketReserve = async () => {
-        const accessToken = localStorage.getItem('access_token')
         if (!accessToken) {
             alert('You must be logged in to reserve a ticket.')
         }

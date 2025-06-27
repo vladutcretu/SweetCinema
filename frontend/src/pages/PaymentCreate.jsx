@@ -3,15 +3,16 @@ import { useState, useEffect } from "react"
 import { useParams } from "react-router-dom"
 
 // App 
+import { useAuthContext } from "../contexts/AuthContext"
 const api_url = import.meta.env.VITE_API_URL
 
 // Write components here
 
 
 function TicketPayment({ bookingId, paymentAmount, paymentMethod }) {
+    const { accessToken } = useAuthContext()
 
     const postTicketPayment = async () => {
-        const accessToken = localStorage.getItem('access_token')
         if (!accessToken) {
             console.error('Can not get access token.')
             return
@@ -73,11 +74,12 @@ function PaymentMethodSelector({ onSelect }) {
 }
 
 function BookingPresentation() {
+    
     // Get Booking ID parameter to fetch with it
     const { bookingId } = useParams()
 
     // Get access token value to fetch with it
-    const accessToken = localStorage.getItem('access_token')
+    const { accessToken } = useAuthContext()
     if (!accessToken) {
         console.error('Can not get access token.')
         return

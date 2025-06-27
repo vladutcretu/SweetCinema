@@ -11,8 +11,8 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-    groups = serializers.SlugRelatedField(many=True, read_only=True, slug_field='name')
+    groups = serializers.SlugRelatedField(many=True, read_only=True, slug_field="name")
 
     class Meta:
         model = User
-        fields = ["id", "email", "username", "groups"]
+        fields = ["id", "email", "username", "groups", "is_staff", "is_superuser"]

@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react'
 
 // App
+import { useAuthContext } from '../../contexts/AuthContext'
 const api_url = import.meta.env.VITE_API_URL
 
 // Write components here
@@ -12,7 +13,9 @@ const UserManagement = () => {
     const [users, setUsers] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
-    const accessToken = localStorage.getItem('access_token')
+
+    // Get context for access
+    const { accessToken } = useAuthContext()
 
     useEffect(() => {
         const getUserList = async() => {
@@ -70,6 +73,7 @@ const UserManagement = () => {
 
   return (
     <>
+    <div style={{ backgroundColor: "#D2691E" }}>
         <h3>User Management</h3>
 
         {/* Search Bar */}
@@ -121,6 +125,7 @@ const UserManagement = () => {
                 ))}
             </tbody>
         </table>
+    </div>
     </>
   )
 }

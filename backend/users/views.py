@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 # 3rd party
 import requests
@@ -22,6 +22,7 @@ from .serializers import UserSerializer
 
 
 User = get_user_model()
+
 
 class AuthGoogle(APIView):
     """
@@ -141,6 +142,19 @@ class AuthGoogle(APIView):
             "refresh": str(refresh),
             "access": str(refresh.access_token),
         }
+
+
+class UserDataView(APIView):
+    """
+    View to get details about requested user, providing information about
+    him and his groups, permissions.
+    Available to any role; required token authentication.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response(UserSerializer(request.user).data)
 
 
 class UserListView(ListAPIView):

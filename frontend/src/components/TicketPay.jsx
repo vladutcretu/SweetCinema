@@ -2,6 +2,7 @@
 import { useNavigate } from "react-router-dom"
 
 // App
+import { useAuthContext } from "../contexts/AuthContext"
 const api_url = import.meta.env.VITE_API_URL
 
 // Write components here
@@ -9,9 +10,9 @@ const api_url = import.meta.env.VITE_API_URL
 
 function TicketPay({ showtimeId, seatId }) {
     const navigate = useNavigate()
+    const { accessToken } = useAuthContext()
 
     const postTicketPay = async() => {
-        const accessToken = localStorage.getItem('access_token')
         if (!accessToken) {
             alert('You must be logged in to pay a ticket.')
         }

@@ -4,13 +4,12 @@ import { useNavigate } from "react-router-dom"
 
 // App
 import { useAuthContext } from '../../contexts/AuthContext'
+const api_url = import.meta.env.VITE_API_URL
 
 // Write components here
 
 
 function Login() {
-    const api_url = import.meta.env.VITE_API_URL
-
     // Get login logic from context to update auth status
     const { login } = useAuthContext()
 
@@ -21,9 +20,7 @@ function Login() {
         // Ask for response from backend
         fetch(`${api_url}/users/auth-google/`, {
            method: 'POST',
-           headers: {
-            'Content-Type': 'application/json',
-           },
+           headers: { 'Content-Type': 'application/json' },
            body: JSON.stringify({code: authorizationCode})
         })
         .then(response => response.json())
@@ -31,11 +28,7 @@ function Login() {
             // Handle the response from backend
             if (data?.user) {
                 console.log('Login successful:', data)
-                login(
-                    data.user.username,
-                    data.tokens.access, 
-                    data.tokens.refresh
-                )
+                login(data.tokens.access, data.tokens.refresh)
             } else {
                 console.error('Unexpected response format:', data)
             }
