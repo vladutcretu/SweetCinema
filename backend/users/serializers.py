@@ -1,5 +1,6 @@
 # Django
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 
 # DRF
 from rest_framework import serializers
@@ -16,3 +17,13 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "email", "username", "groups", "is_staff", "is_superuser"]
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    groups = serializers.SlugRelatedField(
+        many=True, slug_field="name", queryset=Group.objects.all()
+    )
+
+    class Meta:
+        model = User
+        fields = ["groups"]

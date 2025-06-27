@@ -5,7 +5,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenVerifyView, TokenRefreshView
 
 # App
-from .views import AuthGoogle, UserDataView, UserListView
+from .views import AuthGoogle, UserDataView, UserListView, UserUpdateView
 
 # Create your urls here.
 
@@ -16,4 +16,5 @@ urlpatterns = [
     path("token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
     path("", UserListView.as_view(), name="user-list"),
     path("user/", UserDataView.as_view(), name="user-data"),
+    path("user/update/<int:pk>/", UserUpdateView.as_view(), name="user-update"),
 ]

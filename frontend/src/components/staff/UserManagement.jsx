@@ -16,32 +16,30 @@ const UserManagement = () => {
 
     // Get context for access
     const { accessToken } = useAuthContext()
+    
+    // Get users list (outside of useEffect to call when update groups)
+    const getUserList = async() => {
+        try {
+            const response = await fetch(`${api_url}/users/`, {
+                method: 'GET',
+                headers: {'Authorization': `Bearer ${accessToken}`}
+            })
+            if (!response.ok) {
+                throw new Error (`HTTP error! Response status: ${response.status}`)
+            } else {
+                const data = await response.json()
+                console.log(data)
+                setUsers(data)
+            }
+        } catch (error) {
+            console.error('Fetching User error', error)
+            setError('Users cannot be loaded. Please try again!')
+        } finally {
+            setLoading(false)
+        }
+    }
 
     useEffect(() => {
-        const getUserList = async() => {
-            try {
-                const response = await fetch(`${api_url}/users/`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json/',
-                        'Authorization': `Bearer ${accessToken}`
-                    }
-                })
-                if (!response.ok) {
-                    throw new Error (`HTTP error! Response status: ${response.status}`)
-                } else {
-                    const data = await response.json()
-                    console.log(data)
-                    setUsers(data)
-                }
-            } catch (error) {
-                console.error('Fetching User error', error)
-                setError('Users cannot be loaded. Please try again!')
-            } finally {
-                setLoading(false)
-            }
-        }
-
         getUserList()
     }, [])
 
@@ -58,16 +56,48 @@ const UserManagement = () => {
 
     // Promote / Demote user
     const [userId, setUserId] = useState("")
-    const [action, setAction] = useState("")
+    const [action, setAction] = useState([])
 
     const handleButtonActions = (userId, action) => {
         setUserId(userId)
-        setAction(action)
+        if (action === "User") {
+            setAction([])
+        } else {
+            setAction([action])
+        }
     }
 
     const handleSubmitActions = (event) => {
         event.preventDefault()
-        alert(`${action} completed: USER ID ${userId} group updated!`)
+        patchUserGroups()
+    }
+
+    // Fetch to update user
+    const patchUserGroups = async () => {
+        try {
+            const response = await fetch(`${api_url}/users/user/update/${userId}/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify({ groups: action })
+            })
+            if (!response.ok) {
+                const errorData = await response.json()
+                console.error('Update user failed:', errorData)
+                alert('Update failed: ' + (errorData?.detail || response.status))
+            } else {
+                const data = await response.json()
+                console.log(data)
+                alert(`Completed: USER ID ${userId} group updated!`)
+                // Fetch again
+                await getUserList()
+            }
+        } catch (error) {
+            console.error('Fetching User Update error', error)
+            alert('Something went wrong while updating user.')
+        }
     }
 
 
@@ -111,13 +141,13 @@ const UserManagement = () => {
                         <td style={{ border: "1px solid black" }}>
                             <form onSubmit={handleSubmitActions}>
                                 <button  type="submit" onClick={() =>
-                                    handleButtonActions(user.id, "Promote to Manager")
+                                    handleButtonActions(user.id, "Manager")
                                 }>Promote to Manager</button>
                                 <button  type="submit" onClick={() =>
-                                    handleButtonActions(user.id, "Promote to Employee")
+                                    handleButtonActions(user.id, "Employee")
                                 }>Promote to Employee</button>
                                 <button type="submit" onClick={() =>
-                                    handleButtonActions(user.id, "Demote to User")
+                                    handleButtonActions(user.id, "User")
                                 }>Demote to User</button>
                             </form>
                         </td>

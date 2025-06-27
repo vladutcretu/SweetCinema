@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 
 # DRF
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, UpdateAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -16,7 +16,7 @@ from google.auth.transport import requests as google_requests
 from rest_framework_simplejwt.tokens import RefreshToken
 
 # App
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UserUpdateSerializer
 
 # Create your views here.
 
@@ -166,3 +166,15 @@ class UserListView(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAdminUser]
+
+
+class UserUpdateView(UpdateAPIView):
+    """
+    View to update only `groups` attribute of a User.
+    Available to `Admins` only; required token authentication.
+    """
+
+    queryset = User.objects.all()
+    serializer_class = UserUpdateSerializer
+    permission_classes = [IsAdminUser]
+    http_method_names = ["patch"]  # to not show both methods on OpenAPI schema
