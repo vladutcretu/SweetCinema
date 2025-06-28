@@ -1,5 +1,5 @@
 # DRF
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateDestroyAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny
 
 # 3rd party apps
@@ -8,6 +8,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 # App
 from .models import City, Theater, Seat
 from .serializers import CitySerializer, TheaterSerializer, SeatSerializer
+from users.permissions import IsManager
 
 # Create your views here.
 
@@ -21,6 +22,29 @@ class CityListView(ListAPIView):
     queryset = City.objects.all()
     serializer_class = CitySerializer
     permission_classes = [AllowAny]
+
+
+class CityCreateView(CreateAPIView):
+    """
+    View to create a City object.
+    Avalaible to `Manager` role; required token authentication.
+    """
+
+    queryset = City.objects.all()
+    serializer_class = CitySerializer
+    permission_classes = [IsManager]
+
+
+class CityUpdateDestroy(RetrieveUpdateDestroyAPIView):
+    """
+    View to update and destroy a single City object by his ID.
+    Avalaible to `Manager` role; required token authentication.
+    """
+
+    queryset = City.objects.all()
+    serializer_class = CitySerializer
+    permission_classes = [IsManager]
+    http_method_names = ["put", "delete"]
 
 
 class TheaterListView(ListAPIView):

@@ -15,7 +15,7 @@ class City(models.Model):
 
 
 class Theater(models.Model):
-    name = models.CharField(max_length=55, unique=True)
+    name = models.CharField(max_length=55)
     city = models.ForeignKey(City, on_delete=models.CASCADE, related_name="theaters")
     rows = models.PositiveSmallIntegerField()
     columns = models.PositiveSmallIntegerField()

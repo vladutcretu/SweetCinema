@@ -7,6 +7,7 @@ import UserManagement from '../components/staff/UserManagement'
 import { useAuthContext } from '../contexts/AuthContext'
 import GenreManagement from '../components/staff/GenreManagement'
 import MovieManagement from '../components/staff/MovieManagement'
+import CityManagement from '../components/staff/CityManagement'
 
 // Write components here
 
@@ -27,6 +28,8 @@ const StaffDashboard = () => {
     <RequirePermission groups={["Manager", "Employee"]} fallback={<p>Only Manager & Employee groups can see GenreManagement.</p>}><GenreManagement /></RequirePermission>
     <br />
     <RequirePermission groups={["Manager", "Employee"]} fallback={<p>Only Manager & Employee groups can see MovieManagement.</p>}><MovieManagement /></RequirePermission>
+    <br />
+    <RequirePermission groups={["Manager"]} fallback={<p>Only Manager group can see CityManagement.</p>}><CityManagement /></RequirePermission>
     </>
   )
 }
