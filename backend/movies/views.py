@@ -1,10 +1,16 @@
 # DRF
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.generics import (
+    ListAPIView,
+    CreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+    RetrieveAPIView,
+)
 from rest_framework.permissions import AllowAny
 
 # App
 from .models import Genre, Movie
 from .serializers import GenreSerializer, MovieSerializer
+from users.permissions import IsManagerOrEmployee
 
 # Create your views here.
 
@@ -18,6 +24,29 @@ class GenreListView(ListAPIView):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = [AllowAny]
+
+
+class GenreCreateView(CreateAPIView):
+    """
+    View to create a Genre object.
+    Available to `Manager` or `Employee` role; required token authentication.
+    """
+
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = [IsManagerOrEmployee]
+
+
+class GenreUpdateDestroyView(RetrieveUpdateDestroyAPIView):
+    """
+    View to update and destroy a single Genre object by his ID.
+    Avalaible to `Manager` or `Employee` role; required token authentication.
+    """
+
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = [IsManagerOrEmployee]
+    http_method_names = ["put", "delete"]
 
 
 class MovieListView(ListAPIView):
