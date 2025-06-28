@@ -9,7 +9,7 @@ from rest_framework.permissions import AllowAny
 
 # App
 from .models import Genre, Movie
-from .serializers import GenreSerializer, MovieSerializer
+from .serializers import GenreSerializer, MovieSerializer, MovieCreateSerializer
 from users.permissions import IsManagerOrEmployee
 
 # Create your views here.
@@ -69,3 +69,26 @@ class MovieRetrieveView(RetrieveAPIView):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
     permission_classes = [AllowAny]
+
+
+class MovieCreateView(CreateAPIView):
+    """
+    View to create a Movie object.
+    Available to `Manager` or `Employee` role; required token authentication.
+    """
+
+    queryset = Movie.objects.all()
+    serializer_class = MovieCreateSerializer
+    permission_classes = [IsManagerOrEmployee]
+
+
+class MovieUpdateDestroyView(RetrieveUpdateDestroyAPIView):
+    """
+    View to update and destroy a single Movie object by his ID.
+    Avalaible to `Manager` or `Employee` role; required token authentication.
+    """
+
+    queryset = Movie.objects.all()
+    serializer_class = MovieSerializer
+    permission_classes = [IsManagerOrEmployee]
+    http_method_names = ["patch", "delete"]

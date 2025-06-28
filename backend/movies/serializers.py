@@ -19,3 +19,11 @@ class MovieSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
         fields = ["id", "title", "description", "genres", "poster"]
+
+
+class MovieCreateSerializer(serializers.ModelSerializer):
+    genres = serializers.SlugRelatedField(many=True, slug_field="name", queryset=Genre.objects.all())
+
+    class Meta:
+        model = Movie
+        fields = ["id", "title", "description", "genres"]
