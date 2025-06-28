@@ -7,7 +7,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 # App
 from .models import City, Theater, Seat
-from .serializers import CitySerializer, TheaterSerializer, SeatSerializer
+from .serializers import CitySerializer, TheaterSerializer, TheaterCreateSerializer, SeatSerializer
 from users.permissions import IsManager
 
 # Create your views here.
@@ -69,6 +69,29 @@ class TheaterRetrieveView(RetrieveAPIView):
     queryset = Theater.objects.all()
     serializer_class = TheaterSerializer
     permission_classes = [AllowAny]
+
+
+class TheaterCreateView(CreateAPIView):
+    """
+    View to create a Theater object.
+    Avalaible to `Manager` role; required token authentication.
+    """
+
+    queryset = Theater.objects.all()
+    serializer_class = TheaterCreateSerializer
+    permission_classes = [IsManager]
+
+
+class TheaterUpdateDestroy(RetrieveUpdateDestroyAPIView):
+    """
+    View to update and destroy a single Theater object by his ID.
+    Avalaible to `Manager` role; required token authentication.
+    """
+
+    queryset = Theater.objects.all()
+    serializer_class = TheaterSerializer
+    permission_classes = [IsManager]
+    http_method_names = ["patch", "delete"]
 
 
 class SeatListView(ListAPIView):

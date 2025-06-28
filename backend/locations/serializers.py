@@ -21,6 +21,14 @@ class TheaterSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "city", "rows", "columns"]
 
 
+class TheaterCreateSerializer(serializers.ModelSerializer):
+    city = serializers.SlugRelatedField(many=False, slug_field="name", queryset=City.objects.all())
+
+    class Meta:
+        model = Theater
+        fields = ["name", "city", "rows", "columns"]
+
+
 class SeatSerializer(serializers.ModelSerializer):
     theater = TheaterSerializer(read_only=True)
 
