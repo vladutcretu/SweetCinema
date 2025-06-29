@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.db import transaction
 
 # DRF
-from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -15,7 +15,9 @@ from .serializers import (
     BookingCreateReserveSerializer,
     BookingCreatePaymentSerializer,
     PaymentCreateSerializer,
+    PaymentSerializer,
 )
+from users.permissions import IsManager
 
 # Create your views here.
 
@@ -126,3 +128,25 @@ class PaymentCreateView(CreateAPIView):
                 },
                 status=status.HTTP_402_PAYMENT_REQUIRED,
             )
+
+
+class BoookingListView(ListAPIView):
+    """
+    View to list all Bookings objects.
+    Available to `Manager` role; required token authentication.
+    """
+
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+    permission_classes = [IsManager]
+
+
+class PaymentListView(ListAPIView):
+    """
+    View to list all Payments objects.
+    Available to `Manager` role; required token authentication.
+    """
+
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+    permission_classes = [IsManager]

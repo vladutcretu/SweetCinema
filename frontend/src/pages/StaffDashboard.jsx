@@ -10,6 +10,8 @@ import MovieManagement from '../components/staff/MovieManagement'
 import CityManagement from '../components/staff/CityManagement'
 import TheaterManagement from '../components/staff/TheaterManagement'
 import ShowtimeManagement from '../components/staff/ShowtimeManagement'
+import BookingManagement from '../components/staff/BookingManagement'
+import PaymentManagement from '../components/staff/PaymentManagement'
 
 // Write components here
 
@@ -36,6 +38,10 @@ const StaffDashboard = () => {
     <RequirePermission groups={["Manager"]} fallback={<p>Only Manager group can see TheaterManagement.</p>}><TheaterManagement /></RequirePermission>
     <br />
     <RequirePermission groups={["Manager", "Employee"]} fallback={<p>Only Manager & Employee groups can see GenreManagement.</p>}><ShowtimeManagement /></RequirePermission>
+    <br />
+    <RequirePermission groups={["Manager"]} fallback={<p>Only Manager group can see BookingManagement.</p>}><BookingManagement /></RequirePermission>
+    <br />
+    <RequirePermission groups={["Manager"]} fallback={<p>Only Manager group can see PaymentManagement.</p>}><PaymentManagement /></RequirePermission>
     </>
   )
 }

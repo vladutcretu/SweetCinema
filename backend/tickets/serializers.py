@@ -14,10 +14,12 @@ from locations.serializers import SeatSerializer
 class BookingSerializer(serializers.ModelSerializer):
     showtime = ShowtimeSerializer(read_only=True)
     seat = SeatSerializer(read_only=True)
+    booked_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
+    updated_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
 
     class Meta:
         model = Booking
-        fields = ["id", "user", "showtime", "seat", "status"]
+        fields = ["id", "user", "showtime", "seat", "status", "booked_at", "updated_at"]
 
 
 class BookingCreateReserveSerializer(serializers.ModelSerializer):
@@ -130,3 +132,11 @@ class PaymentCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Method must be an accepted method.")
         else:
             return value
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    paid_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
+
+    class Meta:
+        model = Payment
+        fields = ["id", "user", "booking", "amount", "method", "status", "paid_at"]
