@@ -16,3 +16,9 @@ class ShowtimeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Showtime
         fields = ["id", "movie", "theater", "price", "date", "time"]
+
+
+class ShowtimeCreateStaffSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Showtime
+        fields = ["movie", "theater", "price", "date", "time"]

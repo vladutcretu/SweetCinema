@@ -4,7 +4,12 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 
 # DRF
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.generics import (
+    ListAPIView,
+    RetrieveAPIView,
+    CreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+)
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -14,8 +19,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 # App
 from .models import Showtime
-from .serializers import ShowtimeSerializer
+from .serializers import ShowtimeSerializer, ShowtimeCreateStaffSerializer
 from tickets.models import Booking, BookingStatus
+from users.permissions import IsManagerOrEmployee
 
 # Create your views here.
 
@@ -47,6 +53,40 @@ class ShowtimeRetrieveView(RetrieveAPIView):
     queryset = Showtime.objects.all()
     serializer_class = ShowtimeSerializer
     permission_classes = [AllowAny]
+
+
+class ShowtimeListStaffView(ListAPIView):
+    """
+    View to list all Showtime objects.
+    Available to `Manager` or `Employee` role; required token authentication.
+    """
+
+    queryset = Showtime.objects.all()
+    serializer_class = ShowtimeSerializer
+    permission_classes = [IsManagerOrEmployee]
+
+
+class ShowtimeCreateStaffView(CreateAPIView):
+    """
+    View to create a Showtime object.
+    Available to `Manager` or `Employee` role; required token authentication.
+    """
+
+    queryset = Showtime.objects.all()
+    serializer_class = ShowtimeCreateStaffSerializer
+    permission_classes = [IsManagerOrEmployee]
+
+
+class ShowtimeUpdateDeleteView(RetrieveUpdateDestroyAPIView):
+    """
+    View to update and destroy a single Showtime object by his ID.
+    Avalaible to `Manager` or `Employee` role; required token authentication.
+    """
+
+    queryset = Showtime.objects.all()
+    serializer_class = ShowtimeCreateStaffSerializer
+    permission_classes = [IsManagerOrEmployee]
+    http_method_names = ["patch", "delete"]
 
 
 class ShowtimeSeatsListView(APIView):

@@ -22,7 +22,9 @@ class TheaterSerializer(serializers.ModelSerializer):
 
 
 class TheaterCreateSerializer(serializers.ModelSerializer):
-    city = serializers.SlugRelatedField(many=False, slug_field="name", queryset=City.objects.all())
+    city = serializers.SlugRelatedField(
+        many=False, slug_field="name", queryset=City.objects.all()
+    )
 
     class Meta:
         model = Theater
