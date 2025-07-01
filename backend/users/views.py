@@ -16,7 +16,8 @@ from google.auth.transport import requests as google_requests
 from rest_framework_simplejwt.tokens import RefreshToken
 
 # App
-from .serializers import UserSerializer, UserUpdateSerializer
+from .serializers import UserSerializer, UserUpdateSerializer, UserPasswordSerializer
+from .permissions import IsManagerOrEmployee
 
 # Create your views here.
 
@@ -178,3 +179,22 @@ class UserUpdateView(UpdateAPIView):
     serializer_class = UserUpdateSerializer
     permission_classes = [IsAdminUser]
     http_method_names = ["patch"]  # to not show both methods on OpenAPI schema
+
+
+class UserPasswordSetView(APIView):
+    """
+    View to let User set an account password.
+    Available to `Manager`, `Employee` only; required token authentication.
+    """
+
+    permission_classes = [IsManagerOrEmployee]
+
+    def post(self, request):
+        serializer = UserPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            new_password = serializer.validated_data["new_password"]
+            user = request.user 
+            user.set_password(new_password)
+            user.save()
+            return Response({'success': 'Password set successfully.'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

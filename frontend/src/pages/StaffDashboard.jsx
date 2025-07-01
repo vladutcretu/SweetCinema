@@ -12,6 +12,7 @@ import TheaterManagement from '../components/staff/TheaterManagement'
 import ShowtimeManagement from '../components/staff/ShowtimeManagement'
 import BookingManagement from '../components/staff/BookingManagement'
 import PaymentManagement from '../components/staff/PaymentManagement'
+import PasswordSet from '../components/profile/PasswordSet'
 
 // Write components here
 
@@ -19,6 +20,10 @@ import PaymentManagement from '../components/staff/PaymentManagement'
 const StaffDashboard = () => {
   // Get context for testing purposes
   const { user } = useAuthContext()
+
+  if (!user?.password) {
+    return (<PasswordSet />)
+  }
 
   return (
     <>
