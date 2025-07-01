@@ -3,7 +3,12 @@ from django.shortcuts import get_object_or_404
 from django.db import transaction
 
 # DRF
-from rest_framework.generics import CreateAPIView, RetrieveAPIView, ListAPIView
+from rest_framework.generics import (
+    CreateAPIView,
+    RetrieveAPIView,
+    ListAPIView,
+    UpdateAPIView,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -139,6 +144,39 @@ class BoookingListView(ListAPIView):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
     permission_classes = [IsManager]
+
+
+class BookingUserListView(ListAPIView):
+    """
+    View to list all Bookings objects owned by requested user.
+    Available to any role; required token authentication.
+    """
+
+    serializer_class = BookingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Queryset retrieve only the objects owned by requested user.
+        """
+        return Booking.objects.filter(user=self.request.user)
+
+
+class BookingUserUpdateView(UpdateAPIView):
+    """
+    View to update a Booking object requested by ID.
+    Available to any role; required token authentication.
+    """
+
+    serializer_class = BookingSerializer
+    permission_classes = [IsAuthenticated]
+    http_method_names = ["patch"]
+
+    def get_queryset(self):
+        """
+        Queryset retrieve only the objects owned by requested user.
+        """
+        return Booking.objects.filter(user=self.request.user)
 
 
 class PaymentListView(ListAPIView):

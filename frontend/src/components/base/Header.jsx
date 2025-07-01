@@ -10,11 +10,14 @@ import { useState, useEffect } from 'react'
 // App
 import { useCityContext } from '../../contexts/CityContext'
 import GoogleAuth from '../auth/GoogleAuth'
+import { useAuthContext } from '../../contexts/AuthContext'
 
 // Write components here
 
 
 function HeaderNav() {
+    const { isAuthenticated, user } = useAuthContext()
+
     // Fetch City data for Locations dropdown
     const [cities, setCities] = useState([])
     const [loading, setLoading] = useState(true)
@@ -68,6 +71,7 @@ function HeaderNav() {
                         <NavDropdown.Divider />
                         <NavDropdown.Item href="/">Ask for new location</NavDropdown.Item>
                     </NavDropdown>
+                {isAuthenticated && <Nav.Link href="/profile/">{user?.username}'s profile</Nav.Link>} 
                 <Nav.Link><GoogleAuth /></Nav.Link>
                 </Nav>
             </Navbar.Collapse>

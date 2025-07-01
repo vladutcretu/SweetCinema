@@ -10,6 +10,7 @@ import MovieDetail from './pages/MovieDetail'
 import ShowtimeDetail from './pages/ShowtimeDetail'
 import PaymentCreate from './pages/PaymentCreate'
 import StaffDashboard from './pages/StaffDashboard'
+import UserProfile from './pages/UserProfile'
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path='/showtime/:showtimeId/' element={<ShowtimeDetail />} />
             <Route path='/payment/:bookingId/' element={<PaymentCreate />} />
             <Route path='/staff/' element={<StaffDashboard />} />
+            <Route path='/profile/' element={<UserProfile />} />
           </Routes>
         </main>
         <Footer />

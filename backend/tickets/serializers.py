@@ -14,8 +14,8 @@ from locations.serializers import SeatSerializer
 class BookingSerializer(serializers.ModelSerializer):
     showtime = ShowtimeSerializer(read_only=True)
     seat = SeatSerializer(read_only=True)
-    booked_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
-    updated_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
+    booked_at = serializers.DateTimeField(read_only=True, format="%Y-%m-%d %H:%M")
+    updated_at = serializers.DateTimeField(read_only=True, format="%Y-%m-%d %H:%M")
 
     class Meta:
         model = Booking

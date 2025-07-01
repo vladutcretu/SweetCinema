@@ -13,6 +13,7 @@ User = get_user_model()
 
 class BookingStatus(models.TextChoices):
     RESERVED = "reserved", "Reserved"
+    CANCELED = "canceled", "Canceled"
     PENDING_PAYMENT = "pending_payment", "Pending Payment"
     FAILED_PAYMENT = "failed_payment", "Failed Payment"
     PURCHASED = "purchased", "Purchased"
