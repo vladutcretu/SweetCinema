@@ -13,23 +13,27 @@ import ShowtimeManagement from '../components/staff/ShowtimeManagement'
 import BookingManagement from '../components/staff/BookingManagement'
 import PaymentManagement from '../components/staff/PaymentManagement'
 import PasswordSet from '../components/profile/PasswordSet'
+import PasswordVerify from '../components/profile/PasswordVerify'
 
 // Write components here
 
 
 const StaffDashboard = () => {
   // Get context for testing purposes
-  const { user } = useAuthContext()
+  const { user, twoFactorAuth } = useAuthContext()
 
   if (!user?.password) {
     return (<PasswordSet />)
+  }
+  
+  if (!twoFactorAuth) {
+    return (<PasswordVerify />)
   }
 
   return (
     <>
     <div>
       <h1>Staff Dashboard</h1>
-      <h5>User: {user?.username}; User group: {user?.groups.join(", ")}; User staff: {user?.is_staff.toString()}; User superuser: {user?.is_superuser.toString()}</h5>
     </div>
     <br />
     <RequirePermission staff={true} fallback={<p>Only staff can see UserManagement.</p>}><UserManagement /></RequirePermission>

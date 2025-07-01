@@ -14,6 +14,9 @@ export function AuthProvider({ children }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
     const [user, setUser] = useState(null)
     const [accessToken, setAccessToken] = useState(null)
+    const [twoFactorAuth, setTwoFactorAuth] = useState(() => {
+        return sessionStorage.getItem("twoFactorAuth") === "true"
+    }) // for role users
 
     const verifyAccessToken = async (token) => {
         /**
@@ -49,6 +52,15 @@ export function AuthProvider({ children }) {
         return true
     }
 
+    // Status of 2FA for role users
+    useEffect(() => {
+        if (twoFactorAuth) {
+            sessionStorage.setItem("twoFactorAuth", "true")
+        } else {
+            sessionStorage.removeItem("twoFactorAuth")
+        }
+    }, [twoFactorAuth])
+
     useEffect(() => {
         /**
         Verify current `access token` before getting a new one using `refresh token`
@@ -75,7 +87,7 @@ export function AuthProvider({ children }) {
         }
 
         checkAuth()
-    }, [])
+    }, [accessToken])
 
 
     // Fetch current user to get his data: username, groups, is_staff etc.
@@ -106,6 +118,7 @@ export function AuthProvider({ children }) {
         setIsAuthenticated(false)
         setAccessToken(null)
         setUser(null)
+        setTwoFactorAuth(false)
     }
 
 
@@ -117,6 +130,8 @@ export function AuthProvider({ children }) {
                 user,
                 login,
                 logout,
+                twoFactorAuth,
+                setTwoFactorAuth,
             }}
         >
             {children}

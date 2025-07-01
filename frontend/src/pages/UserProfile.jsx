@@ -11,7 +11,7 @@ const api_url = import.meta.env.VITE_API_URL
 
 
 const UserProfile = () => {
-  const { user } = useAuthContext()
+  const { user, twoFactorAuth } = useAuthContext()
 
   return (
     <>
@@ -25,6 +25,7 @@ const UserProfile = () => {
         <p><strong>Is staff?:</strong> {user?.is_staff.toString()}</p>
         <p><strong>Is Superuser?:</strong> {user?.is_superuser.toString()}</p>
         <p><strong>Has password?:</strong> {user?.password.toString()}</p>
+        <p><strong>Has 2FA on?:</strong> {twoFactorAuth.toString()}</p>
         {
           (user?.groups.includes("Manager") || user?.groups.includes("Employee") || user?.is_staff || user?.is_superuser)
           &&

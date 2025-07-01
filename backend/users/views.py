@@ -16,7 +16,12 @@ from google.auth.transport import requests as google_requests
 from rest_framework_simplejwt.tokens import RefreshToken
 
 # App
-from .serializers import UserSerializer, UserUpdateSerializer, UserPasswordSerializer
+from .serializers import (
+    UserSerializer,
+    UserUpdateSerializer,
+    UserPasswordCreateSerializer,
+    UserPasswordVerifySerializer,
+)
 from .permissions import IsManagerOrEmployee
 
 # Create your views here.
@@ -190,11 +195,39 @@ class UserPasswordSetView(APIView):
     permission_classes = [IsManagerOrEmployee]
 
     def post(self, request):
-        serializer = UserPasswordSerializer(data=request.data)
+        serializer = UserPasswordCreateSerializer(data=request.data)
         if serializer.is_valid():
             new_password = serializer.validated_data["new_password"]
-            user = request.user 
+            user = request.user
             user.set_password(new_password)
             user.save()
-            return Response({'success': 'Password set successfully.'}, status=status.HTTP_200_OK)
+            return Response(
+                {"success": "Password set successfully."}, status=status.HTTP_200_OK
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserPasswordVerifyView(APIView):
+    """
+    View to verify User password as second-factor auth for sensible data.
+    Available to `Manager`, `Employee` only; required token authentication.
+    """
+
+    permission_classes = [IsManagerOrEmployee]
+
+    def post(self, request):
+        serializer = UserPasswordVerifySerializer(data=request.data)
+        if serializer.is_valid():
+            password = serializer.validated_data["password"]
+            user = request.user
+            user.check_password(password)
+            if user.check_password(password):
+                return Response(
+                    {"success": "Password matches"}, status=status.HTTP_200_OK
+                )
+            else:
+                return Response(
+                    {"failure": "Password do not match"},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

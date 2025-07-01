@@ -17,7 +17,15 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "email", "username", "groups", "is_staff", "is_superuser", "password"]
+        fields = [
+            "id",
+            "email",
+            "username",
+            "groups",
+            "is_staff",
+            "is_superuser",
+            "password",
+        ]
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
@@ -30,5 +38,9 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         fields = ["groups"]
 
 
-class UserPasswordSerializer(serializers.Serializer):
-    new_password = serializers.CharField(write_only=True, min_length=8)
+class UserPasswordCreateSerializer(serializers.Serializer):
+    new_password = serializers.CharField(required=True, write_only=True, min_length=8)
+
+
+class UserPasswordVerifySerializer(serializers.Serializer):
+    password = serializers.CharField(required=True, write_only=True)
