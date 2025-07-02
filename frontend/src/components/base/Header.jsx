@@ -45,12 +45,12 @@ function HeaderNav() {
     }, [])
 
     // Save City data selected by user
-    const {selectedCityId, setSelectedCityId, selectedCityName, setSelectedCityName} = useCityContext()
+    const { setSelectedCityId, selectedCityName, setSelectedCityName } = useCityContext()
 
     return (
         <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary">
             <Container>
-            <Navbar.Brand href="/">Shows</Navbar.Brand>
+            <Navbar.Brand href="/showtimes/">Shows</Navbar.Brand>
             <Navbar.Toggle aria-controls="responsive-navbar-nav" />
             <Navbar.Collapse id="responsive-navbar-nav">
                 <Nav className="me-auto">

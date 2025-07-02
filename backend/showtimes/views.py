@@ -28,7 +28,7 @@ from users.permissions import IsManagerOrEmployee
 
 class ShowtimeListView(ListAPIView):
     """
-    View to list all Showtime objects requested by Movie ID AND City ID that
+    View to list all Showtime objects requested by Movie ID AND/OR City ID that
     have `date` value greather than current date (timezone date now) or
     `date` equal to current date (timezone date now) and `time` greater than
     current time (timezone time now).
