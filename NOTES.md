@@ -9,7 +9,21 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ## Release Notes
 
-### 🔜 v0.5.0-alpha (completed on <i>TBA</i>)
+### 🔜 v0.6.0-alpha (completed on <i>TBA</i>)
+---
+### ✅ v0.5.0-alpha (completed on 1 July 2025)
+🚀 <b>Features:</b>
+- Build User Profile where users see some account details, their all time bookings, can cancel active reservations and reach Staff Dashboard
+- Staff Dashboard is now marked as sensible content; in order to access it staff user need to set an account password first and then to enter it on every new session when they access the page
+
+⚙️ <b>Backend:</b>
+- Update `Booking` status with `canceled` option
+- Create endpoints: `GET /api/tickets/bookings/history/`, `POST /api/tickets/booking/{id}/cancel/`, `POST /api/users/user/set-password/`, `POST /api/users/user/verify-password/`
+
+🖼️ <b>Frontend:</b>
+- Create `UserProfile page` and a `BookingHistory component` to be included in, also add link to `Staff Dashboard page` for adequates roles
+- Create components `PasswordSet` and `PasswordVerify` for so-called `2FA` of staff roles
+- Update `AuthContext` to save status of `2FA`
 ---
 ### ✅ v0.4.0-alpha (completed on 29 June 2025; include Sprint #6)
 🚀 <b>Features:</b>
@@ -87,7 +101,19 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ## Development Notes
 
-### 🔜 Sprint #7 (started on 1 July 2025; ended on <i>TBA</i>): "Backend & Frontend: User profile & personal bookings"
+### 🔜 Sprint #8 (started on 2 July 2025; ended on <i>TBA</i>): "Backend & Frontend: Multiple booking & more management of their status" 
+- Create `ShowtimeList page` & `GET /api/showtimes/upcoming/?city={selectedCityId}` to group showtimes by date in chronological order
+- Implement multiple seat booking functionality:
+    - modify `POST /api/tickets/reserve/` & `POST /api/tickets/pay/` to accept seat_ids array: [1, 2, 3] (with maximum length for `reserve`) in order to create multiple `Booking` instances (1 per seat) for a single transaction
+    - update `ShowtimeDetail page` to allow multiple seat selection using checkboxes
+- Implement automatic reservation expiration functionality:
+    - add `expired` status to `Booking.STATUS_CHOICES` and `expires_at` field to `Booking` model (autocompleted when a instance is created with `Showtime.time - 30 minutes` value)
+    - create schedule cleanup via cron job to set `status=expired` to instances with `Booking.expired_at` past the current time
+    - hide/disable reserve, pay buttons if less than 30 minutes to showtime start
+- Implement payment timeout functionality:
+    - update `PaymentCreate page` to include a 1 minute countdown timer to complete the payment; if not submited, fetch `POST /api/tickets/pay/timeout/` to update `Payment.status` to `declined` (`Payment.booking.status` will automatically become `failed_payment`) and inform user
+---
+### ✅ Sprint #7 (started on 1 July 2025; ended on 1 July 2025): "Backend & Frontend: User profile & personal bookings"
 - Create `UserProfile page` to use account info (username, group) from `AuthContext` and then the following endpoints:
 	- `GET /api/users/user/{id}/bookings/` to display user's bookings history
 	- `POST /api/tickets/booking/{id}/cancel/` to allow user to cancel reservation (Booking.status=canceled)
