@@ -20,7 +20,7 @@ function TicketReserve({ showtimeId, seatId, onSuccess }) {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
                 },
-                body: JSON.stringify({showtime_id: showtimeId, seat_id: seatId})
+                body: JSON.stringify({showtime_id: showtimeId, seat_id: [seatId]})
             })
             if (!response.ok) {
                 const errorData = await response.json()

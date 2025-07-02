@@ -1,5 +1,4 @@
 # Django
-from django.shortcuts import get_object_or_404
 from django.db import transaction
 
 # DRF
@@ -44,9 +43,32 @@ class BookingCreateReserveView(CreateAPIView):
     Available to any role; required token authentication.
     """
 
-    queryset = Booking.objects.all()
     serializer_class = BookingCreateReserveSerializer
     permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        # Serialize data and validate
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # Get validated data for context
+        user = request.user
+        showtime_id = serializer.validated_data["showtime_id"]
+        seat_ids = serializer.validated_data["seat_ids"]
+
+        # Create booking instances from validated data
+        bookings = []
+        for seat_id in seat_ids:
+            booking = Booking.objects.create(
+                user=user,
+                showtime_id=showtime_id,
+                seat_id=seat_id,
+                status=BookingStatus.RESERVED,
+            )
+            bookings.append(booking)
+
+        # Send as response the Booking created instances for being used in frontend
+        return Response(BookingSerializer(bookings, many=True).data, status=status.HTTP_201_CREATED)
 
 
 class BookingCreatePaymentView(CreateAPIView):
@@ -55,19 +77,33 @@ class BookingCreatePaymentView(CreateAPIView):
     Available to any role; required token authentication.
     """
 
-    queryset = Booking.objects.all()
     serializer_class = BookingCreatePaymentSerializer
     permission_classes = [IsAuthenticated]
 
-    def create(self, request, *args, **kwargs):
-        # Create a serializer instance with serializer_class and requested data
+
+    def post(self, request, *args, **kwargs):
+        # Serialize data and validate
         serializer = self.get_serializer(data=request.data)
-        # Validate the serializer and raise error if fails
         serializer.is_valid(raise_exception=True)
-        # Call save method from serializer_class
-        booking = serializer.save()
-        # Send as response the booking.id of newly created object for use in frontend
-        return Response({"booking_id": booking.id}, status=status.HTTP_201_CREATED)
+
+        # Get validated data for context
+        user = request.user
+        showtime_id = serializer.validated_data["showtime_id"]
+        seat_ids = serializer.validated_data["seat_ids"]
+
+        # Create booking instances from validated data
+        bookings = []
+        for seat_id in seat_ids:
+            booking = Booking.objects.create(
+                user=user,
+                showtime_id=showtime_id,
+                seat_id=seat_id,
+                status=BookingStatus.PENDING_PAYMENT,
+            )
+            bookings.append(booking)
+
+        # Send as response the Booking created instances for being used in frontend
+        return Response({"booking_id": [booking.id for booking in bookings]}, status=status.HTTP_201_CREATED)
 
 
 class PaymentCreateView(CreateAPIView):
@@ -82,57 +118,59 @@ class PaymentCreateView(CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     @transaction.atomic  # group Payment & Booking db actions to prevent data loss
-    def create(self, request, booking_id):
-        booking = get_object_or_404(
-            Booking,
-            id=booking_id,
-            user=request.user,
-            status=BookingStatus.PENDING_PAYMENT,
-        )
-
-        serializer = PaymentCreateSerializer(
-            data=request.data, context={"booking": booking}
-        )
+    def create(self, request):
+        # Serialize data and validate
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        is_correct_amount = (
-            serializer.validated_data["amount"] == booking.showtime.price
-        )
+        # Get validated data for context
+        user = request.user
+        booking_ids = serializer.validated_data["booking_ids"]
+        amount = serializer.validated_data["amount"]
+        method = serializer.validated_data["method"]
 
+        # Get only the Booking instances created in the previously transaction
+        bookings = Booking.objects.filter(
+            id__in=booking_ids,
+            user=user,
+            status=BookingStatus.PENDING_PAYMENT
+        )
+        if bookings.count() != len(booking_ids):
+            return Response(
+                {"error": "One or more bookings not found or not eligible for payment."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Calculate total price for the tickets and validate the transaction
+        total_price = sum(booking.showtime.price for booking in bookings)
+        payment_status = PaymentStatus.ACCEPTED if amount == total_price else PaymentStatus.DECLINED
+
+        # Create a single Payment instance for multiple Bookings
         payment = Payment.objects.create(
             user=request.user,
-            booking=booking,
-            amount=serializer.validated_data["amount"],
-            method=serializer.validated_data["method"],
-            status=PaymentStatus.ACCEPTED
-            if is_correct_amount
-            else PaymentStatus.DECLINED,
+            amount=amount,
+            method=method,
+            status=payment_status,
         )
+        payment.bookings.set(bookings)
 
-        if payment.status == PaymentStatus.ACCEPTED:
-            booking.status = BookingStatus.PURCHASED
+        # Update Booking status accordingly to Payment status
+        for booking in bookings:
+            booking.status = BookingStatus.PURCHASED if payment_status == PaymentStatus.ACCEPTED else BookingStatus.FAILED_PAYMENT
             booking.save()
-            return Response(
-                {
-                    "status": "success",
-                    "message": "Payment successfully. Enjoy your show!",
-                    "payment_id": payment.id,
-                    "booking_status": booking.status,
-                },
-                status=status.HTTP_201_CREATED,
-            )
-        elif payment.status == PaymentStatus.DECLINED:
-            booking.status = BookingStatus.FAILED_PAYMENT
-            booking.save()
-            return Response(
-                {
-                    "status": "error",
-                    "message": "Payment declined. Please try to book again!",
-                    "payment_id": payment.id,
-                    "booking_status": booking.status,
-                },
-                status=status.HTTP_402_PAYMENT_REQUIRED,
-            )
+
+        # Send response depending on payment status
+        return Response(
+            {
+                "status": "success" if payment_status == PaymentStatus.ACCEPTED else "error",
+                "message": "Payment processed.",
+                "payment_id": payment.id,
+                "booking_statuses": [
+                    {"booking_id": booking.id, "status": booking.status} for booking in bookings
+                ]
+            },
+            status=status.HTTP_201_CREATED if payment_status == PaymentStatus.ACCEPTED else status.HTTP_402_PAYMENT_REQUIRED
+        )
 
 
 class BoookingListView(ListAPIView):

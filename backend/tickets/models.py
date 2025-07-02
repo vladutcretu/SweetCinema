@@ -14,6 +14,7 @@ User = get_user_model()
 class BookingStatus(models.TextChoices):
     RESERVED = "reserved", "Reserved"
     CANCELED = "canceled", "Canceled"
+    EXPIRED = "expired", "Expired"
     PENDING_PAYMENT = "pending_payment", "Pending Payment"
     FAILED_PAYMENT = "failed_payment", "Failed Payment"
     PURCHASED = "purchased", "Purchased"
@@ -52,7 +53,8 @@ class PaymentStatus(models.TextChoices):
 
 class Payment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    booking = models.ForeignKey(Booking, on_delete=models.CASCADE)
+    # booking = models.ForeignKey(Booking, on_delete=models.CASCADE)
+    bookings = models.ManyToManyField(Booking, related_name="payments")
     amount = models.FloatField()
     method = models.CharField(max_length=55, choices=PaymentMethod.choices)
     status = models.CharField(max_length=55, choices=PaymentStatus.choices)
@@ -64,6 +66,5 @@ class Payment(models.Model):
 
     def __str__(self):
         return (
-            f"{self.booking.showtime.date} {self.booking.showtime.time}, {self.booking.seat} "
-            f"- {self.status}, {self.paid_at.strftime('%d %b %Y %H:%M:%S')}"
+            f"{self.user} - {self.status}, {self.paid_at.strftime('%d %b %Y %H:%M:%S')}"
         )

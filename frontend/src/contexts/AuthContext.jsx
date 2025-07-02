@@ -87,7 +87,7 @@ export function AuthProvider({ children }) {
         }
 
         checkAuth()
-    }, [accessToken])
+    }, [])
 
 
     // Fetch current user to get his data: username, groups, is_staff etc.

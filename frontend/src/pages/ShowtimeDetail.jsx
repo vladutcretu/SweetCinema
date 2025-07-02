@@ -59,11 +59,15 @@ function SeatPresentation() {
         {!loading && !error && seats.length > 0 && seats.map(seat => (
             <div key={seat.id} style={{ backgroundColor: statusColors[seat.status] || 'gray', padding: '10px', margin: '10px', borderRadius: '5px' }}>
                 <h1>Seat ID {seat.id}: row {seat.row}, column {seat.column} - status: {seat.status}</h1>
-                {isAuthenticated ? ( seat.status === 'available' ? (
-                    <>
-                        <TicketReserve showtimeId={showtimeId} seatId={seat.id} onSuccess={getSeatList} />
-                        <TicketPay showtimeId={showtimeId} seatId={seat.id} />
-                    </>
+                {isAuthenticated ? ( 
+                    seat.status === 'available' | 
+                    seat.status === 'canceled' | 
+                    seat.status === 'failed_payment' | 
+                    seat.status === 'expired' ? (
+                        <>
+                            <TicketReserve showtimeId={showtimeId} seatId={seat.id} onSuccess={getSeatList} />
+                            <TicketPay showtimeId={showtimeId} seatId={seat.id} />
+                        </>
                 ) : ( <p>Can't reserve / pay a ticket for this seat due to his status.</p> )
                 ) : ( <p>Please log in to reserve or buy a ticket.</p>)
                 }
@@ -111,7 +115,7 @@ function ShowtimePresentation() {
         {!loading && !error && showtime && (
             <div style={{backgroundColor: "darkblue"}}>
                 <h1>Showtime detail ID {showtime.id}: {showtime.date}, {showtime.time} - {showtime.theater.name} ({showtime.theater.city.name})</h1>
-                <p>Ticket price: {showtime.price} EUR</p>
+                <p>Ticket price: {showtime.price}</p>
                 <>Capacity info: {showtime.theater.rows} rows, {showtime.theater.columns} columns</>
                 <SeatPresentation key={showtime.theater.id}/>
             </div>

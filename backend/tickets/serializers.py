@@ -24,16 +24,21 @@ class BookingSerializer(serializers.ModelSerializer):
 
 class BookingCreateReserveSerializer(serializers.ModelSerializer):
     showtime_id = serializers.IntegerField(write_only=True)
-    seat_id = serializers.IntegerField(write_only=True)
+    seat_ids = serializers.ListField(
+        child=serializers.IntegerField(write_only=True, min_value=0),
+        min_length=1,
+        max_length=5,
+        write_only=True,
+    )
 
     class Meta:
         model = Booking
-        fields = ["showtime_id", "seat_id"]
+        fields = ["showtime_id", "seat_ids"]
 
     def validate(self, data):
         # Get received data values for showtime_id & seat_id
         showtime_id = data["showtime_id"]
-        seat_id = data["seat_id"]
+        seat_ids = data["seat_ids"]
 
         # Get Showtime object with received showtime_id or raise error if it doesn't exist
         try:
@@ -41,102 +46,98 @@ class BookingCreateReserveSerializer(serializers.ModelSerializer):
         except Showtime.DoesNotExist:
             raise serializers.ValidationError("Showtime does not exist")
 
-        # Get Seat object with received seat_id or raise error if it doesn't exist
-        try:
-            seat = Seat.objects.get(id=seat_id)
-        except Seat.DoesNotExist:
-            raise serializers.ValidationError("Seat does not exist.")
+        for seat_id in seat_ids:
+            try:
+                # Get Seat object with received seat_id or raise error if it doesn't exist
+                seat = Seat.objects.get(id=seat_id)
 
-        # Check if Seat object belong to the Theater linked to the Showtime
-        if showtime.theater != seat.theater:
-            raise serializers.ValidationError(
-                "Seat does not belong to the Theater set for this Showtime."
-            )
+                # Check if Seat object belong to the Theater linked to the Showtime
+                if showtime.theater != seat.theater:
+                    raise serializers.ValidationError(
+                        "Seat does not belong to the Theater set for this Showtime."
+                    )
 
-        # Check if already exists a Booking object with received showtime_id & seat_id objects
-        if (
-            Booking.objects.filter(showtime_id=showtime_id, seat_id=seat_id)
-            .exclude(status=BookingStatus.FAILED_PAYMENT)
-            .exists()
-        ):
-            raise serializers.ValidationError("Seat is already reserved or purchased.")
+                # Check if already exists a Booking object with received showtime_id & seat_id objects
+                if (
+                    Booking.objects.filter(showtime_id=showtime_id, seat_id=seat_id)
+                    .exclude(status__in=[BookingStatus.FAILED_PAYMENT, BookingStatus.CANCELED, BookingStatus.EXPIRED]).exists()
+                    ):
+                        raise serializers.ValidationError("Seat is already reserved or purchased.")
+            except Seat.DoesNotExist:
+                raise serializers.ValidationError("Seat does not exist.")
 
         return data
-
-    def create(self, validated_data):
-        user = self.context["request"].user
-        return Booking.objects.create(
-            user=user,
-            showtime_id=validated_data["showtime_id"],
-            seat_id=validated_data["seat_id"],
-            status=BookingStatus.RESERVED,
-        )
 
 
 class BookingCreatePaymentSerializer(serializers.ModelSerializer):
     showtime_id = serializers.IntegerField(write_only=True)
-    seat_id = serializers.IntegerField(write_only=True)
+    # seat_id = serializers.IntegerField(write_only=True)
+    seat_ids = serializers.ListField(
+        child=serializers.IntegerField(write_only=True, min_value=0),
+        min_length=1,
+        write_only=True,
+    )
 
     class Meta:
         model = Booking
-        fields = ["showtime_id", "seat_id"]
+        fields = ["showtime_id", "seat_ids"]
 
     def validate(self, data):
         showtime_id = data["showtime_id"]
-        seat_id = data["seat_id"]
+        seat_ids = data["seat_ids"]
 
         try:
             showtime = Showtime.objects.get(id=showtime_id)
         except Showtime.DoesNotExist:
             raise serializers.ValidationError("Showtime does not exist.")
 
-        try:
-            seat = Seat.objects.get(id=seat_id)
-        except Seat.DoesNotExist:
-            raise serializers.ValidationError("Seat does not exist.")
+        for seat_id in seat_ids:
+            try:
+                seat = Seat.objects.get(id=seat_id)
+            except Seat.DoesNotExist:
+                raise serializers.ValidationError("Seat does not exist.")
 
-        if showtime.theater != seat.theater:
-            raise serializers.ValidationError(
-                "Seat does not belong to the Theater set for this Showtime."
-            )
+            if showtime.theater != seat.theater:
+                raise serializers.ValidationError(
+                    "Seat does not belong to the Theater set for this Showtime."
+                )
 
-        if (
-            Booking.objects.filter(showtime_id=showtime_id, seat_id=seat_id)
-            .exclude(status=BookingStatus.FAILED_PAYMENT)
-            .exists()
-        ):
-            raise serializers.ValidationError("Seat is already reserved or purchased.")
+            if (
+                Booking.objects.filter(showtime_id=showtime_id, seat_id=seat_id)
+                .exclude(status__in=[BookingStatus.FAILED_PAYMENT, BookingStatus.CANCELED, BookingStatus.EXPIRED])
+                .exists()
+            ):
+                raise serializers.ValidationError("Seat is already reserved or purchased.")
 
         return data
 
-    def create(self, validated_data):
-        user = self.context["request"].user
-        return Booking.objects.create(
-            user=user,
-            showtime_id=validated_data["showtime_id"],
-            seat_id=validated_data["seat_id"],
-            status=BookingStatus.PENDING_PAYMENT,
-        )
-
 
 class PaymentCreateSerializer(serializers.ModelSerializer):
-    amount = serializers.FloatField(write_only=True)
-    method = serializers.CharField(write_only=True)
+    booking_ids = serializers.ListField(
+        child=serializers.IntegerField(write_only=True, min_value=1),
+        min_length=1,
+        write_only=True
+    )
+    # amount = serializers.FloatField(write_only=True)
+    # method = serializers.CharField(write_only=True)
+    amount = serializers.DecimalField(write_only=True, max_digits=8, decimal_places=2)
+    method = serializers.ChoiceField(write_only=True, choices=PaymentMethod.choices)
 
     class Meta:
         model = Payment
-        fields = ["amount", "method"]
+        fields = ["booking_ids", "amount", "method"]
 
-    def validate_method(self, value):
-        if value not in PaymentMethod.values:
-            raise serializers.ValidationError("Method must be an accepted method.")
-        else:
-            return value
+    # def validate_method(self, value):
+    #     if value not in PaymentMethod.values:
+    #         raise serializers.ValidationError("Method must be an accepted method.")
+    #     else:
+    #         return value
 
 
 class PaymentSerializer(serializers.ModelSerializer):
+    bookings = BookingSerializer(many=True, read_only=True)
     paid_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
 
     class Meta:
         model = Payment
-        fields = ["id", "user", "booking", "amount", "method", "status", "paid_at"]
+        fields = ["id", "user", "bookings", "amount", "method", "status", "paid_at"]
