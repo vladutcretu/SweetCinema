@@ -132,7 +132,7 @@ function BookingPresentation({ bookingIds }) {
         {!loading && !error && bookings.length > 0  && (bookings.map(booking => (
             <div key={booking.id} style={{ backgroundColor: "darkblue" }}>
                 <h1>Booking ID {booking.id} - status: {booking.status}</h1>
-                <h3>Showtime informations: {booking.showtime.movie.title}, {booking.showtime.date} {booking.showtime.time} -  {booking.showtime.theater.name} ({booking.showtime.theater.city.name}) </h3>
+                <h3>Showtime informations: {booking.showtime.movie.title}, {booking.showtime.starts_at} -  {booking.showtime.theater.name} ({booking.showtime.theater.city.name}) </h3>
                 <h3>Seat informations: row {booking.seat.row}, column {booking.seat.column}</h3>
             </div>
         )))}

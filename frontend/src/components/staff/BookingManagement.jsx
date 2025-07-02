@@ -58,7 +58,7 @@ const BookingManagement = () => {
             <tr key={booking.id}>
               <td>{booking.id}</td>
               <td>{booking.user}</td>
-              <td>{booking.showtime.movie.title}: {booking.showtime.theater.name}, {booking.showtime.theater.city.name}, {booking.showtime.date} {booking.showtime.time}</td>
+              <td>{booking.showtime.movie.title}: {booking.showtime.theater.name}, {booking.showtime.theater.city.name}, {booking.showtime.starts_at}</td>
               <td>R: {booking.seat.row}, C: {booking.seat.column}</td>
               <td>{booking.status}</td>
               <td>Booked on {booking.booked_at}; Last update on: {booking.updated_at}</td>

@@ -13,12 +13,12 @@ class Showtime(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     theater = models.ForeignKey(Theater, on_delete=models.CASCADE)
     price = models.FloatField(default=35)
-    date = models.DateField()
-    time = models.TimeField()
+    starts_at = models.DateTimeField()
 
     class Meta:
         verbose_name_plural = "Showtimes"
-        ordering = ["movie", "theater__city__name", "date", "time"]
+        ordering = ["movie", "theater__city__name", "starts_at"]
+        unique_together = ("theater", "starts_at")
 
     def clean(self):
         """
@@ -27,9 +27,8 @@ class Showtime(models.Model):
         if self.price < 0:
             raise ValidationError({"price": "Price cannot be negative."})
 
-        today = timezone.localdate()
-        if self.date < today:
-            raise ValidationError({"date": "Date cannot be in the past."})
+        if self.starts_at < timezone.now():
+            raise ValidationError({"starts_at": "Start time cannot be in the past."})
 
     def save(self, *args, **kwargs):
         """
@@ -39,4 +38,4 @@ class Showtime(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.movie.title}, {self.theater.city.name}, {self.theater.name}, {self.date} {self.time}"
+        return f"{self.movie.title}, {self.theater.city.name}, {self.theater.name}, {self.starts_at.strftime('%d %b %Y %H:%M:%S')}"

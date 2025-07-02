@@ -47,7 +47,7 @@ const ShowtimeManagement = () => {
 
   // // Create Showtime button
   const [showtimeFormCreate, setShowtimeFormCreate] = useState(
-    { movie: "", theater: "", price: "", date: "", time: "" }
+    { movie: "", theater: "", price: "", starts_at: "" }
     )
     
     const handleChangeCreate = (event) => {
@@ -119,8 +119,7 @@ const ShowtimeManagement = () => {
           movie: showtimeFormCreate.movie, 
           theater: showtimeFormCreate.theater, 
           price: showtimeFormCreate.price, 
-          date: showtimeFormCreate.date, 
-          time: showtimeFormCreate.time
+          starts_at: showtimeFormCreate.starts_at
         })
       })
       if (!response.ok) {
@@ -131,7 +130,7 @@ const ShowtimeManagement = () => {
         const data = await response.json()
         console.log(data)
         alert(`Showtime created!`)
-        setShowtimeFormCreate({ movie: "", theater: "", price: "", date: "", time: "" })
+        setShowtimeFormCreate({ movie: "", theater: "", price: "", starts_at: "" })
         await getShowtimeList()
       }
     } catch (error) {
@@ -145,7 +144,7 @@ const ShowtimeManagement = () => {
   const [showtimeId, setShowtimeId] = useState("")
   const [showtimeToUpdate, setShowtimeToUpdate] = useState(null)
   const [updatedForm, setUpdatedForm] = useState(
-    { price: "", date: "", time: "" }
+    { price: "", starts_at: "" }
   )
 
   // Show update tab
@@ -153,7 +152,7 @@ const ShowtimeManagement = () => {
     setIsUpdating(true)
     setShowtimeId(showtime.id)
     setShowtimeToUpdate(showtime)
-    setUpdatedForm({ price: showtime.price, date: showtime.date, time: showtime.time })
+    setUpdatedForm({ price: showtime.price, starts_at: showtime.starts_at })
   }
 
   const handleChangeUpdate = (event) => {
@@ -176,7 +175,7 @@ const ShowtimeManagement = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`
         },
-        body: JSON.stringify({ price: updatedForm.price, date: updatedForm.date, time: updatedForm.time })
+        body: JSON.stringify({ price: updatedForm.price, starts_at: updatedForm.starts_at })
       })
       if (!response.ok) {
         const errorData = await response.json()
@@ -236,8 +235,7 @@ const ShowtimeManagement = () => {
             <th>Movie</th>
             <th>Theater, City</th>
             <th>Price</th>
-            <th>Date</th>
-            <th>Time</th>
+            <th>Date/Time</th>
             <th>Actions</th>
         </tr>
         </thead>
@@ -253,8 +251,7 @@ const ShowtimeManagement = () => {
               <td>{showtime.movie.title}</td>
               <td>{showtime.theater.name}, {showtime.theater.city.name}</td>
               <td>{showtime.price}</td>
-              <td>{showtime.date}</td>
-              <td>{showtime.time}</td>
+              <td>{showtime.starts_at}</td>
               <td>
                 <button onClick={() => handleStartUpdate(showtime)}>Update</button>
                 <button onClick={() => handleDelete(showtime.id)}>Delete</button>
@@ -279,10 +276,8 @@ const ShowtimeManagement = () => {
           </select><br />
           <label>Price: </label>
           <input type="number" name="price" value={showtimeFormCreate.price} onChange={handleChangeCreate} required /><br />
-          <label>Date: </label>
-          <input type="date" name="date" value={showtimeFormCreate.date} onChange={handleChangeCreate} required /><br />
-          <label>Time: </label>
-          <input type="time" name="time" value={showtimeFormCreate.time} onChange={handleChangeCreate} required /><br />
+          <label>Starts at: </label>
+          <input type="datetime-local" name="date" value={showtimeFormCreate.starts_at} onChange={handleChangeCreate} required /><br />
           <button>Add Showtime</button>
         </form>
 
@@ -293,10 +288,8 @@ const ShowtimeManagement = () => {
           <form onSubmit={handleSubmitUpdate}>
             <label>Price: </label>
             <input type="number" name="price" value={updatedForm.price} onChange={handleChangeUpdate} required /><br />
-            <label>Date: </label>
-            <input type="date" name="date" value={updatedForm.date} onChange={handleChangeUpdate} required /><br />
-            <label>Time: </label>
-            <input type="time" name="time" value={updatedForm.time} onChange={handleChangeUpdate} required /><br />
+            <label>Start at: </label>
+            <input type="datetime-local" name="date" value={updatedForm.starts_at} onChange={handleChangeUpdate} required /><br />
             <button>Update Showtime</button>
           </form>
           </>

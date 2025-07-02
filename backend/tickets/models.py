@@ -1,5 +1,7 @@
+# Django
 from django.db import models
 from django.contrib.auth import get_user_model
+from datetime import timedelta
 
 # App
 from showtimes.models import Showtime
@@ -29,14 +31,25 @@ class Booking(models.Model):
     )
     booked_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    expires_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         verbose_name_plural = "Bookings"
         ordering = ["-id"]
+    
+    def save(self, *args, **kwargs):
+        """
+        Method fills, for the new Booking instances that have `status=reserverd`, 
+        the `expired_at` field with a value equal to the show starts minus 30 minutes.
+        """
+        if not self.expires_at and self.showtime and self.status == BookingStatus.RESERVED:
+            self.expires_at = self.showtime.starts_at - timedelta(minutes=30)
+        super().save(*args, **kwargs)
+
 
     def __str__(self):
         return (
-            f"{self.showtime.date} {self.showtime.time}, {self.seat} - "
+            f"{self.showtime.starts_at.strftime('%d %b %Y %H:%M:%S')}, {self.seat} - "
             f"{self.status}, {self.booked_at.strftime('%d %b %Y %H:%M:%S')}, {self.updated_at.strftime('%d %b %Y %H:%M:%S')}"
         )
 

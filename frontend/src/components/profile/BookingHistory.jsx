@@ -61,7 +61,7 @@ const BookingHistory = () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
                 },
-                body: JSON.stringify({ status: "canceled" })
+                body: JSON.stringify({ status: "canceled", expires_at: null })
             })
             if (!response.ok) {
                 const errorData = await response.json()
@@ -94,6 +94,7 @@ const BookingHistory = () => {
             <th>Seat</th>
             <th>Status</th>
             <th>Booking time</th>
+            <th>Expire on</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -103,10 +104,11 @@ const BookingHistory = () => {
               <td>{booking.id}</td>
               <td>{booking.showtime.movie.title}</td>
               <td>{booking.showtime.theater.name}, {booking.showtime.theater.city.name}</td>
-              <td>{booking.showtime.date} {booking.showtime.time}</td>
+              <td>{booking.showtime.starts_at}</td>
               <td>R: {booking.seat.row}, C: {booking.seat.column}</td>
               <td>{booking.status}</td>
               <td>Booked on {booking.booked_at}; Last update on: {booking.updated_at}</td>
+              <td>{booking.expires_at}</td>
               {booking.status === "reserved" && 
                 <td>
                     <form onSubmit={handleSubmit}><button onClick={() =>handleButton(booking.id)}>Cancel reservation</button></form>

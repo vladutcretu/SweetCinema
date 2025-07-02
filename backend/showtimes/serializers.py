@@ -15,10 +15,10 @@ class ShowtimeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Showtime
-        fields = ["id", "movie", "theater", "price", "date", "time"]
+        fields = ["id", "movie", "theater", "price", "starts_at"]
 
 
 class ShowtimeCreateStaffSerializer(serializers.ModelSerializer):
     class Meta:
         model = Showtime
-        fields = ["movie", "theater", "price", "date", "time"]
+        fields = ["movie", "theater", "price", "starts_at"]

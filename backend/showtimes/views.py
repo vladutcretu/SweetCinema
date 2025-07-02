@@ -1,6 +1,5 @@
 # Django
 from django.utils import timezone
-from django.db.models import Q
 from django.shortcuts import get_object_or_404
 
 # DRF
@@ -29,15 +28,11 @@ from users.permissions import IsManagerOrEmployee
 class ShowtimeListView(ListAPIView):
     """
     View to list all Showtime objects requested by Movie ID AND/OR City ID that
-    have `date` value greather than current date (timezone date now) or
-    `date` equal to current date (timezone date now) and `time` greater than
-    current time (timezone time now).
+    have `date`, `time` value greather than or equal to current `date`, `time` (timezone now).
     Available to any role; not required token authentication.
     """
 
-    queryset = Showtime.objects.filter(date__gte=timezone.now().date()).filter(
-        Q(date__gt=timezone.now().date()) | Q(time__gte=timezone.now().time())
-    )
+    queryset = Showtime.objects.filter(starts_at__gte=timezone.now())
     serializer_class = ShowtimeSerializer
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend]

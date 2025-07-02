@@ -130,7 +130,7 @@ function ShowtimePresentation() {
         {error && <p>{error}</p>}
         {!loading && !error && showtime && (
             <div style={{backgroundColor: "darkblue"}}>
-                <h1>Showtime detail ID {showtime.id}: {showtime.date}, {showtime.time} - {showtime.theater.name} ({showtime.theater.city.name})</h1>
+                <h1>Showtime detail ID {showtime.id}: {showtime.starts_at} - {showtime.theater.name} ({showtime.theater.city.name})</h1>
                 <p>Ticket price: {showtime.price}</p>
                 <>Capacity info: {showtime.theater.rows} rows, {showtime.theater.columns} columns</>
                 <SeatPresentation key={showtime.theater.id}/>

@@ -50,8 +50,7 @@ const ShowtimeList = () => {
             <th>Movie</th>
             <th>Theater</th>
             <th>Price</th>
-            <th>Date</th>
-            <th>Time</th>
+            <th>Date/Time</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -65,8 +64,7 @@ const ShowtimeList = () => {
               <td>{showtime.movie.title}</td>
               <td>{showtime.theater.name}</td>
               <td>{showtime.price}</td>
-              <td>{showtime.date}</td>
-              <td>{showtime.time}</td>
+              <td>{showtime.starts_at}</td>
               <td><Link to={`/showtime/${showtime.id}/`}>Go to showtime page</Link></td>
             </tr>
           ))}

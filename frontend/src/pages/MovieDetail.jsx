@@ -6,8 +6,7 @@ import { useCityContext } from '../contexts/CityContext'
 import './MovieDetail.css'
 
 function ShowtimeCard({
-    showtimeDate,
-    showtimeHour,
+    showtimeStartsAt,
     showtimeTheaterName,
     showtimeId
 }) {
@@ -15,7 +14,7 @@ function ShowtimeCard({
         <>
         <div className="showtimes-grid">
             <div className="showtime-card">
-                <h3>{showtimeDate}, {showtimeHour} - {showtimeTheaterName}</h3>
+                <h3>{showtimeStartsAt} - {showtimeTheaterName}</h3>
                 <button><Link to={`/showtime/${showtimeId}`}>See showtime</Link></button>  
             </div>
         </div>
@@ -89,8 +88,7 @@ function MoviePresentation({
                 {!loading && !error && showtimes.length === 0 && (<p>Currently there's no showtime for this movie.</p>)}
                 {!loading && !error && showtimes.length > 0 && showtimes.map(showtime => (
                     <ShowtimeCard key={showtime.id}
-                        showtimeDate={showtime.date}
-                        showtimeHour={showtime.time}
+                        showtimeStartsAt={showtime.starts_at}
                         showtimeTheaterName={showtime.theater.name}
                         showtimeId={showtime.id}
                     />
