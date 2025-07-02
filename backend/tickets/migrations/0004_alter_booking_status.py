@@ -4,15 +4,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tickets', '0003_alter_booking_status'),
+        ("tickets", "0003_alter_booking_status"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='booking',
-            name='status',
-            field=models.CharField(choices=[('reserved', 'Reserved'), ('canceled', 'Canceled'), ('expired', 'Expired'), ('pending_payment', 'Pending Payment'), ('failed_payment', 'Failed Payment'), ('purchased', 'Purchased')], default='reserved', max_length=55),
+            model_name="booking",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("reserved", "Reserved"),
+                    ("canceled", "Canceled"),
+                    ("expired", "Expired"),
+                    ("pending_payment", "Pending Payment"),
+                    ("failed_payment", "Failed Payment"),
+                    ("purchased", "Purchased"),
+                ],
+                default="reserved",
+                max_length=55,
+            ),
         ),
     ]

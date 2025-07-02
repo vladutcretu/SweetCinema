@@ -8,7 +8,7 @@ const api_url = import.meta.env.VITE_API_URL
 // Write components here
 
 
-function TicketPay({ showtimeId, seatId }) {
+function TicketPay({ showtimeId, seatIds }) {
     const navigate = useNavigate()
     const { accessToken } = useAuthContext()
 
@@ -18,13 +18,13 @@ function TicketPay({ showtimeId, seatId }) {
         }
 
         try {
-            const response = await fetch(`${api_url}/tickets/pay/`, {
+            const response = await fetch(`${api_url}/tickets/purchase/`, {
                 method: 'POST',
                 headers: {
                     'Content-type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
                 },
-                body: JSON.stringify({showtime_id: showtimeId, seat_id: seatId})
+                body: JSON.stringify({showtime_id: showtimeId, seat_ids: seatIds})
             })
             if (!response.ok) {
                 const errorData = await response.json()
@@ -32,8 +32,9 @@ function TicketPay({ showtimeId, seatId }) {
                 alert('Payment failed: ' + (errorData?.detail || response.status))
             } else {
                 const data = await response.json()
-                const bookingId = data.booking_id
-                navigate(`/payment/${bookingId}`)
+                const bookingIds = data.booking_ids
+                console.log(bookingIds)
+                navigate(`/payment/`, { state: { bookingIds: bookingIds, seatsNumber: bookingIds.length }})
                 console.log('Booking created. Should redirect to payment page to complete pay action!')
             }
         } catch (error) {

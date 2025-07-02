@@ -4,19 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tickets', '0004_alter_booking_status'),
+        ("tickets", "0004_alter_booking_status"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='payment',
-            name='booking',
+            model_name="payment",
+            name="booking",
         ),
         migrations.AddField(
-            model_name='payment',
-            name='bookings',
-            field=models.ManyToManyField(related_name='payments', to='tickets.booking'),
+            model_name="payment",
+            name="bookings",
+            field=models.ManyToManyField(related_name="payments", to="tickets.booking"),
         ),
     ]

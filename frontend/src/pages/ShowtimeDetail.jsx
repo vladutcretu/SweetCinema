@@ -51,6 +51,15 @@ function SeatPresentation() {
         purchased: 'lightcoral',
     }
 
+    // Manage seat selected by user 
+    const [selectedSeats, setSelectedSeats] = useState([])
+
+    const toggleSeat = (seatId) => {
+        setSelectedSeats(prev =>
+            prev.includes(seatId) ? prev.filter(id => id !== seatId) : [...prev, seatId]
+    )
+}
+
     return (
         <>
         {loading && <p>Seat list is loading</p>}
@@ -59,20 +68,27 @@ function SeatPresentation() {
         {!loading && !error && seats.length > 0 && seats.map(seat => (
             <div key={seat.id} style={{ backgroundColor: statusColors[seat.status] || 'gray', padding: '10px', margin: '10px', borderRadius: '5px' }}>
                 <h1>Seat ID {seat.id}: row {seat.row}, column {seat.column} - status: {seat.status}</h1>
-                {isAuthenticated ? ( 
-                    seat.status === 'available' | 
-                    seat.status === 'canceled' | 
-                    seat.status === 'failed_payment' | 
-                    seat.status === 'expired' ? (
+                { seat.status === 'available' || seat.status === 'canceled' || seat.status === 'failed_payment' || seat.status === 'expired' ? (
                         <>
-                            <TicketReserve showtimeId={showtimeId} seatId={seat.id} onSuccess={getSeatList} />
-                            <TicketPay showtimeId={showtimeId} seatId={seat.id} />
+                        <input 
+                            type="checkbox" 
+                            checked={selectedSeats.includes(seat.id)} 
+                            onChange={() => toggleSeat(seat.id)} 
+                            disabled={seat.status !== 'available' && seat.status !== 'canceled' && seat.status !== 'failed_payment' && seat.status !== 'expired'}
+                        />
+                        <label>Select</label>
                         </>
                 ) : ( <p>Can't reserve / pay a ticket for this seat due to his status.</p> )
-                ) : ( <p>Please log in to reserve or buy a ticket.</p>)
                 }
             </div>
         ))}
+        {isAuthenticated ? (
+            <div style={{ marginTop: "20px" }}>
+                <TicketReserve showtimeId={showtimeId} seatIds={selectedSeats} onSuccess={getSeatList} />
+                <TicketPay showtimeId={showtimeId} seatIds={selectedSeats} />
+            </div>
+            ) : ( <p>Please log in to reserve or buy a ticket.</p>)
+        }
         </>
     )
 }

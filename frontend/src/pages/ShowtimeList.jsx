@@ -37,12 +37,12 @@ const ShowtimeList = () => {
     }
 
     getShowtimeList()
-  }, [showtimes])
+  }, [])
   
   return (
     <>
     <div>
-      <h1>ShowtimeList</h1>
+      <h1>ShowtimeList for "{selectedCityName}" " </h1>
       <table style={{ border: "1px solid black", width: "100%" }}>
         <thead>
           <tr>

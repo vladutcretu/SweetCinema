@@ -8,6 +8,7 @@ from rest_framework.generics import (
     ListAPIView,
     UpdateAPIView,
 )
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -18,6 +19,8 @@ from .serializers import (
     BookingSerializer,
     BookingCreateReserveSerializer,
     BookingCreatePaymentSerializer,
+    BookingSummaryRequestSerializer,
+    BookingsListPaymentSerializer,
     PaymentCreateSerializer,
     PaymentSerializer,
 )
@@ -68,7 +71,9 @@ class BookingCreateReserveView(CreateAPIView):
             bookings.append(booking)
 
         # Send as response the Booking created instances for being used in frontend
-        return Response(BookingSerializer(bookings, many=True).data, status=status.HTTP_201_CREATED)
+        return Response(
+            BookingSerializer(bookings, many=True).data, status=status.HTTP_201_CREATED
+        )
 
 
 class BookingCreatePaymentView(CreateAPIView):
@@ -79,7 +84,6 @@ class BookingCreatePaymentView(CreateAPIView):
 
     serializer_class = BookingCreatePaymentSerializer
     permission_classes = [IsAuthenticated]
-
 
     def post(self, request, *args, **kwargs):
         # Serialize data and validate
@@ -103,7 +107,10 @@ class BookingCreatePaymentView(CreateAPIView):
             bookings.append(booking)
 
         # Send as response the Booking created instances for being used in frontend
-        return Response({"booking_id": [booking.id for booking in bookings]}, status=status.HTTP_201_CREATED)
+        return Response(
+            {"booking_ids": [booking.id for booking in bookings]},
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class PaymentCreateView(CreateAPIView):
@@ -131,19 +138,21 @@ class PaymentCreateView(CreateAPIView):
 
         # Get only the Booking instances created in the previously transaction
         bookings = Booking.objects.filter(
-            id__in=booking_ids,
-            user=user,
-            status=BookingStatus.PENDING_PAYMENT
+            id__in=booking_ids, user=user, status=BookingStatus.PENDING_PAYMENT
         )
         if bookings.count() != len(booking_ids):
             return Response(
-                {"error": "One or more bookings not found or not eligible for payment."},
-                status=status.HTTP_400_BAD_REQUEST
+                {
+                    "error": "One or more bookings not found or not eligible for payment."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        
+
         # Calculate total price for the tickets and validate the transaction
         total_price = sum(booking.showtime.price for booking in bookings)
-        payment_status = PaymentStatus.ACCEPTED if amount == total_price else PaymentStatus.DECLINED
+        payment_status = (
+            PaymentStatus.ACCEPTED if amount == total_price else PaymentStatus.DECLINED
+        )
 
         # Create a single Payment instance for multiple Bookings
         payment = Payment.objects.create(
@@ -156,20 +165,71 @@ class PaymentCreateView(CreateAPIView):
 
         # Update Booking status accordingly to Payment status
         for booking in bookings:
-            booking.status = BookingStatus.PURCHASED if payment_status == PaymentStatus.ACCEPTED else BookingStatus.FAILED_PAYMENT
+            booking.status = (
+                BookingStatus.PURCHASED
+                if payment_status == PaymentStatus.ACCEPTED
+                else BookingStatus.FAILED_PAYMENT
+            )
             booking.save()
 
         # Send response depending on payment status
         return Response(
             {
-                "status": "success" if payment_status == PaymentStatus.ACCEPTED else "error",
+                "status": "success"
+                if payment_status == PaymentStatus.ACCEPTED
+                else "error",
                 "message": "Payment processed.",
                 "payment_id": payment.id,
                 "booking_statuses": [
-                    {"booking_id": booking.id, "status": booking.status} for booking in bookings
-                ]
+                    {"booking_id": booking.id, "status": booking.status}
+                    for booking in bookings
+                ],
             },
-            status=status.HTTP_201_CREATED if payment_status == PaymentStatus.ACCEPTED else status.HTTP_402_PAYMENT_REQUIRED
+            status=status.HTTP_201_CREATED
+            if payment_status == PaymentStatus.ACCEPTED
+            else status.HTTP_402_PAYMENT_REQUIRED,
+        )
+
+
+class BookingListPaymentView(APIView):
+    """
+    View to list all Bookings objects included in a Payment.
+    Available to any role; required token authentication.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        # Serialize data and validate
+        serializer = BookingSummaryRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # Get validated data for context
+        user = request.user
+        booking_ids = serializer.validated_data["booking_ids"]
+
+        # Get Booking objects included in payment
+        bookings = Booking.objects.filter(id__in=booking_ids, user=user).select_related(
+            "showtime__movie", "showtime__theater__city", "seat"
+        )
+        if bookings.count() != len(booking_ids):
+            return Response(
+                {
+                    "error": "One or more bookings not found or not eligible for payment."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Calculate total price for the tickets
+        total_price = sum(booking.showtime.price for booking in bookings)
+
+        # Send response depending on payment status
+        return Response(
+            {
+                "bookings": BookingsListPaymentSerializer(bookings, many=True).data,
+                "total_price": total_price,
+            },
+            status=status.HTTP_200_OK,
         )
 
 

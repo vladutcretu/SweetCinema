@@ -1,6 +1,6 @@
 // React, dependencies & packages 
 import { useState, useEffect } from "react"
-import { useParams } from "react-router-dom"
+import { data, useLocation, useNavigate } from "react-router-dom"
 
 // App 
 import { useAuthContext } from "../contexts/AuthContext"
@@ -9,7 +9,8 @@ const api_url = import.meta.env.VITE_API_URL
 // Write components here
 
 
-function TicketPayment({ bookingId, paymentAmount, paymentMethod }) {
+function TicketPayment({ bookingIds, paymentAmount, paymentMethod }) {
+    const navigate = useNavigate()
     const { accessToken } = useAuthContext()
 
     const postTicketPayment = async () => {
@@ -19,13 +20,14 @@ function TicketPayment({ bookingId, paymentAmount, paymentMethod }) {
         }
 
         try {
-            const response = await fetch(`${api_url}/tickets/pay/${bookingId}/`, {
+            const response = await fetch(`${api_url}/tickets/pay/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
                 },
                 body: JSON.stringify({
+                    booking_ids: bookingIds,
                     amount: paymentAmount, 
                     method: paymentMethod
                 })
@@ -35,8 +37,10 @@ function TicketPayment({ bookingId, paymentAmount, paymentMethod }) {
                 console.error('Payment failed:', errorData)
                 alert('Payment failed: ' + (errorData?.detail || response.status)) 
             } else {
-                console.log('Payment completed.')
+                const data = await response.json()
+                console.log('Payment completed.', data)
                 alert('Payment successfully!')
+                navigate('/')
             }
         } catch (error) {
             console.error('Network error:', error)
@@ -73,11 +77,7 @@ function PaymentMethodSelector({ onSelect }) {
     )
 }
 
-function BookingPresentation() {
-    
-    // Get Booking ID parameter to fetch with it
-    const { bookingId } = useParams()
-
+function BookingPresentation({ bookingIds }) {
     // Get access token value to fetch with it
     const { accessToken } = useAuthContext()
     if (!accessToken) {
@@ -86,27 +86,29 @@ function BookingPresentation() {
     }
 
     // Fetch Booking data for Booking presentation
-    const [booking, setBooking] = useState({})
+    const [bookings, setBookings] = useState({})
+    const [totalPrice, setTotalPrice] = useState('')
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
 
     useEffect(() => {
-        const getBookingDetail = async() => {
+        const getBookingDetail = async () => {
             try {
-                const response = await fetch(`${api_url}/tickets/booking/${bookingId}/`, {
-                    method: 'GET',
+                const response = await fetch(`${api_url}/tickets/pay/bookings/`, {
+                    method: 'POST',
                     headers: {
                         'Content-type': 'application/json',
                         'Authorization': `Bearer ${accessToken}`
                     },
-                    body: JSON.stringify()
+                    body: JSON.stringify({ booking_ids: bookingIds })
                 })
                 if (!response.ok) {
                     throw new Error(`HTTP error! Response status: ${response.status}`)
                 } else {
                     const data = await response.json()
                     console.log(data)
-                    setBooking(data)
+                    setBookings(data.bookings)
+                    setTotalPrice(data.total_price)
                 }
             } catch (error) {
                 console.error('Fetching Booking error', error)
@@ -117,7 +119,7 @@ function BookingPresentation() {
         }
         
         getBookingDetail()
-    }, [bookingId])
+    }, [bookingIds])
 
     // Get user selection of PaymentMethodSelector component
     const [paymentMethod, setPaymentMethod] = useState('visa')
@@ -126,25 +128,35 @@ function BookingPresentation() {
         <>
         {loading && <p>Booking detail is loading</p>}
         {error && <p>{error}</p>}
-        {!loading && !error && booking && (
-            <div style={{ backgroundColor: "darkblue" }}>
-                <h1>Payment page for Booking ID {booking.id} - status: {booking.status}</h1>
+        {!loading && !error && bookings.length == 0  && (<p>There's no bookings to show.</p>)}
+        {!loading && !error && bookings.length > 0  && (bookings.map(booking => (
+            <div key={booking.id} style={{ backgroundColor: "darkblue" }}>
+                <h1>Booking ID {booking.id} - status: {booking.status}</h1>
                 <h3>Showtime informations: {booking.showtime.movie.title}, {booking.showtime.date} {booking.showtime.time} -  {booking.showtime.theater.name} ({booking.showtime.theater.city.name}) </h3>
                 <h3>Seat informations: row {booking.seat.row}, column {booking.seat.column}</h3>
-
-                <PaymentMethodSelector onSelect={setPaymentMethod} />
-
-                <TicketPayment bookingId={booking.id} paymentAmount={booking.showtime.price} paymentMethod={paymentMethod} />
             </div>
-        )}
+        )))}
+        <div>
+            <PaymentMethodSelector onSelect={setPaymentMethod} />
+            <TicketPayment bookingIds={bookingIds} paymentAmount={totalPrice} paymentMethod={paymentMethod} />
+        </div>
         </>
     )
 }
 
 function PaymentCreate() {
+    // Get state send via navigate from `TicketPay` component
+    const location = useLocation()
+    const { bookingIds, seatsNumber } = location.state || {}
+    if (!bookingIds || !seatsNumber) {
+        return <p>Missing payment information. Please reserve seats first.</p>
+    }
+
     return (
         <>
-        <BookingPresentation />
+        <h1>PaymentCreate</h1>
+        <h3>Please confirm the payment for {seatsNumber} seats:</h3> {/* seatsNumber == bookingIds.length */}
+            <BookingPresentation bookingIds={bookingIds} />
         </>
     )
 }

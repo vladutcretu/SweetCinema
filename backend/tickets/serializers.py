@@ -60,9 +60,18 @@ class BookingCreateReserveSerializer(serializers.ModelSerializer):
                 # Check if already exists a Booking object with received showtime_id & seat_id objects
                 if (
                     Booking.objects.filter(showtime_id=showtime_id, seat_id=seat_id)
-                    .exclude(status__in=[BookingStatus.FAILED_PAYMENT, BookingStatus.CANCELED, BookingStatus.EXPIRED]).exists()
-                    ):
-                        raise serializers.ValidationError("Seat is already reserved or purchased.")
+                    .exclude(
+                        status__in=[
+                            BookingStatus.FAILED_PAYMENT,
+                            BookingStatus.CANCELED,
+                            BookingStatus.EXPIRED,
+                        ]
+                    )
+                    .exists()
+                ):
+                    raise serializers.ValidationError(
+                        "Seat is already reserved or purchased."
+                    )
             except Seat.DoesNotExist:
                 raise serializers.ValidationError("Seat does not exist.")
 
@@ -104,34 +113,49 @@ class BookingCreatePaymentSerializer(serializers.ModelSerializer):
 
             if (
                 Booking.objects.filter(showtime_id=showtime_id, seat_id=seat_id)
-                .exclude(status__in=[BookingStatus.FAILED_PAYMENT, BookingStatus.CANCELED, BookingStatus.EXPIRED])
+                .exclude(
+                    status__in=[
+                        BookingStatus.FAILED_PAYMENT,
+                        BookingStatus.CANCELED,
+                        BookingStatus.EXPIRED,
+                    ]
+                )
                 .exists()
             ):
-                raise serializers.ValidationError("Seat is already reserved or purchased.")
+                raise serializers.ValidationError(
+                    "Seat is already reserved or purchased."
+                )
 
         return data
+
+
+class BookingSummaryRequestSerializer(serializers.Serializer):
+    booking_ids = serializers.ListField(
+        child=serializers.IntegerField(min_value=1), min_length=1
+    )
+
+
+class BookingsListPaymentSerializer(serializers.ModelSerializer):
+    showtime = ShowtimeSerializer(read_only=True)
+    seat = SeatSerializer(read_only=True)
+
+    class Meta:
+        model = Booking
+        fields = ["id", "showtime", "seat", "status"]
 
 
 class PaymentCreateSerializer(serializers.ModelSerializer):
     booking_ids = serializers.ListField(
         child=serializers.IntegerField(write_only=True, min_value=1),
         min_length=1,
-        write_only=True
+        write_only=True,
     )
-    # amount = serializers.FloatField(write_only=True)
-    # method = serializers.CharField(write_only=True)
     amount = serializers.DecimalField(write_only=True, max_digits=8, decimal_places=2)
     method = serializers.ChoiceField(write_only=True, choices=PaymentMethod.choices)
 
     class Meta:
         model = Payment
         fields = ["booking_ids", "amount", "method"]
-
-    # def validate_method(self, value):
-    #     if value not in PaymentMethod.values:
-    #         raise serializers.ValidationError("Method must be an accepted method.")
-    #     else:
-    #         return value
 
 
 class PaymentSerializer(serializers.ModelSerializer):

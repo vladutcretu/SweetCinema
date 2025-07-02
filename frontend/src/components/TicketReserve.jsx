@@ -5,7 +5,7 @@ const api_url = import.meta.env.VITE_API_URL
 // Write components here
 
 
-function TicketReserve({ showtimeId, seatId, onSuccess }) {
+function TicketReserve({ showtimeId, seatIds, onSuccess }) {
     const { accessToken } = useAuthContext()
 
     const postTicketReserve = async () => {
@@ -20,7 +20,7 @@ function TicketReserve({ showtimeId, seatId, onSuccess }) {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
                 },
-                body: JSON.stringify({showtime_id: showtimeId, seat_id: [seatId]})
+                body: JSON.stringify({showtime_id: showtimeId, seat_ids: seatIds})
             })
             if (!response.ok) {
                 const errorData = await response.json()

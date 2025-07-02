@@ -25,7 +25,7 @@ function App() {
             <Route path='/showtimes/' element={<ShowtimeList />} />
             <Route path='/movie/:movieId/' element={<MovieDetail />} />
             <Route path='/showtime/:showtimeId/' element={<ShowtimeDetail />} />
-            <Route path='/payment/:bookingId/' element={<PaymentCreate />} />
+            <Route path='/payment/' element={<PaymentCreate />} />
             <Route path='/profile/' element={<UserProfile />} />
             <Route path='/staff/' element={<StaffDashboard />} />
           </Routes>
