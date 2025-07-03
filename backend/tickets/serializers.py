@@ -19,7 +19,16 @@ class BookingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Booking
-        fields = ["id", "user", "showtime", "seat", "status", "booked_at", "updated_at", "expires_at"]
+        fields = [
+            "id",
+            "user",
+            "showtime",
+            "seat",
+            "status",
+            "booked_at",
+            "updated_at",
+            "expires_at",
+        ]
 
 
 class BookingCreateReserveSerializer(serializers.ModelSerializer):

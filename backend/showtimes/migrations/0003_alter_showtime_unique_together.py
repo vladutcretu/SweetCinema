@@ -4,15 +4,14 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('locations', '0002_alter_theater_name'),
-        ('showtimes', '0002_alter_showtime_options_remove_showtime_date_and_more'),
+        ("locations", "0002_alter_theater_name"),
+        ("showtimes", "0002_alter_showtime_options_remove_showtime_date_and_more"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='showtime',
-            unique_together={('theater', 'starts_at')},
+            name="showtime",
+            unique_together={("theater", "starts_at")},
         ),
     ]

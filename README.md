@@ -26,6 +26,7 @@ Check the file [NOTES.md](NOTES.md) to see Release Notes or Development Notes.
     - 🗓️ [Jira](https://www.atlassian.com/software/jira) for planning work.
     - 🐋 [Docker Compose](https://www.docker.com/) for local development.
     - 🔐[@react-oauth/google](https://www.npmjs.com/package/@react-oauth/google), [google-auth](https://pypi.org/project/google-auth/) and [djangorestframework-simplejwt](https://pypi.org/project/djangorestframework-simplejwt/) for authentication and authorization with Google OAuth2.0 and JWT.
+    - [Celery](https://docs.celeryq.dev/en/stable/index.html), with [Redis](https://pypi.org/project/redis/) as broker/backend, and [django-celery-beat](https://django-celery-beat.readthedocs.io/en/latest/) for scheduling tasks.
     
 
 

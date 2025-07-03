@@ -11,7 +11,7 @@ const api_url = import.meta.env.VITE_API_URL
 // Write components here
 
 
-function SeatPresentation() {
+function SeatPresentation( { showtimeStartsAt }) {
     // Get Showtime ID parameter to fetch with it
     const { showtimeId } = useParams()
 
@@ -60,6 +60,12 @@ function SeatPresentation() {
     )
 }
 
+    // Get current datetime + 30 mintes to compare with showtime starts_at datetime
+    const showtimeDate = new Date(showtimeStartsAt)
+    const now = new Date()
+    const thirtyMinutesFromNow = new Date(now.getTime() + 30 * 60 * 1000)
+    const isStillAllowed = showtimeDate <= thirtyMinutesFromNow
+
     return (
         <>
         {loading && <p>Seat list is loading</p>}
@@ -68,13 +74,13 @@ function SeatPresentation() {
         {!loading && !error && seats.length > 0 && seats.map(seat => (
             <div key={seat.id} style={{ backgroundColor: statusColors[seat.status] || 'gray', padding: '10px', margin: '10px', borderRadius: '5px' }}>
                 <h1>Seat ID {seat.id}: row {seat.row}, column {seat.column} - status: {seat.status}</h1>
-                { seat.status === 'available' || seat.status === 'canceled' || seat.status === 'failed_payment' || seat.status === 'expired' ? (
+                { seat.status === 'available' ? (
                         <>
                         <input 
                             type="checkbox" 
                             checked={selectedSeats.includes(seat.id)} 
                             onChange={() => toggleSeat(seat.id)} 
-                            disabled={seat.status !== 'available' && seat.status !== 'canceled' && seat.status !== 'failed_payment' && seat.status !== 'expired'}
+                            disabled={seat.status !== 'available'}
                         />
                         <label>Select</label>
                         </>
@@ -84,10 +90,13 @@ function SeatPresentation() {
         ))}
         {isAuthenticated ? (
             <div style={{ marginTop: "20px" }}>
+                {!isStillAllowed ? (
                 <TicketReserve showtimeId={showtimeId} seatIds={selectedSeats} onSuccess={getSeatList} />
+                    ) : (<p>You can't make reservations because the show starts in less than 30 minutes.</p>)
+                }
                 <TicketPay showtimeId={showtimeId} seatIds={selectedSeats} />
             </div>
-            ) : ( <p>Please log in to reserve or buy a ticket.</p>)
+            ) : (<p>Please log in to reserve or buy a ticket.</p>)
         }
         </>
     )
@@ -133,7 +142,7 @@ function ShowtimePresentation() {
                 <h1>Showtime detail ID {showtime.id}: {showtime.starts_at} - {showtime.theater.name} ({showtime.theater.city.name})</h1>
                 <p>Ticket price: {showtime.price}</p>
                 <>Capacity info: {showtime.theater.rows} rows, {showtime.theater.columns} columns</>
-                <SeatPresentation key={showtime.theater.id}/>
+                <SeatPresentation key={showtime.theater.id} showtimeStartsAt={showtime.starts_at} />
             </div>
         )}
         </>

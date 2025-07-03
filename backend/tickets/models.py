@@ -36,16 +36,19 @@ class Booking(models.Model):
     class Meta:
         verbose_name_plural = "Bookings"
         ordering = ["-id"]
-    
+
     def save(self, *args, **kwargs):
         """
-        Method fills, for the new Booking instances that have `status=reserverd`, 
-        the `expired_at` field with a value equal to the show starts minus 30 minutes.
+        Method fills, for the newly created Booking instances with `status=reserverd`,
+        the `expires_at` field with a value equal to the show starts minus 30 minutes.
         """
-        if not self.expires_at and self.showtime and self.status == BookingStatus.RESERVED:
+        if (
+            not self.expires_at
+            and self.showtime
+            and self.status == BookingStatus.RESERVED
+        ):
             self.expires_at = self.showtime.starts_at - timedelta(minutes=30)
         super().save(*args, **kwargs)
-
 
     def __str__(self):
         return (
@@ -66,7 +69,6 @@ class PaymentStatus(models.TextChoices):
 
 class Payment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    # booking = models.ForeignKey(Booking, on_delete=models.CASCADE)
     bookings = models.ManyToManyField(Booking, related_name="payments")
     amount = models.FloatField()
     method = models.CharField(max_length=55, choices=PaymentMethod.choices)

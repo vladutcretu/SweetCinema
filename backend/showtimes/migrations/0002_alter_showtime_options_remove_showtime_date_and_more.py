@@ -5,28 +5,34 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('showtimes', '0001_initial'),
+        ("showtimes", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='showtime',
-            options={'ordering': ['movie', 'theater__city__name', 'starts_at'], 'verbose_name_plural': 'Showtimes'},
+            name="showtime",
+            options={
+                "ordering": ["movie", "theater__city__name", "starts_at"],
+                "verbose_name_plural": "Showtimes",
+            },
         ),
         migrations.RemoveField(
-            model_name='showtime',
-            name='date',
+            model_name="showtime",
+            name="date",
         ),
         migrations.RemoveField(
-            model_name='showtime',
-            name='time',
+            model_name="showtime",
+            name="time",
         ),
         migrations.AddField(
-            model_name='showtime',
-            name='starts_at',
-            field=models.DateTimeField(default=datetime.datetime(2025, 7, 2, 17, 22, 52, 648645, tzinfo=datetime.timezone.utc)),
+            model_name="showtime",
+            name="starts_at",
+            field=models.DateTimeField(
+                default=datetime.datetime(
+                    2025, 7, 2, 17, 22, 52, 648645, tzinfo=datetime.timezone.utc
+                )
+            ),
             preserve_default=False,
         ),
     ]

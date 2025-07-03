@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "django_filters",
     "corsheaders",
     "rest_framework_simplejwt",
+    "django_celery_beat",
     # Default apps
     "django.contrib.admin",
     "django.contrib.auth",
@@ -180,6 +181,20 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
+
+
+# Celery settings
+# https://docs.celeryq.dev/en/stable/django/first-steps-with-django.html#django-first-steps
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "Europe/Bucharest"
+
+# Django-Celery-Beat Settings
+# https://django-celery-beat.readthedocs.io/en/latest/index.html
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 
 # Importing Environment (ENV) variables from .env file from main director

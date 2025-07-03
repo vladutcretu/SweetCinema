@@ -110,7 +110,12 @@ class ShowtimeSeatsListView(APIView):
         for seat in seats:
             booking = booked_map.get(seat.id)
 
-            if not booking or booking.status == BookingStatus.FAILED_PAYMENT:
+            if (
+                not booking
+                or booking.status == BookingStatus.FAILED_PAYMENT
+                or booking.status == BookingStatus.CANCELED
+                or booking.status == BookingStatus.EXPIRED
+            ):
                 status = "available"
             elif (
                 booking.status == BookingStatus.RESERVED
