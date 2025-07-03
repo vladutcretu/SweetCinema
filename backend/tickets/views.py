@@ -231,6 +231,38 @@ class BookingListPaymentView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+    
+
+class BookingUpdateStatusView(APIView):
+    """
+    View to update a Booking status to `failed_payment` if user failed to complete the transaction.
+    Available to any role; required token authentication.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        # Serialize data and validate
+        serializer = BookingSummaryRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # Get validated data for context
+        user = request.user
+        booking_ids = serializer.validated_data["booking_ids"]
+
+        # Get Booking objects included in payment
+        bookings = Booking.objects.filter(id__in=booking_ids, user=user, status=BookingStatus.PENDING_PAYMENT)
+        if bookings.count() != len(booking_ids):
+            return Response(
+                {"error": "One or more bookings not found or not eligible for update to failed_payment."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        
+        bookings.update(status=BookingStatus.FAILED_PAYMENT)
+        return Response(
+            {"success": "Bookings status got updated to failed_payment!"},
+            status=status.HTTP_200_OK,
+        )
 
 
 class BoookingListView(ListAPIView):

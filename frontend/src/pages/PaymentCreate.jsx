@@ -77,6 +77,70 @@ function PaymentMethodSelector({ onSelect }) {
     )
 }
 
+function TimerToFailedPayment( { bookingIds }) {
+    const { accessToken } = useAuthContext()
+    const navigate = useNavigate()
+    
+    const [secondsLeft, setSecondsLeft] = useState(60)
+
+    useEffect(() => {
+        if (secondsLeft <= 0) return
+
+        const interval = setInterval(() => {
+            setSecondsLeft(prev => prev - 1)
+        }, 1000)
+
+        return () => clearInterval(interval)
+    }, [secondsLeft])
+
+    const formatTime = () => {
+        const mins = Math.floor(secondsLeft / 60)
+        const secs = secondsLeft % 60;
+        return `${mins}:${secs < 10 ? "0" : ""}${secs}`
+    }
+
+    // Fetch to update Bookings to failed_payment status when timer is 0
+    useEffect(() => { 
+        if (secondsLeft !== 0) return
+
+        const updateBookingStatus = async () => {
+            try {
+                const response = await fetch(`${api_url}/tickets/pay/timeout/`, {
+                    method: 'PUT', 
+                    headers : {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                    },
+                    body: JSON.stringify({ booking_ids: bookingIds })
+                })
+                if (!response.ok) {
+                    const errorData = await response.json()
+                    console.error('Update Booking failed:', errorData)
+                    alert('Update Booking failed: ' + (errorData?.detail || response.status))
+                } else {
+                    const data = await response.json()
+                    console.log(data)
+                    alert("You did not complete the payment. Please start it again!")
+                    navigate('/')
+                }
+            } catch (error) {
+                console.error('Fetching Booking update error', error)
+                alert('Something went wrong while updating booking.')
+            }
+        }
+
+        updateBookingStatus()
+    }, [secondsLeft, bookingIds, accessToken])
+
+    return (
+    <>
+    <div>
+        <h3>Complete payment in: {formatTime()}</h3>
+    </div>
+    </>
+    )
+}
+
 function BookingPresentation({ bookingIds }) {
     // Get access token value to fetch with it
     const { accessToken } = useAuthContext()
@@ -137,7 +201,10 @@ function BookingPresentation({ bookingIds }) {
             </div>
         )))}
         <div>
-            <PaymentMethodSelector onSelect={setPaymentMethod} />
+            <PaymentMethodSelector onSelect={setPaymentMethod} /> 
+            <br />
+            <TimerToFailedPayment bookingIds={bookingIds} />
+            <br />
             <TicketPayment bookingIds={bookingIds} paymentAmount={totalPrice} paymentMethod={paymentMethod} />
         </div>
         </>

@@ -6,6 +6,7 @@ from .views import (
     BookingCreatePaymentView,
     BookingRetrieveView,
     PaymentCreateView,
+    BookingUpdateStatusView,
     BookingListPaymentView,
     BoookingListView,
     BookingUserListView,
@@ -14,11 +15,14 @@ from .views import (
 )
 
 # Create your urls here.
+
+
 urlpatterns = [
     path("reserve/", BookingCreateReserveView.as_view(), name="reserve-create"),
     path("purchase/", BookingCreatePaymentView.as_view(), name="pay-create"),
     path("booking/<int:pk>/", BookingRetrieveView.as_view(), name="booking-detail"),
     path("pay/", PaymentCreateView.as_view(), name="payment-create"),
+    path("pay/timeout/", BookingUpdateStatusView.as_view(), name="payment-timeout"),
     path(
         "pay/bookings/", BookingListPaymentView.as_view(), name="payment-bookings-list"
     ),
