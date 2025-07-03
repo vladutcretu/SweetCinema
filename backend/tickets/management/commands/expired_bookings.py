@@ -10,14 +10,15 @@ from tickets.models import Booking, BookingStatus
 
 class Command(BaseCommand):
     help = (
-        "Update from `Booking.status=reserved` to `Booking.status=expired`"
-        " for objects that have `expires_at` value past the command execution time"
+        "Update from `Booking.status=reserved` OR from `Booking.status=pending_payment` "
+        "to `Booking.status=expired` for objects that have `expires_at` value past the command execution time"
     )
 
     def handle(self, *args, **options):
         now = timezone.now
         expired_bookings = Booking.objects.filter(
-            status=BookingStatus.RESERVED, expires_at__lt=now()
+            status__in=[BookingStatus.RESERVED, BookingStatus.PENDING_PAYMENT],
+            expires_at__lt=now(),
         )  # less than now
         count = expired_bookings.update(status=BookingStatus.EXPIRED)
         self.stdout.write(f"{count} bookings expired!")

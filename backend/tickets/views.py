@@ -251,13 +251,17 @@ class BookingUpdateStatusView(APIView):
         booking_ids = serializer.validated_data["booking_ids"]
 
         # Get Booking objects included in payment
-        bookings = Booking.objects.filter(id__in=booking_ids, user=user, status=BookingStatus.PENDING_PAYMENT)
+        bookings = Booking.objects.filter(
+            id__in=booking_ids, user=user, status=BookingStatus.PENDING_PAYMENT
+        )
         if bookings.count() != len(booking_ids):
             return Response(
-                {"error": "One or more bookings not found or not eligible for update to failed_payment."},
+                {
+                    "error": "One or more bookings not found or not eligible for update to failed_payment."
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        
+
         bookings.update(status=BookingStatus.FAILED_PAYMENT)
         return Response(
             {"success": "Bookings status got updated to failed_payment!"},

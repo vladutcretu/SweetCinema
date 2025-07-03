@@ -2,6 +2,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from datetime import timedelta
+from django.utils import timezone
 
 # App
 from showtimes.models import Showtime
@@ -39,8 +40,8 @@ class Booking(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Method fills, for the newly created Booking instances with `status=reserverd`,
-        the `expires_at` field with a value equal to the show starts minus 30 minutes.
+        Method fills, for the created Booking instances with `status=reserverd` or `status=pending_payment`,
+        the `expires_at` field.
         """
         if (
             not self.expires_at
@@ -48,6 +49,13 @@ class Booking(models.Model):
             and self.status == BookingStatus.RESERVED
         ):
             self.expires_at = self.showtime.starts_at - timedelta(minutes=30)
+        elif (
+            not self.expires_at
+            and self.showtime
+            and self.status == BookingStatus.PENDING_PAYMENT
+        ):
+            self.expires_at = timezone.now() + timedelta(minutes=1)
+
         super().save(*args, **kwargs)
 
     def __str__(self):
