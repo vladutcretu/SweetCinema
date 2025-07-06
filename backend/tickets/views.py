@@ -24,7 +24,7 @@ from .serializers import (
     PaymentCreateSerializer,
     PaymentSerializer,
 )
-from users.permissions import IsManager
+from users.permissions import IsManager, IsCashier
 
 # Create your views here.
 
@@ -278,6 +278,36 @@ class BoookingListView(ListAPIView):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
     permission_classes = [IsManager]
+
+
+class BookingCashierListView(ListAPIView):
+    """
+    View to list all Bookings objects filtered by City ID.
+    Available to `Cashier` role; required token authentication.
+    """
+    serializer_class = BookingSerializer
+    permission_classes = [IsCashier]
+
+    def get_queryset(self):
+        city_id = self.request.query_params.get("city")
+        if not city_id:
+            return Booking.objects.none()
+
+        return Booking.objects.select_related(
+            "showtime__movie", "showtime__theater__city", "seat", "user"
+        ).filter(showtime__theater__city__id=city_id, status=BookingStatus.RESERVED)
+    
+
+class BookingCashierUpdateView(UpdateAPIView):
+    """
+    View to update a Booking object requested by ID.
+    Available to `Cashier` role; required token authentication.
+    """
+
+    queryset = Booking.objects.filter(status=BookingStatus.RESERVED)
+    serializer_class = BookingSerializer
+    permission_classes = [IsCashier]
+    http_method_names = ["patch"]
 
 
 class BookingUserListView(ListAPIView):

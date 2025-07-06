@@ -18,6 +18,7 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     groups = serializers.SlugRelatedField(many=True, read_only=True, slug_field="name")
     password = serializers.BooleanField()
+    city = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -29,7 +30,19 @@ class UserSerializer(serializers.ModelSerializer):
             "is_staff",
             "is_superuser",
             "password",
+            "city",
         ]
+
+    def get_city(self, obj):
+        """
+        Get city.id from User.UserProfile.City.
+        """
+        try:
+            if hasattr(obj, 'userprofile') and obj.userprofile.city:
+                return obj.userprofile.city.id
+            return None
+        except AttributeError:
+            return None
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):

@@ -26,8 +26,9 @@ const UserProfile = () => {
         <p><strong>Is Superuser?:</strong> {user?.is_superuser.toString()}</p>
         <p><strong>Has password?:</strong> {user?.password.toString()}</p>
         <p><strong>Has 2FA on?:</strong> {twoFactorAuth.toString()}</p>
+        <p><strong>City ID:</strong> {user?.city}</p>
         {
-          (user?.groups.includes("Manager") || user?.groups.includes("Employee") || user?.is_staff || user?.is_superuser)
+          (user?.groups.includes("Manager") || user?.groups.includes("Employee") || user?.groups.includes("Cashier") || user?.is_staff || user?.is_superuser)
           &&
           (<Link to={'/staff/'}>Go to Staff Dashboard</Link>)
         }

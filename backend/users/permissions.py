@@ -29,6 +29,10 @@ class IsEmployee(IsInGroup):
     group_name = "Employee"
 
 
+class IsCashier(IsInGroup):
+    group_name = "Cashier"
+
+
 class IsManagerOrEmployee(BasePermission):
     """
     Global permission class for import and use on permission_classes attributes on API views.
@@ -41,3 +45,17 @@ class IsManagerOrEmployee(BasePermission):
             return False
 
         return user.groups.filter(name__in=["Manager", "Employee"]).exists()
+
+
+class IsManagerOrEmployeeOrCashier(BasePermission):
+    """
+    Global permission class for import and use on permission_classes attributes on API views.
+    User must be in either 'Manager' or 'Employee' or 'Cashier' group.
+    """
+
+    def has_permission(self, request, view):
+        user = request.user
+        if not user or not user.is_authenticated:
+            return False
+
+        return user.groups.filter(name__in=["Manager", "Employee", "Cashier"]).exists()

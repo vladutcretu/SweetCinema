@@ -23,7 +23,7 @@ from .serializers import (
     UserPasswordCreateSerializer,
     UserPasswordVerifySerializer,
 )
-from .permissions import IsManagerOrEmployee
+from .permissions import IsManagerOrEmployeeOrCashier
 from .models import UserProfile
 
 # Create your views here.
@@ -212,10 +212,10 @@ class UserUpdateCityView(UpdateAPIView):
 class UserPasswordSetView(APIView):
     """
     View to let User set an account password.
-    Available to `Manager`, `Employee` only; required token authentication.
+    Available to `Manager`, `Employee`, `Cashier` only; required token authentication.
     """
 
-    permission_classes = [IsManagerOrEmployee]
+    permission_classes = [IsManagerOrEmployeeOrCashier]
 
     def post(self, request):
         serializer = UserPasswordCreateSerializer(data=request.data)
@@ -233,10 +233,10 @@ class UserPasswordSetView(APIView):
 class UserPasswordVerifyView(APIView):
     """
     View to verify User password as second-factor auth for sensible data.
-    Available to `Manager`, `Employee` only; required token authentication.
+    Available to `Manager`, `Employee`, `Cashier` only; required token authentication.
     """
 
-    permission_classes = [IsManagerOrEmployee]
+    permission_classes = [IsManagerOrEmployeeOrCashier]
 
     def post(self, request):
         serializer = UserPasswordVerifySerializer(data=request.data)
