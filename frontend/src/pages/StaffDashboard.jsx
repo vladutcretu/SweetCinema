@@ -15,6 +15,7 @@ import PaymentManagement from '../components/staff/PaymentManagement'
 import PasswordSet from '../components/profile/PasswordSet'
 import PasswordVerify from '../components/profile/PasswordVerify'
 import BookingDashboard from '../components/staff/BookingDashboard'
+import ShowtimeDashboard from '../components/staff/ShowtimeDashboard'
 
 // Write components here
 
@@ -53,7 +54,9 @@ const StaffDashboard = () => {
     <br />
     <RequirePermission groups={["Manager"]} fallback={<p>Only Manager group can see PaymentManagement.</p>}><PaymentManagement /></RequirePermission>
     <br />
-    <RequirePermission groups={["Cashier"]} fallback={<p>Only Cashier group can see CashierBookings.</p>}><BookingDashboard /></RequirePermission>
+    <RequirePermission groups={["Cashier"]} fallback={<p>Only Cashier group can see BookingDashboard.</p>}><BookingDashboard /></RequirePermission>
+    <br />
+    <RequirePermission groups={["Cashier"]} fallback={<p>Only Cashier group can see ShowtimeDashboard.</p>}><ShowtimeDashboard /></RequirePermission>
     </>
   )
 }
