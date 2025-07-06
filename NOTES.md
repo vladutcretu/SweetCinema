@@ -9,7 +9,31 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ## Release Notes
 
-### 🔜 v0.6.0-alpha (completed on <i>TBA</i>)
+### 🔜 v0.7.0-alpha (completed on <i>TBA</i>)
+---
+### ✅ v0.6.0-alpha (completed on 3 July 2025)
+🚀 <b>Features:</b>
+- Build Shows page where users see complete list of showtimes in their City location
+- Users can now reserve up to 5 seats in a single transaction but they can not make reservations for showtimes that have less than 30 minutes until starts
+- Users can now purchase multiple seats, without limits, in a single transaction, but they have 1 minute to complete the payment, otherwise it is going to be declined
+- Reservations now expire when the showtime starts in less than 30 minutes
+
+⚙️ <b>Backend:</b>
+- Update models: 
+    - `Booking` status include now `expired` option, and add new field expires_at, that is not null only for instances with status=reserverd & status=pending_payment
+    - `Payment` booking (`ForeignKey` type) field is now bookings (`ManyToManyField` type) field
+    - `Showtime` date, time fields got replaced by starts_at (`DateTimeField`), and add a unique_together condition with it and theater field
+- Update endpoints: `POST /api/tickets/reserve/`, `POST /api/tickets/pay/` is now `POST /api/tickets/purchase/`, `POST /api/tickets/pay/{id}/` is now `POST /api/tickets/pay/` (serializers and views also got modified)
+- Create endpoints: `POST /api/tickets/pay/bookings/`, `PUT /api/tickets/pay/timeout/`
+- Create custom django-admin command `expired_bookings` (`Booking` instances that have expires_at past current time and `status=[reserved, pending_payment]` are updated to `status=expired`) and schedule a cron job (every 5 minutes) for cleanup
+
+🖼️ <b>Frontend:</b>
+- Create `ShowtimeList page`, and `TimerToFailedPayment` component inside `PaymentCreate page`
+- Update `ShowtimeDetail page`, `TicketReserve` & `TicketPay` components, `PaymentCreate` page (url is now static) and it's components
+- Update in all components: `showtime.date`, `showtime.time` to `showtime.starts_at`
+
+🐋<b>Docker Compose:</b>
+- Add services: Redis, Celery, django-celery-beat
 ---
 ### ✅ v0.5.0-alpha (completed on 1 July 2025)
 🚀 <b>Features:</b>
@@ -101,17 +125,27 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ## Development Notes
 
-### 🔜 Sprint #8 (started on 2 July 2025; ended on <i>TBA</i>): "Backend & Frontend: Multiple booking & more management of their status" 
-- Create `ShowtimeList page` & `GET /api/showtimes/upcoming/?city={selectedCityId}` to group showtimes by date in chronological order
+### 🔜 Sprint #9 (started on 6 June 2025; ended on <i>TBA</i>): "Backend & Frontend: Staff - Cashier group & showtime reporting"
+- Create `UserProfile` model (key to `User` model) and add field `city` (ForeignKey) to it
+- Create group `Cashier`, update `PATCH /api/users/user/update/{id}/` and the workflow around it to make possible to can set the group & a `city` for user
+- Update `AuthContext` & `GET /api/users/user/` to save the `city` in `userCityId` variable
+- Update `StaffDashboard page` to include for `Cashier` group the next components:
+    - a `Booking dashboard` that will show all `Bookings` with `status=reserved` from that `City` (data from updated `GET /api/tickets/bookings/?city={userCityId}`) and include user who booked, with checkboxes to complete multiple bookings (create `POST /api/tickets/reserve/complete/` to update `status=purchased`)
+    - a `Showtime dashboard` that will show all `Showtimes` from that `City` (data from `GET /api/showtimes/?city={userCityId}`), their seats and status (data from `/api/showtimes/{id}/seats/`), with option to make a payment for these seats like a regular user does in `ShowtimeDetail page`
+- Update `StaffDashboard page` to include, only for `Manager` group, a `ShowtimeReport` (create `GET /api/showtime/{id}/reports/` endpoint) with analytics data (calculate tickets sold count, total revenue, and room occupancy percentage)
+---
+### ✅ Sprint #8 (started on 2 July 2025; ended on 3 July 2025): "Backend & Frontend: Multiple bookings & more management of their status" 
+- Create `ShowtimeList page` to use `GET /api/showtimes/upcoming/?city={selectedCityId}` to group showtimes by date in chronological order
 - Implement multiple seat booking functionality:
     - modify `POST /api/tickets/reserve/` & `POST /api/tickets/pay/` to accept seat_ids array: [1, 2, 3] (with maximum length for `reserve`) in order to create multiple `Booking` instances (1 per seat) for a single transaction
     - update `ShowtimeDetail page` to allow multiple seat selection using checkboxes
 - Implement automatic reservation expiration functionality:
-    - add `expired` status to `Booking.STATUS_CHOICES` and `expires_at` field to `Booking` model (autocompleted when a instance is created with `Showtime.time - 30 minutes` value)
+    - add `expired` status to `Booking.STATUS_CHOICES` and `expires_at` field to `Booking` model (autocompleted for `status=reserved` instances with `Showtime.time - 30 minutes` value)
     - create schedule cleanup via cron job to set `status=expired` to instances with `Booking.expired_at` past the current time
     - hide/disable reserve, pay buttons if less than 30 minutes to showtime start
 - Implement payment timeout functionality:
     - update `PaymentCreate page` to include a 1 minute countdown timer to complete the payment; if not submited, fetch `POST /api/tickets/pay/timeout/` to update `Payment.status` to `declined` (`Payment.booking.status` will automatically become `failed_payment`) and inform user
+    - autocomplete `expires_at` field of `Booking model` for `status=pending_payment` with value `timedate.now + 1 minute` and include in scheduled cleanup cron job
 ---
 ### ✅ Sprint #7 (started on 1 July 2025; ended on 1 July 2025): "Backend & Frontend: User profile & personal bookings"
 - Create `UserProfile page` to use account info (username, group) from `AuthContext` and then the following endpoints:
