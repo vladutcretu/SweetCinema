@@ -100,6 +100,49 @@ const UserManagement = () => {
         }
     }
 
+    // Update City for Cashier
+    const [updatedForm, setUpdatedForm] = useState(
+    { id: "", city: "" }
+    )
+
+    const handleChangeUpdate = (event) => {
+        const { name, value } = event.target
+        setUpdatedForm(prev => ({ ...prev, [name]: value }))
+    }
+
+    // Submit update on update tab
+    const handleSubmitUpdate = (event) => {
+        event.preventDefault()
+        patchCashierCityUpdate()
+        setUpdatedForm({ id: "", city: "" })
+    }
+
+    const patchCashierCityUpdate = async () => {
+        try {
+            const response = await fetch(`${api_url}/users/user/update-city/${updatedForm.id}/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify({ city: updatedForm.city })
+            })
+            if (!response.ok) {
+                const errorData = await response.json()
+                console.error('Update user city failed:', errorData)
+                alert('Update user city failed: ' + (errorData?.detail || response.status))
+            } else {
+                const data = await response.json()
+                console.log(data)
+                alert(`Completed: USER city got updated!`)
+                // Fetch again
+                await getUserList()
+            }
+        } catch (error) {
+            console.error('Fetching User Update City error', error)
+            alert('Something went wrong while updating user city.')
+        }
+    }
 
   return (
     <>
@@ -146,6 +189,9 @@ const UserManagement = () => {
                                 <button  type="submit" onClick={() =>
                                     handleButtonActions(user.id, "Employee")
                                 }>Promote to Employee</button>
+                                <button  type="submit" onClick={() =>
+                                    handleButtonActions(user.id, "Cashier")
+                                }>Promote to Cashier</button>
                                 <button type="submit" onClick={() =>
                                     handleButtonActions(user.id, "User")
                                 }>Demote to User</button>
@@ -155,6 +201,18 @@ const UserManagement = () => {
                 ))}
             </tbody>
         </table>
+        
+        <br />
+
+        {/* Update city location for a Cashier */}
+        <h4>Update City for Cashier</h4>
+        <form onSubmit={handleSubmitUpdate}>
+            <label>ID: </label>
+            <input type="number" name="id" value={updatedForm.id} onChange={handleChangeUpdate} required /><br />
+            <label>City: </label>
+            <input type="text" name="city" value={updatedForm.city} onChange={handleChangeUpdate} required /><br />
+            <button type="submit">Update City for Cashier</button>
+        </form>
     </div>
     </>
   )

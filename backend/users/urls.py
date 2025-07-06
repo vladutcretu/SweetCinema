@@ -10,6 +10,7 @@ from .views import (
     UserDataView,
     UserListView,
     UserUpdateView,
+    UserUpdateCityView,
     UserPasswordSetView,
     UserPasswordVerifyView,
 )
@@ -24,6 +25,11 @@ urlpatterns = [
     path("", UserListView.as_view(), name="user-list"),
     path("user/", UserDataView.as_view(), name="user-data"),
     path("user/update/<int:pk>/", UserUpdateView.as_view(), name="user-update"),
+    path(
+        "user/update-city/<int:user_id>/",
+        UserUpdateCityView.as_view(),
+        name="user-update-city",
+    ),
     path("user/set-password/", UserPasswordSetView.as_view(), name="user-set-password"),
     path(
         "user/verify-password/",

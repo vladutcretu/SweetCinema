@@ -19,10 +19,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import (
     UserSerializer,
     UserUpdateSerializer,
+    UserUpdateCitySerializer,
     UserPasswordCreateSerializer,
     UserPasswordVerifySerializer,
 )
 from .permissions import IsManagerOrEmployee
+from .models import UserProfile
 
 # Create your views here.
 
@@ -184,6 +186,27 @@ class UserUpdateView(UpdateAPIView):
     serializer_class = UserUpdateSerializer
     permission_classes = [IsAdminUser]
     http_method_names = ["patch"]  # to not show both methods on OpenAPI schema
+
+
+class UserUpdateCityView(UpdateAPIView):
+    """
+    View to update only `city` attribute of a UserProfile.
+    Available to `Admins` only; required token authentication.
+    """
+
+    queryset = UserProfile.objects.all()
+    serializer_class = UserUpdateCitySerializer
+    permission_classes = [IsAdminUser]
+    http_method_names = ["patch"]
+
+    def get_object(self):
+        """
+        Override get_object to find UserProfile by user_id instead of pk.
+        """
+        user_id = self.kwargs.get("user_id")
+        user = User.objects.get(id=user_id)
+        user_profile = UserProfile.objects.get(user=user)
+        return user_profile
 
 
 class UserPasswordSetView(APIView):

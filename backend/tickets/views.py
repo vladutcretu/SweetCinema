@@ -231,7 +231,7 @@ class BookingListPaymentView(APIView):
             },
             status=status.HTTP_200_OK,
         )
-    
+
 
 class BookingUpdateStatusView(APIView):
     """

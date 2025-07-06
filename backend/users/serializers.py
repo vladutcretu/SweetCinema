@@ -5,6 +5,10 @@ from django.contrib.auth.models import Group
 # DRF
 from rest_framework import serializers
 
+# App
+from .models import UserProfile
+from locations.models import City
+
 # Create your serializers here.
 
 
@@ -36,6 +40,36 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["groups"]
+
+
+class UserUpdateCitySerializer(serializers.ModelSerializer):
+    city = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = UserProfile
+        fields = ["city"]
+
+    def validate_city(self, value):
+        """
+        Validate that city exists before update.
+        """
+        if not value:
+            raise serializers.ValidationError("City name cannot be empty.")
+
+        try:
+            City.objects.get(name=value)
+        except City.DoesNotExist:
+            raise serializers.ValidationError(f"City '{value}' not found!")
+
+        return value
+
+    def update(self, instance, validated_data):
+        city_name = validated_data.get("city")
+        if city_name:
+            city = City.objects.get(name=city_name)
+            instance.city = city
+            instance.save()
+        return instance
 
 
 class UserPasswordCreateSerializer(serializers.Serializer):
