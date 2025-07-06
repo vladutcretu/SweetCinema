@@ -285,6 +285,7 @@ class BookingCashierListView(ListAPIView):
     View to list all Bookings objects filtered by City ID.
     Available to `Cashier` role; required token authentication.
     """
+
     serializer_class = BookingSerializer
     permission_classes = [IsCashier]
 
@@ -296,7 +297,7 @@ class BookingCashierListView(ListAPIView):
         return Booking.objects.select_related(
             "showtime__movie", "showtime__theater__city", "seat", "user"
         ).filter(showtime__theater__city__id=city_id, status=BookingStatus.RESERVED)
-    
+
 
 class BookingCashierUpdateView(UpdateAPIView):
     """

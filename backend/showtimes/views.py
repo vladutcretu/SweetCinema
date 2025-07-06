@@ -12,6 +12,7 @@ from rest_framework.generics import (
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework import status
 
 # 3rd party apps
 from django_filters.rest_framework import DjangoFilterBackend
@@ -20,7 +21,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Showtime
 from .serializers import ShowtimeSerializer, ShowtimeCreateStaffSerializer
 from tickets.models import Booking, BookingStatus
-from users.permissions import IsManagerOrEmployee
+from users.permissions import IsManagerOrEmployee, IsManager
+from locations.models import Seat
 
 # Create your views here.
 
@@ -87,6 +89,7 @@ class ShowtimeUpdateDeleteView(RetrieveUpdateDestroyAPIView):
 class ShowtimeSeatsListView(APIView):
     """
     View to list all Seat objects and their status for a Showtime requested by ID.
+    Avalaible to any role; no required token authentication.
     """
 
     def get(self, request, pk):
@@ -135,3 +138,45 @@ class ShowtimeSeatsListView(APIView):
             )
 
         return Response(seat_status_list)
+
+
+class ShowtimeReportView(APIView):
+    """
+    View to retrieve a report about a Showtime requested by ID.
+    Avalaible to `Manager` role; required token authentication.
+    """
+
+    permission_classes = [IsManager]
+
+    def get(self, request, pk):
+        # Get the Showtime object requested by ID (pk)
+        showtime = get_object_or_404(Showtime, id=pk)
+
+        # Tickets sold count
+        tickets_sold = Booking.objects.filter(
+            showtime=showtime, status=BookingStatus.PURCHASED
+        ).count()
+
+        # Total revenue
+        total_revenue = tickets_sold * showtime.price
+
+        # Room occupancy percentage
+        total_seats = Seat.objects.filter(theater=showtime.theater).count()
+        occupancy_percentage = round(
+            (tickets_sold / total_seats * 100) if total_seats else 0, 2
+        )
+
+        # Return calculated data
+        return Response(
+            {
+                "showtime_id": showtime.id,
+                "movie": showtime.movie.title,
+                "theater": showtime.theater.name,
+                "city": showtime.theater.city.name,
+                "starts_at": showtime.starts_at,
+                "tickets_sold": tickets_sold,
+                "total_revenue": total_revenue,
+                "occupancy_percentage": occupancy_percentage,
+            },
+            status=status.HTTP_200_OK,
+        )

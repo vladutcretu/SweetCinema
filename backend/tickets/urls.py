@@ -29,8 +29,16 @@ urlpatterns = [
         "pay/bookings/", BookingListPaymentView.as_view(), name="payment-bookings-list"
     ),
     path("bookings/", BoookingListView.as_view(), name="bookings-list"),
-    path("booking/cashier/", BookingCashierListView.as_view(), name="bookings-cashier-list"),
-    path("bookings/cashier/<int:pk>/", BookingCashierUpdateView.as_view(), name="bookings-cashier-update"),
+    path(
+        "booking/cashier/",
+        BookingCashierListView.as_view(),
+        name="bookings-cashier-list",
+    ),
+    path(
+        "bookings/cashier/<int:pk>/",
+        BookingCashierUpdateView.as_view(),
+        name="bookings-cashier-update",
+    ),
     path("bookings/history/", BookingUserListView.as_view(), name="bookings-history"),
     path(
         "booking/<int:pk>/cancel/",

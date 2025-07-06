@@ -38,7 +38,7 @@ class UserSerializer(serializers.ModelSerializer):
         Get city.id from User.UserProfile.City.
         """
         try:
-            if hasattr(obj, 'userprofile') and obj.userprofile.city:
+            if hasattr(obj, "userprofile") and obj.userprofile.city:
                 return obj.userprofile.city.id
             return None
         except AttributeError:

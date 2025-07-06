@@ -8,6 +8,7 @@ from .views import (
     ShowtimeCreateStaffView,
     ShowtimeUpdateDeleteView,
     ShowtimeSeatsListView,
+    ShowtimeReportView,
 )
 # Create your urls here.
 
@@ -25,4 +26,5 @@ urlpatterns = [
         name="showtime-update-delete-staff",
     ),
     path("<int:pk>/seats/", ShowtimeSeatsListView.as_view(), name="showtime-seats"),
+    path("<int:pk>/report/", ShowtimeReportView.as_view(), name="showtime-report"),
 ]
