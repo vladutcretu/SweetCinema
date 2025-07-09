@@ -1,7 +1,3 @@
-// Styles
-import 'bootstrap/dist/css/bootstrap.min.css'
-import './index.css'
-
 // React, dependencies & packages
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -13,6 +9,8 @@ const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
 import { AuthProvider } from './contexts/AuthContext.jsx'
 import { CityProvider } from './contexts/CityContext.jsx'
 import App from './App.jsx'
+
+// Components here
 
 
 createRoot(document.getElementById('root')).render(
