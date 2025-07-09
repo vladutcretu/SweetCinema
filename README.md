@@ -1,18 +1,19 @@
 # SweetCinema
-SweetCinema is an open-source educational project inspired by an idea from [roadmap.sh](https://roadmap.sh/projects/movie-reservation-system) and using [HappyCinema](https://www.happycinema.ro/) as a muse for features and design. 
+SweetCinema is an open-source educational project inspired by an idea from [roadmap.sh](https://roadmap.sh/projects/movie-reservation-system) and utilizes [HappyCinema](https://www.happycinema.ro/) as a business model reference for replicating core functionalities and user flow patterns. The primary motivation was to develop a business solution that closely mirrors the selected reference model while maintaining originality in implementation.
 
 
 ## Table of Contents
 1. [Notes](#notes)
 2. [Technology stack](#technology-stack)
 3. [Technical achitecture](#technical-architecture)
+    - [Features](#features)
     - [User workflow](#user-workflow)
     - [DB schema design](#db-schema-design)
 4. [Local installation](#local-installation)
 
 
 ## Notes
-Check the file [NOTES.md](NOTES.md) to see Release Notes or Development Notes.
+Check the file [NOTES.md](NOTES.md) to see Release Notes or Development Notes. It's best way to find the app features, steps taken during development and more important, the behind thinking-process. If there's too much information for your time, below is a concise description of the technical aspects.
 
 ## Technology stack
 - ⚙️ Backend: [Django REST Framework](https://www.django-rest-framework.org) with
@@ -26,17 +27,33 @@ Check the file [NOTES.md](NOTES.md) to see Release Notes or Development Notes.
     - 🗓️ [Jira](https://www.atlassian.com/software/jira) for planning work.
     - 🐋 [Docker Compose](https://www.docker.com/) for local development.
     - 🔐[@react-oauth/google](https://www.npmjs.com/package/@react-oauth/google), [google-auth](https://pypi.org/project/google-auth/) and [djangorestframework-simplejwt](https://pypi.org/project/djangorestframework-simplejwt/) for authentication and authorization with Google OAuth2.0 and JWT.
-    - [Celery](https://docs.celeryq.dev/en/stable/index.html), with [Redis](https://pypi.org/project/redis/) as broker/backend, and [django-celery-beat](https://django-celery-beat.readthedocs.io/en/latest/) for scheduling tasks.
+    - 🥬[Celery](https://docs.celeryq.dev/en/stable/index.html), with [Redis](https://pypi.org/project/redis/) as broker/backend, and [django-celery-beat](https://django-celery-beat.readthedocs.io/en/latest/) for scheduling tasks.
     
 
 
 ## Technical architecture
 
-### User workflow
-![User workflow](https://i.imgur.com/tu8nUz8.jpeg)
+### Features 
+1. User authentication & roles: 
+    - Signup & Login: using personal Google account
+    - JWT-based authentication: secure access to the API endpoints using JSON Web Tokens
+    - User Roles: `regular user`, `admin`, `Manager`, `Employee`, `Cashier`
+2. City, Theater, Seat management: 
+    - `Manager` can create, read, update, and delete locations
+    - Other roles can interact with these entities depending on their permissions
+3. Movie, Genre, Showtime management:
+    - `Manager` & `Employee` can create, read, update, and delete entries
+    - All users can view these entries.
+4. Tickets Reservation/Purchasing management: 
+    - `regular user` can view all seats for a specific showtime, reserve/purchase seats, View their upcoming & past tickets and cancel active reservations
+    - `Cashier` can view all reservations within their assigned city, complete reservations and Ssll tickets to walk-in customers
+5. Reporting: `Manager` can generate reports for a showtime, including total tickets sold & revenue
+
+### Users workflow
+![Users workflow](https://i.imgur.com/d7dOecV.jpeg)
 
 ### DB schema design
-![DB schema design](https://i.imgur.com/mpOoMu8.png)
+![DB schema design](https://i.imgur.com/yLJjfqx.png)
 
 
 ## Local installation
@@ -64,14 +81,6 @@ Check the file [NOTES.md](NOTES.md) to see Release Notes or Development Notes.
    ```sh
    docker-compose up --build
    ```
-   - See if all 3 containers are running:
-        ```sh
-        docker-compose ps 
-        ```
-    - If not all containers are running, start the missing one:
-        ```sh
-        docker-compose start <postgres/backend/frontend>
-        ```
 
 4. Open your web browser and navigate to:
 - [http://127.0.0.1:8000](http://127.0.0.1:8000) for backend

@@ -9,16 +9,30 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ## Release Notes
 
-### 🔜 v0.7.0-alpha (completed on <i>TBA</i>)
+### 🔜 v0.8.0-beta (completed on <i>TBA</i>)
+
+### ✅ v0.7.0-alpha (completed on 6 July 2025)
+🚀 **Features:**
+- Extends user's account account informations with a user profile: contains only city for now, but can be developed for personalized emails (promotions for birthday, city).
+- Add "Cashier" role and permits access to Staff Dashboard, where they can complete a reservation or sell tickets for walk-in customers.
+
+⚙️ **Backend:**
+- Create `UserProfile` model and `Cashier` group
+- Update `permissions` file and endpoints `POST /api/users/user/set-password/` & `POSt /api/users/user/verify-password/` to include `Cashier`
+- Create endpoints: `PATCH /api/users/user/update-city/{user_id}/`, `GET /api/tickets/booking/cashier/`, `PATCH /api/tickets/bookings/cashier/{id}/`, `GET /api/showtimes/{id}/report/`
+
+🖼️ **Frontend:**
+- Update `UserManagement component` to set `Cashier role` and user's `City`, `UserProfile` & `StaffDashboard` pages to allow access to `Cashier` to new components
+- Create `BookingDashboard` & `ShowtimeDashboard`, `ShowtimeReport` components
 ---
 ### ✅ v0.6.0-alpha (completed on 3 July 2025)
-🚀 <b>Features:</b>
-- Build Shows page where users see complete list of showtimes in their City location
-- Users can now reserve up to 5 seats in a single transaction but they can not make reservations for showtimes that have less than 30 minutes until starts
-- Users can now purchase multiple seats, without limits, in a single transaction, but they have 1 minute to complete the payment, otherwise it is going to be declined
-- Reservations now expire when the showtime starts in less than 30 minutes
+🚀 **Features:**
+- Build Shows page where users see complete list of showtimes in their City location.
+- Users can now reserve up to 5 seats in a single transaction but they can not make reservations for showtimes that have less than 30 minutes until starts.
+- Users can now purchase multiple seats, without limits, in a single transaction, but they have 1 minute to complete the payment, otherwise it is going to be declined.
+- Reservations now expire when the showtime starts in less than 30 minutes.
 
-⚙️ <b>Backend:</b>
+⚙️ **Backend:**
 - Update models: 
     - `Booking` status include now `expired` option, and add new field expires_at, that is not null only for instances with status=reserverd & status=pending_payment
     - `Payment` booking (`ForeignKey` type) field is now bookings (`ManyToManyField` type) field
@@ -27,38 +41,38 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 - Create endpoints: `POST /api/tickets/pay/bookings/`, `PUT /api/tickets/pay/timeout/`
 - Create custom django-admin command `expired_bookings` (`Booking` instances that have expires_at past current time and `status=[reserved, pending_payment]` are updated to `status=expired`) and schedule a cron job (every 5 minutes) for cleanup
 
-🖼️ <b>Frontend:</b>
+🖼️ **Frontend:**
 - Create `ShowtimeList page`, and `TimerToFailedPayment` component inside `PaymentCreate page`
 - Update `ShowtimeDetail page`, `TicketReserve` & `TicketPay` components, `PaymentCreate` page (url is now static) and it's components
 - Update in all components: `showtime.date`, `showtime.time` to `showtime.starts_at`
 
-🐋<b>Docker Compose:</b>
+🐋**Docker Compose:**
 - Add services: Redis, Celery, django-celery-beat
 ---
 ### ✅ v0.5.0-alpha (completed on 1 July 2025)
-🚀 <b>Features:</b>
-- Build User Profile where users see some account details, their all time bookings, can cancel active reservations and reach Staff Dashboard
-- Staff Dashboard is now marked as sensible content; in order to access it staff user need to set an account password first and then to enter it on every new session when they access the page
+🚀 **Features:**
+- Build User Profile where users see some account details, their all time bookings, can cancel active reservations and reach Staff Dashboard.
+- Staff Dashboard is now marked as sensible content; in order to access it staff user need to set an account password first and then to enter it on every new session when they access the page.
 
-⚙️ <b>Backend:</b>
+⚙️ **Backend:**
 - Update `Booking` status with `canceled` option
 - Create endpoints: `GET /api/tickets/bookings/history/`, `POST /api/tickets/booking/{id}/cancel/`, `POST /api/users/user/set-password/`, `POST /api/users/user/verify-password/`
 
-🖼️ <b>Frontend:</b>
+🖼️ **Frontend:**
 - Create `UserProfile page` and a `BookingHistory component` to be included in, also add link to `Staff Dashboard page` for adequates roles
 - Create components `PasswordSet` and `PasswordVerify` for so-called `2FA` of staff roles
 - Update `AuthContext` to save status of `2FA`
 ---
 ### ✅ v0.4.0-alpha (completed on 29 June 2025; include Sprint #6)
-🚀 <b>Features:</b>
+🚀 **Features:**
 - Build Staff Dashboard where site admins see a list of users and can assign roles as "Manager" or "Employee".
 - On the same page, "Employee" can see lists of existing genres, movies, showtimes, and can create, update, delete entries, while "Manager" can do the same, but in addition can view, create, update, delete cities and theaters, as well as view bookings and payments made by users.
 
-⚙️ <b>Backend:</b>
+⚙️ **Backend:**
 - Create `permissions` file to filter access to endpoints for `Manager` & `Employee` groups.
 - Create endpoints: `GET /api/users/`, `GET /api/users/user`, `PATCH /api/users/user/update/{id}/`, `POST /api/movies/genres/create/`, `PUT /api/movies/genres/{id}/`, `DELETE /api/movies/genres/{id}/`, `POST /api/movies/create/`, `PATCH /api/movies/movie/{id}/`, `DELETE /api/movies/movie/{id}/`, `POST /api/locations/cities/create/`, `PUT /api/locations/cities/{id}/`, `DELETE /api/locations/cities/{id}/`, `POST /api/locations/theaters/create/`, `PATCH /api/locations/theaters/staff/{id}/`, `DELETE /api/locations/theaters/staff/{id}/`, `GET /api/showtimes/staff/`, `POST /api/showtimes/staff/create/`, `PATCH /api/showtimes/staff/{id}/`, `DELETE /api/showtimes/staff/{id}/`, `GET /api/tickets/bookings/`, `GET /api/tickets/payments/`
 
-🖼️ <b>Frontend:</b>
+🖼️ **Frontend:**
 - Update `AuthContext` to retrieve data (user groups, staff status) about the user and save it
 - Create `RequirePermissions component` to restrict access to children components based on user's groups, staff status
 - Create `StaffDashboard page` and his components: 
@@ -71,68 +85,76 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
     - `BookingManagement` & `PaymentManagement`: for `Manager`, to list bookings & payments
 ---
 ### ✅ v0.3.1-alpha (completed on 25 June 2025)
-🐛 <b>Fixes:</b>
+🐛 **Fixes:**
 - A seat that have a declined payment could now be reserved / purchased again.
 ---
 ### ✅ v0.3.0-alpha (completed on 25 June 2025; include Sprint #5)
-🚀 <b>Features:</b>
+🚀 **Features:**
 - User see on the showtime page the status of every seat (available, reserved or purchased); only logged in users can reserve or pay ticket for an available seat by clicking a button.
 - Reserve button will inform user through an alert about his action status, and if success, the reservation creates and the seat become reserved.
 - Pay button will redirect user to payment page, where will user needs to select a payment method to confirm the payment for the booking.
 
-⚙️ <b>Backend:</b>
+⚙️ **Backend:**
 - Start `tickets` app and migrate `Booking` and `Payment` models
 - Create endpoints: `GET /api/tickets/booking/{id}/`, `POST /api/tickets/pay/`, `POST /api/tickets/pay/{booking_id}/`, `POST /api/tickets/reserve/`
 
-🖼️ <b>Frontend:</b>
+🖼️ **Frontend:**
 - Update `ShowtimeDetail page` to present the statuses of the seats, plus a condition that only authenticated users can see `reserve / pay a ticket` buttons.
 - Create `TicketReserve component` to include it to `ShowtimeDetail page` to let user make a reservation
 - Create `TicketPay component` to include it to `ShowtimeDetail page` to make a temporary reservation (waiting for payment's confirmation) and redirect user
 - Create `PaymentCreate page`, where user gets redirected, and included `BookingPresentation component`, `PaymentMethodSelector component`
 ---
 ### ✅ v0.2.0-alpha (completed on 23 June 2025; include Sprint #4)
-🚀 <b>Features:</b>
+🚀 **Features:**
 - User can log in (and sign up) using personal Google account.
 
-⚙️ <b>Backend:</b>
+⚙️ **Backend:**
 - Start `users` app
 - Create endpoints: `POST /api/users/auth-google/`, `POST /api/users/token/verify/`, `POST /api/users/token/refresh/`
 
-🖼️ <b>Frontend:</b>
+🖼️ **Frontend:**
 - Create `GoogleAuth component` to include it to `Header`, and `AuthContext` to save user status (is logged in/out), tokens
 ---
 ### ✅ v0.1.0-alpha (completed on 18 June 2025; include Sprint #2, Sprint #3)
-🚀 <b>Features:</b>
+🚀 **Features:**
 - User can select a cinema location, which remains saved for the entire site usage. The location can be changed at any time and helps to filter information regarding that cinema location only.
 - User see on the main page a list of available movies and can select a movie from the list to load more details, including its showtimes.
 - User can select a showtime to see details about, including the number of cinema theater seats in the theater where it's playing.
 
-⚙️ <b>Backend:</b>
+⚙️ **Backend:**
 - Start `movies`, `locations` and `showtimes` app and migrate `Genre`, `Movie`, `City`, `Theater`, `Seat` and `Showtime` models
 - Create endpoints: `GET /api/movies/`, `GET /api/movies/{id}/`, `GET /api/movies/genres/`, `GET /api/locations/cities/`, `GET /api/locations/seats/`, `GET /api/locations/theaters/`, `GET /api/locations/theaters/{id}/`, `GET /api/showtimes/`, `GET /api/showtimes/{id}/`
 
-🖼️ <b>Frontend:</b>
+🖼️ **Frontend:**
 - Create `Header`, `HeaderNavbar`, `Footer`, `CityContext` components to let user select their City location and save it to context
 - Create `Main page` to present a movie list
 - Create `MovieDetail page` to present details about user requested movie, and a list of his existing showtimes filtered by user city choice
 - Create `ShowtimeDetail page` to present details about user requested showtime, and a list of the existing seats in the theater where it will take place
 ---
 ### ✅ v0.0.0-alpha (completed on 12 June 2025; include Sprint #1)
-📝 <b>Docs:</b>
+📝 **Docs:**
 - Plan and document app & user workflow, initial database & endpoints design
 ---
 
 
 ## Development Notes
 
-### 🔜 Sprint #9 (started on 6 June 2025; ended on <i>TBA</i>): "Backend & Frontend: Staff - Cashier group & showtime reporting"
-- Create `UserProfile` model (key to `User` model) and add field `city` (ForeignKey) to it
+### 🔜 Sprint #10 (started on 9 June 2025; ended on <i>TBA</i>): "Backend & Frontend: Refactor & design"
+- **About current status and next steps:** 
+    - After completing the MVP (Minimum Viable Product), the next step is to systematically enhance each of the existing pages (7). This includes implementing a more user-friendly interface using Chakra UI library, completing the existing models with relevant fields, and improving overall code quality by refactoring the codebase, evaluating API endpoints, optimizing database queries, and increasing test coverage.
+
+- **About future development methodology:** 
+    - During this phase, which aligns with the beta version of the app, a new branch called `beta` will be created. The Pull Request (PR) workflow will be used to simulate working on an existing codebase that requires rework. This means starting a separate branch for each existing page and avoiding interaction with the `main` branch until the end of the sprint.
+    - Since this is not a feature development phase, the work will be more iterative and less task-oriented. All specific changes and improvements will be documented in the Release Notes for version v0.8.0-beta.
+---
+### ✅ Sprint #9 (started on 6 June 2025; ended on 6 June 2025): "Backend & Frontend: Staff - Cashier group & showtime reporting"
+- Create `UserProfile` model (extends`User` model) with field `city` (ForeignKey) to it
 - Create group `Cashier`, update `PATCH /api/users/user/update/{id}/` and the workflow around it to make possible to can set the group & a `city` for user
-- Update `AuthContext` & `GET /api/users/user/` to save the `city` in `userCityId` variable
+- Update `AuthContext` & `GET /api/users/user/` to save the `city` in `user` object
 - Update `StaffDashboard page` to include for `Cashier` group the next components:
-    - a `Booking dashboard` that will show all `Bookings` with `status=reserved` from that `City` (data from updated `GET /api/tickets/bookings/?city={userCityId}`) and include user who booked, with checkboxes to complete multiple bookings (create `POST /api/tickets/reserve/complete/` to update `status=purchased`)
+    - a `Booking dashboard` that will show all `Bookings` with `status=reserved` from that `City` (data from updated `GET /api/tickets/bookings/?city={userCityId}`), with option to complete bookings (create `POST /api/tickets/reserve/complete/` to update `status=purchased`)
     - a `Showtime dashboard` that will show all `Showtimes` from that `City` (data from `GET /api/showtimes/?city={userCityId}`), their seats and status (data from `/api/showtimes/{id}/seats/`), with option to make a payment for these seats like a regular user does in `ShowtimeDetail page`
-- Update `StaffDashboard page` to include, only for `Manager` group, a `ShowtimeReport` (create `GET /api/showtime/{id}/reports/` endpoint) with analytics data (calculate tickets sold count, total revenue, and room occupancy percentage)
+- Update `StaffDashboard page` to include for `Manager` group a `ShowtimeReport` (create `GET /api/showtime/{id}/reports/` endpoint) with analytics data (calculate tickets sold count, total revenue, and room occupancy percentage)
 ---
 ### ✅ Sprint #8 (started on 2 July 2025; ended on 3 July 2025): "Backend & Frontend: Multiple bookings & more management of their status" 
 - Create `ShowtimeList page` to use `GET /api/showtimes/upcoming/?city={selectedCityId}` to group showtimes by date in chronological order
@@ -200,7 +222,7 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 - Start `showtimes` app and create `Showtime` model, alongside with the following API endpoints: `GET /api/showtimes/?city=<ID>&movie=<ID>` (list all the `Showtime` objects linked to a specific `City` and `Movie` objects), `GET /api/showtimes/<ID>/` (detail a specific `Showtime` object with linked `Theater` object included)
 ---
 ### ✅ Sprint #1 (started on 12 June 2025; ended on 12 June 2025): "Backend & Frontend - Project initialization"
-- Configure git repository and initialize README with app workflow and database design overview
+- Configure git repository and initialize README with initial [app workflow](https://i.imgur.com/tu8nUz8.jpeg) & [database design overview]((https://i.imgur.com/mpOoMu8.png))
 - Starting backend & frontend apps and installing their dependencies
 - Dockerizing frontend, backend and postgresDB
 ---
