@@ -1,9 +1,14 @@
 // React, dependencies & packages
-import { useState, forwardRef } from "react"
+import { forwardRef } from "react"
 
 // UI
 import { Box, Button, Flex, HStack, chakra, Portal } from "@chakra-ui/react"
 import { Menu } from "@ark-ui/react"
+
+// App
+import { useGetCities } from "@/hooks/locations/useGetCities"
+import { useCityContext } from "@/contexts/CityContext"
+
 
 // Components here
 
@@ -41,14 +46,18 @@ const NavLink = ({ children, href = "#" }) => (
 )
 
 const Navbar = () => {
-  const [selectedCityName, setSelectedCityName] = useState("Choose City");
+  // Get cities list
+  const { cities, loading: citiesLoading, error: citiesError } = useGetCities()
+  // Save City data selected by user
+  const { setSelectedCityId, selectedCityName, setSelectedCityName } = useCityContext()
 
-  const cities = [
-    { id: 1, name: "Cluj" },
-    { id: 2, name: "Bucuresti" },
-    { id: 3, name: "Timisoara" },
-    { id: 4, name: "Iasi" },
-  ];
+  // if (citiesLoading) {
+  //   return <Text>{citiesLoading}</Text>
+  // }
+
+  // if (citiesError) {
+  //   return <Text>{citiesError}</Text>
+  // }
 
   return (
     <Box bg="#7B7E82" w="100%" p={4} color="white">
@@ -76,7 +85,10 @@ const Navbar = () => {
                   {cities.map((city) => (
                     <Menu.Item
                       key={city.id}
-                      onClick={() => setSelectedCityName(city.name)}
+                      onClick={() => {
+                        setSelectedCityId(city.id)
+                        setSelectedCityName(city.name)
+                      }}
                     >
                       <Box
                         px={4}

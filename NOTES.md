@@ -12,6 +12,7 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 ### 🔜 v0.8.0-beta (completed on <i>TBA</i>)
 ♻️ **Refactors:**
 - Design `Layout`, `Header`, `Navbar`, `Footer` components
+- Create `cityService`, `useGetCities` to fetch Navbar
 
 ### ✅ v0.7.0-alpha (completed on 6 July 2025)
 🚀 **Features:**
