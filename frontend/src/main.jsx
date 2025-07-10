@@ -1,6 +1,7 @@
 // React, dependencies & packages
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
 
 // App 
 import { Provider } from './components/ui/provider'
@@ -15,14 +16,16 @@ import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Provider>
-      <GoogleOAuthProvider clientId={clientId}>
-        <AuthProvider>
-          <CityProvider>
-            <App />
-          </CityProvider>
-        </AuthProvider>
-      </GoogleOAuthProvider>
-    </Provider>
+    <BrowserRouter>
+      <Provider>
+        <GoogleOAuthProvider clientId={clientId}>
+          <AuthProvider>
+            <CityProvider>
+              <App />
+            </CityProvider>
+          </AuthProvider>
+        </GoogleOAuthProvider>
+      </Provider>
+    </BrowserRouter>
   </StrictMode>,
 )

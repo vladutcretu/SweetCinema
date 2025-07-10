@@ -8,7 +8,7 @@ import { Menu } from "@ark-ui/react"
 // App
 import { useGetCities } from "@/hooks/locations/useGetCities"
 import { useCityContext } from "@/contexts/CityContext"
-
+import Auth from "../auth/Auth"
 
 // Components here
 
@@ -74,7 +74,7 @@ const Navbar = () => {
         <Flex alignItems="center" gap={4}>
           <Menu.Root>
             <Menu.Trigger asChild>
-              <Button variant="plain" size="sm" colorScheme="whiteAlpha">
+              <Button variant="plain" size="xl" colorScheme="whiteAlpha">
                 {selectedCityName}
               </Button>
             </Menu.Trigger>
@@ -105,7 +105,7 @@ const Navbar = () => {
             </Portal>
           </Menu.Root>
 
-          <NavLink href="/login">Log In</NavLink>
+          <NavLink><Auth /></NavLink>
         </Flex>
       </Flex>
     </Box>

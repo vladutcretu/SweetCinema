@@ -1,5 +1,5 @@
 // React, dependencies & packages
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 
 // App
 import Layout from './components/layout/Layout'
@@ -18,7 +18,6 @@ import StaffDashboard from './pages/StaffDashboard'
 function App() {
   return (
     <Layout children={
-      <Router>
         <Routes>
           <Route path='/' element={<MovieList />} />
           <Route path='/showtimes/' element={<ShowtimeList />} />
@@ -28,7 +27,6 @@ function App() {
           <Route path='/profile/' element={<UserProfile />} />
           <Route path='/staff/' element={<StaffDashboard />} />
         </Routes>
-      </Router>
     } />
   )
 }
