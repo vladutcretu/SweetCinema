@@ -8,6 +8,7 @@ import { Menu } from "@ark-ui/react"
 // App
 import { useGetCities } from "@/hooks/locations/useGetCities"
 import { useCityContext } from "@/contexts/CityContext"
+import { useAuthContext } from "@/contexts/AuthContext"
 import Auth from "../auth/Auth"
 
 // Components here
@@ -50,6 +51,8 @@ const Navbar = () => {
   const { cities, loading: citiesLoading, error: citiesError } = useGetCities()
   // Save City data selected by user
   const { setSelectedCityId, selectedCityName, setSelectedCityName } = useCityContext()
+  // Get user's auth status & account details from context
+  const { isAuthenticated, user } = useAuthContext()
 
   // if (citiesLoading) {
   //   return <Text>{citiesLoading}</Text>
@@ -105,6 +108,7 @@ const Navbar = () => {
             </Portal>
           </Menu.Root>
 
+          {isAuthenticated && <NavLink href="/profile/">{user?.username}'s profile</NavLink>} 
           <NavLink><Auth /></NavLink>
         </Flex>
       </Flex>

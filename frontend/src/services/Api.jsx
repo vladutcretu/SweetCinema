@@ -16,4 +16,18 @@ const api = axios.create({
   }
 })
 
+// Interceptor for JWT access
+let currentAccessToken = null
+
+export const setAuthToken = (token) => {
+  currentAccessToken = token
+}
+
+api.interceptors.request.use((config) => {
+  if (currentAccessToken) {
+    config.headers.Authorization = `Bearer ${currentAccessToken}`
+  }
+  return config
+})
+
 export default api
