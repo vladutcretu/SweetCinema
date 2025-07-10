@@ -2,7 +2,7 @@
 import React from 'react'
 
 // App
-import RequirePermission from '../components/auth/RequirePermissions'
+import RequirePermission from '../utils/RequirePermissions'
 import UserManagement from '../components/staff/UserManagement'
 import { useAuthContext } from '../contexts/AuthContext'
 import GenreManagement from '../components/staff/GenreManagement'
