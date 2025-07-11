@@ -20,6 +20,8 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 - Update button on `MovieCard`
 - Create `useGetMovie` & `useGetMovieShowtimesByCity`, `showtimeService` and update `movieService`
 - Refactor `MovieDetail` to `Movie` page, `MoviePresentation` & `MovieShowtimes` components
+- Create `useGetShowtime`, `useGetShowtimeSeats`, and update `showtimeService`
+- Refactor `ShowtimeDetail` to `Showtime` page, `ShowtimePresentation` & `ShowtimeSeats` components
 
 
 ### ✅ v0.7.0-alpha (completed on 6 July 2025)
