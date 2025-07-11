@@ -6,6 +6,7 @@ import Layout from './components/layout/Layout'
 
 import Home from './pages/Home'
 
+
 import ShowtimeList from './pages/ShowtimeList'
 import MovieDetail from './pages/MovieDetail'
 import ShowtimeDetail from './pages/ShowtimeDetail'
