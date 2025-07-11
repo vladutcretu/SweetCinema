@@ -46,7 +46,7 @@ const ShowtimePresentation = () => {
             </Stack> 
 
             {/* Seats section*/}
-            <ShowtimeSeats showtimeId={showtimeId} columns={showtime.theater.columns}/>
+            <ShowtimeSeats showtimeId={showtimeId} theaterColumns={showtime.theater.columns} showtimeStart={showtime.starts_at}/>
 
             {/* Back to movie list button */}
             <BackButton 

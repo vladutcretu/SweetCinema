@@ -7,16 +7,16 @@ import { showtimeService } from "@/services/showtimes/showtimeService"
 // Components here
 
 
-export const useGetShowtimeSeats = (id) => {
+export const useGetShowtimeSeats = (showtimeId) => {
   const [showtimeSeats, setShowtimeSeats] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const getShowtimeSeats = async (id) => {
+  const getShowtimeSeats = async () => {
     try {
       setLoading(true)
       setError(null)
-      const response = await showtimeService.getShowtimeSeats(id)
+      const response = await showtimeService.getShowtimeSeats(showtimeId)
       setShowtimeSeats(response.data)
       console.log("Get Showtime Seats successful:", response.data)
     } catch (error) {
@@ -28,8 +28,8 @@ export const useGetShowtimeSeats = (id) => {
   }
   
   useEffect(() => {
-    getShowtimeSeats(id)
-  }, [])
+    getShowtimeSeats(showtimeId)
+  }, [showtimeId])
 
-  return { showtimeSeats, loading, error }
+  return { showtimeSeats, loading, error, refetch: getShowtimeSeats }
 }
