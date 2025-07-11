@@ -14,6 +14,7 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 - Design `Layout`, `Header`, `Navbar`, `Footer` components
 - Create `cityService`, `useGetCities` to fetch Navbar
 - Refactor `GoogleAuth`, `AuthContext` components
+- Refactor `MovieList` to `Home` page, `MoviesGrid` & `MovieCard` components
 
 ### ✅ v0.7.0-alpha (completed on 6 July 2025)
 🚀 **Features:**

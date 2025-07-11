@@ -4,7 +4,8 @@ import { Routes, Route } from 'react-router-dom'
 // App
 import Layout from './components/layout/Layout'
 
-import MovieList from './pages/MovieList'
+import Home from './pages/Home'
+
 import ShowtimeList from './pages/ShowtimeList'
 import MovieDetail from './pages/MovieDetail'
 import ShowtimeDetail from './pages/ShowtimeDetail'
@@ -19,7 +20,7 @@ function App() {
   return (
     <Layout children={
         <Routes>
-          <Route path='/' element={<MovieList />} />
+          <Route path='/' element={<Home />} />
           <Route path='/showtimes/' element={<ShowtimeList />} />
           <Route path='/movie/:movieId/' element={<MovieDetail />} />
           <Route path='/showtime/:showtimeId/' element={<ShowtimeDetail />} />
