@@ -28,6 +28,8 @@ const MoviePresentation = () => {
 
   return (
     <Box px={{ base: 4, md: 10 }} py={10} maxW="7xl" mx="auto">
+      <Heading mb={6}>Movie</Heading>
+
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
         {/* Movie Poster */}
         <Box>
