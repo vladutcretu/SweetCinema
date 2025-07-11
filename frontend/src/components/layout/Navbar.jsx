@@ -91,6 +91,7 @@ const Navbar = () => {
                       onClick={() => {
                         setSelectedCityId(city.id)
                         setSelectedCityName(city.name)
+                        location.reload()
                       }}
                     >
                       <Box

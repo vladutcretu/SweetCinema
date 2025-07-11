@@ -6,4 +6,5 @@ import api from "../Api"
 
 export const movieService = {
     getMovies: () => api.get(`/movies/`),
+    getMovie: (id) => api.get(`/movies/${id}/`),
 }

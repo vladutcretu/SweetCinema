@@ -5,10 +5,9 @@ import { Routes, Route } from 'react-router-dom'
 import Layout from './components/layout/Layout'
 
 import Home from './pages/Home'
-
+import Movie from './pages/Movie'
 
 import ShowtimeList from './pages/ShowtimeList'
-import MovieDetail from './pages/MovieDetail'
 import ShowtimeDetail from './pages/ShowtimeDetail'
 import PaymentCreate from './pages/PaymentCreate'
 import UserProfile from './pages/UserProfile'
@@ -22,8 +21,9 @@ function App() {
     <Layout children={
         <Routes>
           <Route path='/' element={<Home />} />
+          <Route path='/movie/:movieId/' element={<Movie />} />
+
           <Route path='/showtimes/' element={<ShowtimeList />} />
-          <Route path='/movie/:movieId/' element={<MovieDetail />} />
           <Route path='/showtime/:showtimeId/' element={<ShowtimeDetail />} />
           <Route path='/payment/' element={<PaymentCreate />} />
           <Route path='/profile/' element={<UserProfile />} />
