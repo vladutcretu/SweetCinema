@@ -15,6 +15,12 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 - Create `cityService`, `useGetCities` to fetch Navbar
 - Refactor `GoogleAuth`, `AuthContext` components
 - Refactor `MovieList` to `Home` page, `MoviesGrid` & `MovieCard` components
+- Add automatic refresh after City selection on `Navbar`
+- Create `ForwardButton`, `BackButton`, and `DateTimeFormat` components
+- Update button on `MovieCard`
+- Create `useGetMovie` & `useGetMovieShowtimesByCity`, `showtimeService` and update `movieService`
+- Refactor `MovieDetail` to `Movie` page, `MoviePresentation` & `MovieShowtimes` components
+
 
 ### ✅ v0.7.0-alpha (completed on 6 July 2025)
 🚀 **Features:**

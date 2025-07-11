@@ -1,15 +1,12 @@
-// React, dependencies & packages
-import { Link } from "react-router-dom"
-
 // UI
-import { Box, Image, Text, Heading, Button, Stack } from "@chakra-ui/react"
+import { Box, Image, Heading, Stack, Badge } from "@chakra-ui/react"
+import ForwardButton from "../common/ForwardButton"
 
 // Components here
 
 
 function MovieCard({ movie }) {
   const { id, poster, title, genres } = movie
-  const genreText = genres?.length > 0 ? genres.map(genre => genre.name).join(", ") : "No genres"
 
   return (
     <Box
@@ -22,6 +19,7 @@ function MovieCard({ movie }) {
       flexDirection="column"
       height="100%"
     >
+      {/* Movie Poster */}
       <Box position="relative" aspectRatio={2 / 3} width="100%">
         <Image
           src={poster}
@@ -33,25 +31,15 @@ function MovieCard({ movie }) {
         />
       </Box>
 
+      {/* Movie Details */}
       <Stack spacing={2} p={4} flex="1">
-        <Heading size="md" noOfLines={1}>
-          {title}
-        </Heading>
-        <Text fontSize="sm" noOfLines={2}>
-          {genreText}
-        </Text>
-
-        <Button
-          as={Link}
-          to={`/movie/${id}/`}
-          mt="auto"
-          size="sm"
-          colorScheme="teal"
-          variant="outline"
-          alignSelf="start"
-        >
-          See showtimes
-        </Button>
+        <Heading size="md" noOfLines={1}>{title}</Heading>
+        <Stack direction="row" wrap="wrap">
+          {genres.map((genre) => (
+            <Badge key={genre.id} colorScheme="teal" variant="subtle">{genre.name}</Badge>
+          ))}
+        </Stack>
+        <ForwardButton to={`/movie/${id}/`} text={"movie"} />
       </Stack>
     </Box>
   )
