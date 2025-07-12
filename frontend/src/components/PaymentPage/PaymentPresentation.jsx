@@ -6,6 +6,8 @@ import { useLocation } from "react-router-dom"
 import { Box, Stack, Heading, Badge, Text, Spinner, SimpleGrid } from "@chakra-ui/react"
 
 // App
+import { useAuthContext } from "@/contexts/AuthContext"
+import Page404 from "../common/Page404"
 import { useGetPaymentBookings } from "@/hooks/tickets/useGetPaymentBookings"
 import { formatDate, formatTime } from "@/utils/DateTimeFormat"
 import PaymentMethod from "./PaymentMethod"
@@ -16,6 +18,9 @@ import PaymentConfirmation from "./PaymentConfirmation"
 
 
 const PaymentPresentation = () => {
+  const { isAuthenticated } = useAuthContext()
+  if (!isAuthenticated) return <Page404 />
+
   const [paymentMethod, setPaymentMethod] = useState('')
   
   // Get local states from ShowtimeTicket.Purchase

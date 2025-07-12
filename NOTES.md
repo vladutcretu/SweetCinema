@@ -26,6 +26,10 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 - Refactor `TicketReserve` & `TicketPay` components to `ShowtimeTicket` component
 - Create `useGetPaymentBookings`, `usePaymentTimeout`, `usePostPaymentComplete` and update `ticketService` 
 - Refactor `PaymentCreate` to `Payment` page, `PaymentPresentation`, `PaymentMethod`, `PaymentTimer`, `PaymentConfirmation` components
+- Create `Page404` component
+- Create `useUserBookingHistory`, `useUserCancelBooking` and update `ticketService`
+- Refactor `UserProfile` to `Profile` page, `StaffStatus` & `BookingHistory`, `BookingCancelButton` components
+
 
 
 ### ✅ v0.7.0-alpha (completed on 6 July 2025)

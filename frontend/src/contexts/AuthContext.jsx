@@ -99,16 +99,17 @@ export function AuthProvider({ children }) {
     checkAccessToken()
   }, [])
 
-    // Login logic to update auth status and user data
+  // Login logic to update auth status and user data
   const login = async (access, refresh) => {
     sessionStorage.setItem("access_token", access)
     sessionStorage.setItem("refresh_token", refresh)
     setIsAuthenticated(true)
     setAccessToken(access)
+    setAuthToken(access)
     await getUserData()
   }
 
-    // Logout logic to update auth status and user data
+  // Logout logic to update auth status and user data
   const logout = async () => {
     sessionStorage.removeItem("access_token")
     sessionStorage.removeItem("refresh_token")
