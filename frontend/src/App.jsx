@@ -9,8 +9,9 @@ import Movie from './pages/Movie'
 import Showtime from './pages/Showtime'
 import Payment from './pages/Payment'
 
+import Profile from './pages/Profile'
+
 import ShowtimeList from './pages/ShowtimeList'
-import UserProfile from './pages/UserProfile'
 import StaffDashboard from './pages/StaffDashboard'
 
 
@@ -21,13 +22,16 @@ function App() {
   return (
     <Layout children={
         <Routes>
+          {/* User: main workflow */}
           <Route path='/' element={<Home />} />
           <Route path='/movie/:movieId/' element={<Movie />} />
           <Route path='/showtime/:showtimeId/' element={<Showtime />} />
           <Route path='/payment/' element={<Payment />} />
 
+          {/* User & Staff: setup workflow */}
+          <Route path='/profile/' element={<Profile />} />
+
           <Route path='/showtimes/' element={<ShowtimeList />} />
-          <Route path='/profile/' element={<UserProfile />} />
           <Route path='/staff/' element={<StaffDashboard />} />
         </Routes>
     } />
