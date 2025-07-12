@@ -24,6 +24,8 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 - Refactor `ShowtimeDetail` to `Showtime` page, `ShowtimePresentation` & `ShowtimeSeats` components
 - Create `useShowtimeSeatSelect`, `ticketService`, `usePostTicketReserve` & `usePostTicketPurchase` and update `showtimeService`
 - Refactor `TicketReserve` & `TicketPay` components to `ShowtimeTicket` component
+- Create `useGetPaymentBookings`, `usePaymentTimeout`, `usePostPaymentComplete` and update `ticketService` 
+- Refactor `PaymentCreate` to `Payment` page, `PaymentPresentation`, `PaymentMethod`, `PaymentTimer`, `PaymentConfirmation` components
 
 
 ### ✅ v0.7.0-alpha (completed on 6 July 2025)
