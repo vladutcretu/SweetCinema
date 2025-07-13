@@ -18,7 +18,6 @@ const UserProfile = () => {
   const { isAuthenticated, user } = useAuthContext()
   if (!isAuthenticated) return <Page404 />
 
-
   return (
       <Box px={6} py={10}>
         <Stack spacing={8}>
