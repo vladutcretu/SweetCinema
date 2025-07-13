@@ -20,6 +20,7 @@ import PaymentManagement from "@/components/staff/PaymentManagement"
 import BookingDashboard from "@/components/staff/BookingDashboard"
 import ShowtimeSeatManager from "@/components/staff/ShowtimeDashboard"
 import ShowtimeReportDashboard from "@/components/staff/ShowtimeReport"
+import BackButton from "@/components/common/BackButton"
 
 // Components here
 
@@ -66,7 +67,8 @@ const Staff = () => {
             <Tabs.Content value="showtimeD"><ShowtimeSeatManager /></Tabs.Content>
             <Tabs.Content value="showtimeR"><ShowtimeReportDashboard /></Tabs.Content>
           </Tabs.Root>
-        </Box>
+          <BackButton to={'/'} text={"home"} />
+        </Box> 
       </Stack>
     </Box>
   )

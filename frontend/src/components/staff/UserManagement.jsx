@@ -1,221 +1,143 @@
 // React, dependencies & packages
-import React, { useEffect, useState } from 'react'
+import { useState } from 'react'
+
+// UI
+import { Center, Field, Heading, Input } from '@chakra-ui/react'
 
 // App
-import { useAuthContext } from '../../contexts/AuthContext'
-const api_url = import.meta.env.VITE_API_URL
+import { useGetUsers } from '@/hooks/users/useGetUsers'
+import { useUpdateUserGroup } from '@/hooks/users/useUpdateUserGroup'
+import { useSetCashierCity } from '@/hooks/users/useSetCashierCity'
+import SearchBar from '../common/SearchBar'
+import SubmitButton from '../common/SubmitButton'
+import ReusableTable from '../common/ReusableTable'
+import FormWrapper from '../common/FormWrapper'
+import useFormState from '@/hooks/useFormState'
+import useSearchBar from '@/hooks/useSearchBar'
 
-// Write components here
+// Components here
 
 
 const UserManagement = () => {
-    // Fetch User data
-    const [users, setUsers] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(null)
+  const { users, loading: loadingUsers, error: errorUsers, refetch: getUsers } = useGetUsers()
+  const { searchTerm, handleChangeSearch, filteredData: filteredUsers } = useSearchBar(users, "username")
+  const { updateUserGroup, loading: loadingUpdateUser, error: errorUpdateUser } = useUpdateUserGroup()
+  const { setCashierCity, loading: loadingSetCashierCity, error: errorSetCashierCity } = useSetCashierCity()
 
-    // Get context for access
-    const { accessToken } = useAuthContext()
-    
-    // Get users list (outside of useEffect to call when update groups)
-    const getUserList = async() => {
-        try {
-            const response = await fetch(`${api_url}/users/`, {
-                method: 'GET',
-                headers: {'Authorization': `Bearer ${accessToken}`}
-            })
-            if (!response.ok) {
-                throw new Error (`HTTP error! Response status: ${response.status}`)
-            } else {
-                const data = await response.json()
-                console.log(data)
-                setUsers(data)
-            }
-        } catch (error) {
-            console.error('Fetching User error', error)
-            setError('Users cannot be loaded. Please try again!')
-        } finally {
-            setLoading(false)
-        }
+  // Build table
+  const columns = [
+    { key: 'id', title: 'ID' },
+    { key: 'user', title: 'Username / Email' },
+    { key: 'groups', title: 'Groups' },
+    { key: 'setGroup', title: 'Set Group' }
+  ]
+  const renderCell = (user, column) => {
+    switch (column.key) {
+      case 'id': return user.id
+      case 'user': return `${user.username} / ${user.email}`
+      case 'groups': return user.groups.join(", ")
+      default: return user[column.key]
     }
+  }
+  const renderActions = (user) => (
+    <form onSubmit={handleSubmitActions}>
+      <SubmitButton
+        onClick={() => handleButtonActions(user.id, "Manager")}
+        loading={loadingUpdateUser}
+        text={"Manager"}
+      />
+      <SubmitButton
+        onClick={() => handleButtonActions(user.id, "Employee")}
+        loading={loadingUpdateUser}
+        text={"Employee"}
+      />
+      <SubmitButton
+        onClick={() => handleButtonActions(user.id, "Cashier")}
+        loading={loadingUpdateUser}
+        text={"Cashier"}
+      />
+      <SubmitButton
+        onClick={() => handleButtonActions(user.id, "User")}
+        loading={loadingUpdateUser}
+        text={"User"}
+      />
+    </form>
+  )
 
-    useEffect(() => {
-        getUserList()
-    }, [])
-
-    // Filter data using Search Bar
-    const [searchTerm, setSearchTerm] = useState("")
-
-    const handleChangeSearch = (event) => {
-        setSearchTerm(event.target.value)
+  // Update user Group
+  const [userId, setUserId] = useState("")
+  const [action, setAction] = useState([])
+  const handleButtonActions = (userId, action) => {
+    setUserId(userId)
+    if (action === "User") {
+        setAction([])
+    } else {
+        setAction([action])
     }
+  }
+  const handleSubmitActions = async (event) => {
+    event.preventDefault()
+    const result = await updateUserGroup(userId, action)
+    if (result) await getUsers()
+  }
 
-    const filteredUsers = users.filter(user => 
-        user.username.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-
-    // Promote / Demote user
-    const [userId, setUserId] = useState("")
-    const [action, setAction] = useState([])
-
-    const handleButtonActions = (userId, action) => {
-        setUserId(userId)
-        if (action === "User") {
-            setAction([])
-        } else {
-            setAction([action])
-        }
-    }
-
-    const handleSubmitActions = (event) => {
-        event.preventDefault()
-        patchUserGroups()
-    }
-
-    // Fetch to update user
-    const patchUserGroups = async () => {
-        try {
-            const response = await fetch(`${api_url}/users/user/update/${userId}/`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                },
-                body: JSON.stringify({ groups: action })
-            })
-            if (!response.ok) {
-                const errorData = await response.json()
-                console.error('Update user failed:', errorData)
-                alert('Update failed: ' + (errorData?.detail || response.status))
-            } else {
-                const data = await response.json()
-                console.log(data)
-                alert(`Completed: USER ID ${userId} group updated!`)
-                // Fetch again
-                await getUserList()
-            }
-        } catch (error) {
-            console.error('Fetching User Update error', error)
-            alert('Something went wrong while updating user.')
-        }
-    }
-
-    // Update City for Cashier
-    const [updatedForm, setUpdatedForm] = useState(
-    { id: "", city: "" }
-    )
-
-    const handleChangeUpdate = (event) => {
-        const { name, value } = event.target
-        setUpdatedForm(prev => ({ ...prev, [name]: value }))
-    }
-
-    // Submit update on update tab
-    const handleSubmitUpdate = (event) => {
-        event.preventDefault()
-        patchCashierCityUpdate()
-        setUpdatedForm({ id: "", city: "" })
-    }
-
-    const patchCashierCityUpdate = async () => {
-        try {
-            const response = await fetch(`${api_url}/users/user/update-city/${updatedForm.id}/`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                },
-                body: JSON.stringify({ city: updatedForm.city })
-            })
-            if (!response.ok) {
-                const errorData = await response.json()
-                console.error('Update user city failed:', errorData)
-                alert('Update user city failed: ' + (errorData?.detail || response.status))
-            } else {
-                const data = await response.json()
-                console.log(data)
-                alert(`Completed: USER city got updated!`)
-                // Fetch again
-                await getUserList()
-            }
-        } catch (error) {
-            console.error('Fetching User Update City error', error)
-            alert('Something went wrong while updating user city.')
-        }
-    }
+  // Update city for Cashier
+  const { formData: updatedForm, handleChange: handleChangeUpdate, resetForm } = useFormState({ id: "", city: "" })
+  const handleSubmitUpdate = (event) => {
+    event.preventDefault()
+    setCashierCity(updatedForm.id, updatedForm.city)
+    resetForm()
+  }
 
   return (
     <>
-    <div style={{ backgroundColor: "#D2691E" }}>
-        <h3>User Management</h3>
+      <Center><Heading size="xl">User Management</Heading></Center>
 
-        {/* Search Bar */}
-        <div>
-            <label>Search user:</label>
-            <input type="text" value={searchTerm} onChange={handleChangeSearch} placeholder="Type username..."></input>
-        </div>
+      {/* Search Bar */}
+      <SearchBar value={searchTerm} onChange={handleChangeSearch} text={"username"} />
 
-        {/* User data */}
-        <table style={{ border: "1px solid black", width: "100%" }}>
-            <thead>
-                <tr>
-                    <th style={{ border: "1px solid black" }}>ID</th>
-                    <th style={{ border: "1px solid black" }}>Email</th>
-                    <th style={{ border: "1px solid black" }}>Username</th>
-                    <th style={{ border: "1px solid black" }}>Groups</th>
-                    <th style={{ border: "1px solid black" }}>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {loading && (<tr><td colSpan="4">User list is loading...</td></tr>)}
-                {error && (<tr><td colSpan="4">{error}</td></tr>)}
-                {!loading && !error && filteredUsers.length === 0 && (
-                    <tr>
-                        <td colSpan="4">Currently there are no users to show.</td>
-                    </tr>
-                )}
-                {!loading && !error && filteredUsers.length > 0 && filteredUsers.map(user => (
-                    <tr key={user.id}>
-                        <td style={{ border: "1px solid black" }}>{user.id}</td>
-                        <td style={{ border: "1px solid black" }}>{user.email}</td>
-                        <td style={{ border: "1px solid black" }}>{user.username}</td>
-                        <td style={{ border: "1px solid black" }}>{user.groups.join(", ")}</td>
-                        {/* Promote / Demote buttons */}
-                        <td style={{ border: "1px solid black" }}>
-                            <form onSubmit={handleSubmitActions}>
-                                <button  type="submit" onClick={() =>
-                                    handleButtonActions(user.id, "Manager")
-                                }>Promote to Manager</button>
-                                <button  type="submit" onClick={() =>
-                                    handleButtonActions(user.id, "Employee")
-                                }>Promote to Employee</button>
-                                <button  type="submit" onClick={() =>
-                                    handleButtonActions(user.id, "Cashier")
-                                }>Promote to Cashier</button>
-                                <button type="submit" onClick={() =>
-                                    handleButtonActions(user.id, "User")
-                                }>Demote to User</button>
-                            </form>
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
-        
-        <br />
+      {/* User table & Update user group */}
+      <ReusableTable
+        loading={loadingUsers}
+        error={errorUsers}
+        additionalErrors={[errorUpdateUser].filter(Boolean)}
+        data={filteredUsers}
+        columns={columns}
+        renderCell={renderCell}
+        renderActions={renderActions}
+        noDataMessage="No users found!"
+      />
 
-        {/* Update city location for a Cashier */}
-        <h4>Update City for Cashier</h4>
-        <form onSubmit={handleSubmitUpdate}>
-            <label>ID: </label>
-            <input type="number" name="id" value={updatedForm.id} onChange={handleChangeUpdate} required /><br />
-            <label>City: </label>
-            <input type="text" name="city" value={updatedForm.city} onChange={handleChangeUpdate} required /><br />
-            <button type="submit">Update City for Cashier</button>
-        </form>
-    </div>
+      {/* Update city for Cashier */}
+      <FormWrapper
+        title={"Update city for Cashier"}
+        onSubmit={handleSubmitUpdate}
+        submitText={"Set city"}
+        loading={loadingSetCashierCity}
+        error={errorSetCashierCity}
+      >
+        <Field.Label>User ID:</Field.Label>
+          <Input
+            type="number"
+            min={1}
+            name="id"
+            value={updatedForm.id}
+            onChange={handleChangeUpdate}
+            bg="white"
+            color="black"
+          />
+        <Field.Label>City name:</Field.Label>
+          <Input
+            type="text"
+            name="city"
+            value={updatedForm.city}
+            onChange={handleChangeUpdate}
+            placeholder="London"
+            bg="white"
+            color="black"
+          />
+        </FormWrapper>
     </>
   )
 }
-
 export default UserManagement
