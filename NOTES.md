@@ -34,7 +34,7 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 - Create `SearchBar`, `ReusableTable`, `FormWrapper`, `SubmitButton` components, `useSearchBar` & `useFormState` for DRY
 - Update `BookingHistory` table with `ReusableTable` component
 - Create`useGetUsers`, `useUpdateUserGroup`, `useSetCashierCity` and `userService`
-- Refactor `UserManagement`
+- Refactor `UserManagement`, `GenreManagement`
 
 
 ### ✅ v0.7.0-alpha (completed on 6 July 2025)

@@ -9,8 +9,8 @@ import StaffVerifyPass from "@/components/StaffPage/StaffVerifyPass"
 
 import RequirePermission from "@/utils/RequirePermissions"
 
-import UserManagement from "@/components/staff/UserManagement"
-import GenreManagement from "@/components/staff/GenreManagement"
+import UserManagement from "@/components/StaffPage/UserManagement"
+import GenreManagement from "@/components/StaffPage/GenreManagement"
 import MovieManagement from "@/components/staff/MovieManagement"
 import ShowtimeManagement from "@/components/staff/ShowtimeManagement"
 import CityManagement from "@/components/staff/CityManagement"
@@ -43,8 +43,11 @@ const Staff = () => {
         >
           <Tabs.Root lazyMount unmountOnExit size="lg" bg="#4B4E6D">
             <Tabs.List>
-              <Tabs.Trigger value="user">Manage User</Tabs.Trigger>
-              <Tabs.Trigger value="genre">Manage Genre</Tabs.Trigger>
+              {/* Staff tabs */}
+              <RequirePermission staff={true}><Tabs.Trigger value="user">Manage User</Tabs.Trigger></RequirePermission>
+              {/* Manager & Employee tabs */}
+              <RequirePermission groups={["Manager", "Employee"]}><Tabs.Trigger value="genre">Manage Genre</Tabs.Trigger></RequirePermission>
+              
               <Tabs.Trigger value="movie">Manage Movie</Tabs.Trigger>
               <Tabs.Trigger value="showtime">Manage Showtime</Tabs.Trigger>
               <Tabs.Trigger value="city">Manage City </Tabs.Trigger>
