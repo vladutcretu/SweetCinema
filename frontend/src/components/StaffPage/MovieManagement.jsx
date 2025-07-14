@@ -65,15 +65,15 @@ const MovieManagement = () => {
       case "genres": return movie.genres.map(g => g.name).join(", ")
     }
   }
-  const renderActions = (genre) => (
+  const renderActions = (movie) => (
     <>
     <SubmitButton
-      onClick={() => handleStartUpdate(genre)}
+      onClick={() => handleStartUpdate(movie)}
       loading={loadingUpdateMovie}
       text={"Update"}
     />
     <SubmitButton 
-      onClick={() => handleDelete(genre.id)}
+      onClick={() => handleDelete(movie.id)}
       loading={loadingDeleteMovie}
       text={"Delete"}
     />

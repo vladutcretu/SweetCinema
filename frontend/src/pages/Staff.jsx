@@ -10,12 +10,12 @@ import StaffVerifyPass from "@/components/StaffPage/StaffVerifyPass"
 import RequirePermission from "@/utils/RequirePermissions"
 
 import UserManagement from "@/components/StaffPage/UserManagement"
+import CityManagement from "@/components/StaffPage/CityManagement"
+import TheaterManagement from "@/components/StaffPage/TheaterManagement"
 import GenreManagement from "@/components/StaffPage/GenreManagement"
 import MovieManagement from "@/components/StaffPage/MovieManagement"
 import ShowtimeManagement from "@/components/StaffPage/ShowtimeManagement"
-import CityManagement from "@/components/StaffPage/CityManagement"
 
-import TheaterManagement from "@/components/staff/TheaterManagement"
 import BookingManagement from "@/components/staff/BookingManagement"
 import PaymentManagement from "@/components/staff/PaymentManagement"
 import BookingDashboard from "@/components/staff/BookingDashboard"
@@ -48,13 +48,13 @@ const Staff = () => {
               <RequirePermission staff={true}><Tabs.Trigger value="user">Manage User</Tabs.Trigger></RequirePermission>
               {/* Manager */}
               <Tabs.Trigger value="city">Manage City</Tabs.Trigger>
+              <Tabs.Trigger value="theater">Manage Theater </Tabs.Trigger>
 
               {/* Manager & Employee tabs */}
               <RequirePermission groups={["Manager", "Employee"]}><Tabs.Trigger value="genre">Manage Genre</Tabs.Trigger></RequirePermission>
               <RequirePermission groups={["Manager", "Employee"]}><Tabs.Trigger value="movie">Manage Movie</Tabs.Trigger></RequirePermission>
               <RequirePermission groups={["Manager", "Employee"]}><Tabs.Trigger value="showtime">Manage Showtime</Tabs.Trigger></RequirePermission>
               
-              <Tabs.Trigger value="theater">Manage Theater </Tabs.Trigger>
               <Tabs.Trigger value="booking">Show Booking</Tabs.Trigger>
               <Tabs.Trigger value="payment">Show Payment</Tabs.Trigger>
               <Tabs.Trigger value="bookingD">Booking Dashboard</Tabs.Trigger>
@@ -65,12 +65,12 @@ const Staff = () => {
             <Tabs.Content value="user"><UserManagement /></Tabs.Content>
             {/* Manager */}
             <Tabs.Content value="city"><CityManagement /></Tabs.Content>
+            <Tabs.Content value="theater"><TheaterManagement /></Tabs.Content>
             {/* Manager & Employee */}
             <Tabs.Content value="genre"><GenreManagement /></Tabs.Content>
             <Tabs.Content value="movie"><MovieManagement /></Tabs.Content>
             <Tabs.Content value="showtime"><ShowtimeManagement /></Tabs.Content>
-            
-            <Tabs.Content value="theater"><TheaterManagement /></Tabs.Content>
+
             <Tabs.Content value="booking"><BookingManagement /></Tabs.Content>
             <Tabs.Content value="payment"><PaymentManagement /></Tabs.Content>
             <Tabs.Content value="bookingD"><BookingDashboard/></Tabs.Content>
