@@ -10,10 +10,9 @@ import Showtime from './pages/Showtime'
 import Payment from './pages/Payment'
 
 import Profile from './pages/Profile'
+import Staff from './pages/Staff'
 
 import ShowtimeList from './pages/ShowtimeList'
-import StaffDashboard from './pages/StaffDashboard'
-
 
 // Components here
 
@@ -30,9 +29,9 @@ function App() {
 
           {/* User & Staff: setup workflow */}
           <Route path='/profile/' element={<Profile />} />
+          <Route path='/staff/' element={<Staff/>} />
 
           <Route path='/showtimes/' element={<ShowtimeList />} />
-          <Route path='/staff/' element={<StaffDashboard />} />
         </Routes>
     } />
   )

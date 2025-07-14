@@ -1,9 +1,10 @@
 // UI
-import { Box, Heading, Table, Text, Spinner } from "@chakra-ui/react"
+import { Box, Heading } from "@chakra-ui/react"
 
 // App
 import { useUserBookingHistory } from "@/hooks/tickets/useUserBookingHistory"
 import { formatDate, formatTime } from "@/utils/DateTimeFormat"
+import ReusableTable from "../common/ReusableTable"
 import BookingCancelButton from "./BookingCancelButton"
 
 // Components here
@@ -17,6 +18,32 @@ const BookingHistory = () => {
     refetch: getUserBookingHistory 
   } = useUserBookingHistory()
 
+  // Build table
+  const columns = [
+    { key: "booking-time", title: "Booking Time" },
+    { key: "movie", title: "Movie" },
+    { key: "location", title: "Location" },
+    { key: "date-time", title: "Date/Time" },
+    { key: "seat", title: "Seat" },
+    { key: "status", title: "Status" },
+    { key: "reservation-expire", title: "Reservation expire on" }
+  ]
+  const renderCell = (booking, column) => {
+    switch (column.key) {
+      case "booking-time": return `${formatDate(booking.booked_at)}, ${formatTime(booking.booked_at)}`
+      case "movie": return booking.showtime.movie.title
+      case "location": return `${booking.showtime.theater.city.name}, ${booking.showtime.theater.name}`
+      case "date-time": return `${formatDate(booking.showtime.starts_at)}, ${formatTime(booking.showtime.starts_at)}`
+      case "seat": return `R${booking.seat.row}-C${booking.seat.column}`
+      case "status": return booking.status
+      case "reservation-expire": return `${formatDate(booking.expires_at)}, ${formatTime(booking.expires_at)}`
+      default: return booking[column.key]
+    }
+  }
+  const renderActions = (booking) => [
+    <BookingCancelButton key="cancel-button" bookingStatus={booking.status} bookingId={booking.id} onSuccess={getUserBookingHistory} />
+  ]
+
   return (
     <Box
       bg="#4B4E6D"
@@ -26,45 +53,14 @@ const BookingHistory = () => {
       mt={10}
     >
       <Heading size="xl">Booking History</Heading>
-    {loadingBookings && <Spinner />}
-    {errorBookings && <Text color="red.400">{errorBookings}</Text>}
-    {!loadingBookings && !errorBookings && !bookings?.length && <Text>You don't have any bookings!</Text>}
-    <Table.Root interactive showColumnBorder variant="outline">
-      <Table.Header>
-        <Table.Row>
-          {/* <Table.ColumnHeader>ID</Table.ColumnHeader> */}
-          <Table.ColumnHeader>Booking Time</Table.ColumnHeader>
-          <Table.ColumnHeader>Movie</Table.ColumnHeader>
-          <Table.ColumnHeader>Location</Table.ColumnHeader>
-          <Table.ColumnHeader>Date/Time</Table.ColumnHeader>
-          <Table.ColumnHeader>Seat</Table.ColumnHeader>
-          <Table.ColumnHeader>Status</Table.ColumnHeader>
-          <Table.ColumnHeader>Reservation expire on</Table.ColumnHeader>
-          <Table.ColumnHeader>Actions</Table.ColumnHeader>
-        </Table.Row>
-      </Table.Header>
-      <Table.Body>
-        {bookings.map((booking) => (
-          <Table.Row key={booking.id}>
-            {/* <Table.Cell>{booking.id}</Table.Cell> */}
-            <Table.Cell>{formatDate(booking.booked_at)}, {formatTime(booking.booked_at)}</Table.Cell>
-            <Table.Cell>{booking.showtime.movie.title}</Table.Cell>
-            <Table.Cell>{booking.showtime.theater.city.name}, {booking.showtime.theater.name}</Table.Cell>
-            <Table.Cell>{formatDate(booking.showtime.starts_at)}, {formatTime(booking.showtime.starts_at)}</Table.Cell>
-            <Table.Cell>R{booking.seat.row}-C{booking.seat.column}</Table.Cell>
-            <Table.Cell>{booking.status}</Table.Cell>
-            <Table.Cell>{formatDate(booking.expires_at)}, {formatTime(booking.expires_at)}</Table.Cell>
-            <Table.Cell>
-              <BookingCancelButton 
-                bookingStatus={booking.status} 
-                bookingId={booking.id} 
-                onSuccess={getUserBookingHistory}
-              />
-            </Table.Cell>
-          </Table.Row>
-        ))}
-      </Table.Body>
-    </Table.Root>
+      <ReusableTable 
+        loading={loadingBookings}
+        error={errorBookings}
+        columns={columns}
+        data={bookings}
+        renderCell={renderCell}
+        renderActions={renderActions}
+      />
   </Box>
   )
 }
