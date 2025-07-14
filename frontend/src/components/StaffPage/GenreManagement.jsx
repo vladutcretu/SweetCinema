@@ -82,7 +82,7 @@ const GenreManagement = () => {
     if (result) return await getGenres()
   }
 
-  // Delete button
+  // Delete genre
   const handleDelete = async (genreId) => {
     const result = await deleteGenre(genreId)
     if (result) return await getGenres()
