@@ -2,7 +2,7 @@
 import { useState } from "react"
 
 // UI
-import { Box, Center, Heading, NativeSelect, SimpleGrid, Spinner, Text, VStack } from "@chakra-ui/react"
+import { Box, Center, Heading, NativeSelect, SimpleGrid, Spinner, Text } from "@chakra-ui/react"
 
 // App
 import { useReadShowtimes } from "@/hooks/showtimes/useReadShowtimes"

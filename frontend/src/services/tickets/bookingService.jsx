@@ -7,4 +7,6 @@ import api from "../Api"
 export const bookingService = {
   // Staff: Read
   readBookings: () => api.get(`/tickets/bookings/`),
+  readBookingsCashier: (userCity) => api.get(`/tickets/booking/cashier/?city=${userCity}`),
+  updateBookingCashier: (bookingId) => api.patch(`/tickets/bookings/cashier/${bookingId}/`, { status: "purchased" }),
 }

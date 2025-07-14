@@ -23,6 +23,9 @@ export const showtimeService = {
     }),
     deleteShowtime: (showtimeId) => api.delete(`/showtimes/staff/${showtimeId}/`),
 
-    // Staff: Report
+    // Staff: Report - manager
     readShowtimeReport: (showtimeId) => api.get(`/showtimes/${showtimeId}/report/`),
+
+    // Staff: Dashboard - cashier
+    readShowtimesCashier: (userCity) => api.get(`/showtimes/?theater__city=${userCity}`),
 }
