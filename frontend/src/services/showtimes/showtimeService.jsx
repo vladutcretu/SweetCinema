@@ -22,4 +22,7 @@ export const showtimeService = {
       starts_at: starts_at  
     }),
     deleteShowtime: (showtimeId) => api.delete(`/showtimes/staff/${showtimeId}/`),
+
+    // Staff: Report
+    readShowtimeReport: (showtimeId) => api.get(`/showtimes/${showtimeId}/report/`),
 }
