@@ -21,7 +21,7 @@ import FormWrapper from '../common/FormWrapper'
 
 const GenreManagement = () => {
   const { createGenre, loading: loadingCreateGenre, error: errorCreateGenre } = useCreateGenre()
-  const { genres, loading: loadingGenres, error: errorGenres, refetch: getGenres } = useReadGenres()
+  const { genres, loading: loadingGenres, error: errorGenres, refetch: readGenres } = useReadGenres()
   const { updateGenre, loading: loadingUpdateGenre, error: errorUpdateGenre } = useUpdateGenre()
   const { deleteGenre, loading: loadingDeleteGenre, error: errorDeletingGenre } = useDeleteGenre()
   const { searchTerm, handleChangeSearch, filteredData: filteredGenres } = useSearchBar(genres, "name")
@@ -33,7 +33,7 @@ const GenreManagement = () => {
     event.preventDefault()
     const result = await createGenre(genreNameCreate)
     setGenreNameCreate("")
-    if (result) return await getGenres()
+    if (result) return await readGenres()
   }
 
   // Read genres
@@ -79,13 +79,13 @@ const GenreManagement = () => {
     event.preventDefault()
     const result = await updateGenre(genreId, updatedName)
     setIsUpdating(false)
-    if (result) return await getGenres()
+    if (result) return await readGenres()
   }
 
   // Delete genre
   const handleDelete = async (genreId) => {
     const result = await deleteGenre(genreId)
-    if (result) return await getGenres()
+    if (result) return await readGenres()
   }
 
   return (

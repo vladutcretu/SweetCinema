@@ -14,11 +14,11 @@ export const useReadGenres = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const getGenres = async () => {
+  const readGenres = async () => {
     try {
       setLoading(true)
       setError(null)
-      const response = await genreService.getGenres()
+      const response = await genreService.readGenres()
       setGenres(response.data)
       console.log("Get Genres successful:", response.data)
     } catch (error) {
@@ -30,8 +30,8 @@ export const useReadGenres = () => {
   }
   
   useEffect(() => {
-    getGenres()
+    readGenres()
   }, [accessToken])
 
-  return { genres, loading, error, refetch: getGenres }
+  return { genres, loading, error, refetch: readGenres }
 }

@@ -14,7 +14,7 @@ export const movieService = {
         description: description, 
         genres: genres
     }),
-    getMovies: () => api.get(`/movies/`),
+    readMovies: () => api.get(`/movies/`),
     updateMovie: (movieId, title, description, genres) => api.patch(`/movies/movie/${movieId}/`, { 
         title: title, 
         description: description, 

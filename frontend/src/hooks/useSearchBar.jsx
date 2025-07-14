@@ -11,9 +11,10 @@ const useSearchBar = (data, searchKey) => {
     setSearchTerm(event.target.value)
   }
 
-  const filteredData = data?.filter(item => 
-    item[searchKey]?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredData = data?.filter(item => {
+    const fieldValue = typeof searchKey === "function" ? searchKey(item) : item[searchKey]
+    return fieldValue?.toLowerCase().includes(searchTerm.toLowerCase())
+  })
   
   return { searchTerm, handleChangeSearch, filteredData }
 }

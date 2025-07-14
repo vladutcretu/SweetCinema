@@ -12,7 +12,8 @@ import RequirePermission from "@/utils/RequirePermissions"
 import UserManagement from "@/components/StaffPage/UserManagement"
 import GenreManagement from "@/components/StaffPage/GenreManagement"
 import MovieManagement from "@/components/StaffPage/MovieManagement"
-import ShowtimeManagement from "@/components/staff/ShowtimeManagement"
+import ShowtimeManagement from "@/components/StaffPage/ShowtimeManagement"
+
 import CityManagement from "@/components/staff/CityManagement"
 import TheaterManagement from "@/components/staff/TheaterManagement"
 import BookingManagement from "@/components/staff/BookingManagement"
@@ -48,8 +49,8 @@ const Staff = () => {
               {/* Manager & Employee tabs */}
               <RequirePermission groups={["Manager", "Employee"]}><Tabs.Trigger value="genre">Manage Genre</Tabs.Trigger></RequirePermission>
               <RequirePermission groups={["Manager", "Employee"]}><Tabs.Trigger value="movie">Manage Movie</Tabs.Trigger></RequirePermission>
+              <RequirePermission groups={["Manager", "Employee"]}><Tabs.Trigger value="showtime">Manage Showtime</Tabs.Trigger></RequirePermission>
 
-              <Tabs.Trigger value="showtime">Manage Showtime</Tabs.Trigger>
               <Tabs.Trigger value="city">Manage City </Tabs.Trigger>
               <Tabs.Trigger value="theater">Manage Theater </Tabs.Trigger>
               <Tabs.Trigger value="booking">Show Booking</Tabs.Trigger>

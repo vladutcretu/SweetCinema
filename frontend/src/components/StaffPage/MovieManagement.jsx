@@ -23,7 +23,7 @@ import useFormState from '@/hooks/useFormState'
 const MovieManagement = () => {
   const { createMovie, loading: loadingCreateMovie, error: errorCreateMovie } = useCreateMovie()
   const { genres, loading: loadingGenres, error: errorGenres, refetch: getGenres } = useReadGenres()
-  const { movies, loading: loadingMovies, error: errorMovies, refetch: getMovies } = useReadMovies()
+  const { movies, loading: loadingMovies, error: errorMovies, refetch: readMovies } = useReadMovies()
   const { updateMovie, loading: loadingUpdateMovie, error: errorUpdateMovie } = useUpdateMovie()
   const { deleteMovie, loading: loadingDeleteMovie, error: errorDeleteMovie } = useDeleteMovie()
   const { searchTerm, handleChangeSearch, filteredData: filteredMovies } = useSearchBar(movies, "title")
@@ -46,7 +46,7 @@ const MovieManagement = () => {
     const result = await createMovie(movieCreateForm.title, movieCreateForm.description, movieCreateForm.genres)
     if (result) {
       resetCreateForm()
-      await getMovies()
+      await readMovies()
     }
   }
 
@@ -111,14 +111,14 @@ const MovieManagement = () => {
       setMovieToUpdate(null)
       setMovieId("")
       resetUpdatedForm()
-      await getMovies()
+      await readMovies()
     }
   }
  
   // Delete movie
   const handleDelete = async (movieId) => {
     const result = await deleteMovie(movieId)
-    if (result) return await getMovies()
+    if (result) return await readMovies()
   }
 
   return (
@@ -183,13 +183,13 @@ const MovieManagement = () => {
 
       {/* Update movie */}
       {isUpdating && (
-            <FormWrapper
-        title={"Update Movie"}
-        onSubmit={handleSubmitUpdate}
-        submitText={"Update Movie"}
-        loading={loadingUpdateMovie}
-        error={errorUpdateMovie}
-      >
+        <FormWrapper
+          title={"Update Movie"}
+          onSubmit={handleSubmitUpdate}
+          submitText={"Update Movie"}
+          loading={loadingUpdateMovie}
+          error={errorUpdateMovie}
+        >
           <Field.Label>New title for {movieToUpdate.title}</Field.Label>
           <Input 
             type="text"

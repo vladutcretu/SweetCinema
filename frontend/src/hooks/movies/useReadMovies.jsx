@@ -14,7 +14,7 @@ export const useReadMovies = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const getMovies = async () => {
+  const readMovies = async () => {
     try {
       setLoading(true)
       setError(null)
@@ -30,8 +30,8 @@ export const useReadMovies = () => {
   }
   
   useEffect(() => {
-    getMovies()
+    readMovies()
   }, [accessToken])
 
-  return { movies, loading, error, refetch: getMovies }
+  return { movies, loading, error, refetch: readMovies }
 }
