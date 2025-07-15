@@ -12,7 +12,7 @@ import Payment from './pages/Payment'
 import Profile from './pages/Profile'
 import Staff from './pages/Staff'
 
-import ShowtimeList from './pages/ShowtimeList'
+import Showtimes from './pages/Showtimes'
 
 // Components here
 
@@ -31,7 +31,8 @@ function App() {
           <Route path='/profile/' element={<Profile />} />
           <Route path='/staff/' element={<Staff/>} />
 
-          <Route path='/showtimes/' element={<ShowtimeList />} />
+          {/* User: secondary pages */}
+          <Route path='/showtimes/' element={<Showtimes />} />
         </Routes>
     } />
   )
