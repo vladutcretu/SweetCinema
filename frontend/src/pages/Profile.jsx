@@ -7,8 +7,8 @@ import { Box, Heading, Stack } from '@chakra-ui/react'
 // App
 import { useAuthContext } from '../contexts/AuthContext'
 import Page404 from '@/components/common/Page404'
-import StaffStatus from '@/components/ProfilePage/StaffStatus'
-import BookingHistory from '@/components/ProfilePage/BookingHistory'
+import StaffStatus from '@/components/page-components/ProfilePage/StaffStatus'
+import BookingHistory from '@/components/page-components/ProfilePage/BookingHistory'
 import BackButton from '@/components/common/BackButton'
 
 // Components here

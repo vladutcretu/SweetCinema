@@ -9,8 +9,8 @@ import { Box, Heading, SimpleGrid, Spinner, Tabs, Text } from "@chakra-ui/react"
 // App
 import { useCityContext } from "@/contexts/CityContext"
 import { useGetShowtimesByCity } from "@/hooks/showtimes/useGetShowtimesByCity"
-import ShowtimesByDay from "@/components/ShowtimesPage/ShowtimesByDay"
-import ShowtimeCard from "@/components/ShowtimesPage/ShowtimeCard"
+import ShowtimesByDay from "@/components/page-components/ShowtimesPage/ShowtimesByDay"
+import ShowtimeCard from "@/components/page-components/ShowtimesPage/ShowtimeCard"
 
 // Components here
 

@@ -31,8 +31,10 @@ function App() {
           <Route path='/profile/' element={<Profile />} />
           <Route path='/staff/' element={<Staff/>} />
 
-          {/* User: secondary pages */}
+          {/* Navbar */}
           <Route path='/showtimes/' element={<Showtimes />} />
+
+          {/* Footer */}
         </Routes>
     } />
   )

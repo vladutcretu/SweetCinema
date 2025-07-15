@@ -1,5 +1,5 @@
 // App
-import ShowtimePresentation from "@/components/ShowtimePage/ShowtimePresentation"
+import ShowtimePresentation from "@/components/page-components/ShowtimePage/ShowtimePresentation"
 
 // Components here
 

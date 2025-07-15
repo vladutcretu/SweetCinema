@@ -6,7 +6,7 @@ import { Box, Button, Flex, HStack, chakra, Portal } from "@chakra-ui/react"
 import { Menu } from "@ark-ui/react"
 
 // App
-import { useGetCities } from "@/hooks/locations/useGetCities"
+import { useGetCities } from "@/hooks/locations/city/useGetCities"
 import { useCityContext } from "@/contexts/CityContext"
 import { useAuthContext } from "@/contexts/AuthContext"
 import Auth from "../auth/Auth"
