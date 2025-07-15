@@ -19,5 +19,4 @@ export const theaterService = {
     columns: columns
    }),
   deleteTheater: (theaterId) => api.delete(`/locations/theaters/staff/${theaterId}/`),
-
 }

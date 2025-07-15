@@ -1,5 +1,5 @@
 // App
-import MoviesGrid from "@/components/HomePage/MoviesGrid"
+import MoviesGrid from "@/components/page-components/HomePage/MoviesGrid"
 
 // Components here
 

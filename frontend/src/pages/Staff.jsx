@@ -6,23 +6,22 @@ import { useAuthContext } from "@/contexts/AuthContext"
 import Page404 from "@/components/common/Page404"
 import BackButton from "@/components/common/BackButton"
 
-import StaffSetPass from "@/components/StaffPage/StaffSetPass"
-import StaffVerifyPass from "@/components/StaffPage/StaffVerifyPass"
+import StaffVerifyPass from "@/components/page-components/StaffPage/StaffVerifyPass"
+import StaffSetPass from "@/components/page-components/StaffPage/StaffSetPass"
 
-import UserManagement from "@/components/StaffPage/UserManagement"
-import CityManagement from "@/components/StaffPage/CityManagement"
-import TheaterManagement from "@/components/StaffPage/TheaterManagement"
-import GenreManagement from "@/components/StaffPage/GenreManagement"
-import MovieManagement from "@/components/StaffPage/MovieManagement"
-import ShowtimeManagement from "@/components/StaffPage/ShowtimeManagement"
-import BookingManagement from "@/components/StaffPage/BookingManagement"
-import PaymentManagement from "@/components/StaffPage/PaymentManagement"
-import ShowtimeReport from "@/components/StaffPage/ShowtimeReport"
-import BookingDashboard from "@/components/StaffPage/BookingDashboard"
-import ShowtimeDashboard from "@/components/StaffPage/ShowtimeDashboard"
+import UserManagement from "@/components/page-components/StaffPage/UserManagement"
+import CityManagement from "@/components/page-components/StaffPage/CityManagement"
+import TheaterManagement from "@/components/page-components/StaffPage/TheaterManagement"
+import GenreManagement from "@/components/page-components/StaffPage/GenreManagement"
+import MovieManagement from "@/components/page-components/StaffPage/MovieManagement"
+import ShowtimeManagement from "@/components/page-components/StaffPage/ShowtimeManagement"
+import BookingManagement from "@/components/page-components/StaffPage/BookingManagement"
+import PaymentManagement from "@/components/page-components/StaffPage/PaymentManagement"
+import ShowtimeReport from "@/components/page-components/StaffPage/ShowtimeReport"
+import BookingDashboard from "@/components/page-components/StaffPage/BookingDashboard"
+import ShowtimeDashboard from "@/components/page-components/StaffPage/ShowtimeDashboard"
 
 import RequirePermission from "@/utils/RequirePermissions"
-
 
 // Components here
 

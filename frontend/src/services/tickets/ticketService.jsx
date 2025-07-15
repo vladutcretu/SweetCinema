@@ -27,11 +27,4 @@ export const ticketService = {
     amount: paymentAmount, 
     method: paymentMethod 
   }),
-
-  // UserProfile page
-  getUserBookingHistory: () => api.get(`/tickets/bookings/history/`),
-  updateUserCancelBooking: (bookingId) => api.patch(`/tickets/booking/${bookingId}/cancel/`, {
-    status: "canceled", 
-    expires_at: null
-  })
 }

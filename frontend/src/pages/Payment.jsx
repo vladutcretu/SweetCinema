@@ -1,5 +1,5 @@
 // App
-import PaymentPresentation from "@/components/PaymentPage/PaymentPresentation"
+import PaymentPresentation from "@/components/page-components/PaymentPage/PaymentPresentation"
 
 // Components here
 

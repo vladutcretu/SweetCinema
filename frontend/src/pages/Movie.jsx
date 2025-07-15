@@ -1,5 +1,5 @@
 // App
-import MoviePresentation from "@/components/MoviePage/MoviePresentation"
+import MoviePresentation from "@/components/page-components/MoviePage/MoviePresentation"
 
 // Components here
 

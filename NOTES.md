@@ -35,6 +35,7 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 - Update `BookingHistory` table with `ReusableTable` component
 - Create`useGetUsers`, `useUpdateUserGroup`, `useSetCashierCity` and `userService`
 - Refactor `UserManagement`, `GenreManagement`, `MovieManagement`, `ShowtimeManagement`, `CityManagement`, `TheaterManagement`, `BookingManagement`, `PaymentManagement`, `ShowtimeReport`, `BookingDashboard`, `ShowtimeDashboard`
+- Refactor `ShowtimesList` to `Showtimes` page, `ShowtimeCard` & `ShowtimesByDay` components
 
 
 ### ✅ v0.7.0-alpha (completed on 6 July 2025)
