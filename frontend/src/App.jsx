@@ -1,39 +1,42 @@
 // React, dependencies & packages
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 
 // App
-import Header from './components/base/Header'
-import Footer from './components/base/Footer'
+import Layout from './components/layout/Layout'
 
-import MovieList from './pages/MovieList'
-import ShowtimeList from './pages/ShowtimeList'
-import MovieDetail from './pages/MovieDetail'
-import ShowtimeDetail from './pages/ShowtimeDetail'
-import PaymentCreate from './pages/PaymentCreate'
-import UserProfile from './pages/UserProfile'
-import StaffDashboard from './pages/StaffDashboard'
+import Home from './pages/Home'
+import Movie from './pages/Movie'
+import Showtime from './pages/Showtime'
+import Payment from './pages/Payment'
+
+import Profile from './pages/Profile'
+import Staff from './pages/Staff'
+
+import Showtimes from './pages/Showtimes'
+
+// Components here
+
 
 function App() {
   return (
-    <>
-    <Router>
-      <div className='page-layout'>
-        <Header />
-        <main className='main'>
-          <Routes>
-            <Route path='/' element={<MovieList />} />
-            <Route path='/showtimes/' element={<ShowtimeList />} />
-            <Route path='/movie/:movieId/' element={<MovieDetail />} />
-            <Route path='/showtime/:showtimeId/' element={<ShowtimeDetail />} />
-            <Route path='/payment/' element={<PaymentCreate />} />
-            <Route path='/profile/' element={<UserProfile />} />
-            <Route path='/staff/' element={<StaffDashboard />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </Router>
-    </>
+    <Layout children={
+        <Routes>
+          {/* User: main workflow */}
+          <Route path='/' element={<Home />} />
+          <Route path='/movie/:movieId/' element={<Movie />} />
+          <Route path='/showtime/:showtimeId/' element={<Showtime />} />
+          <Route path='/payment/' element={<Payment />} />
+
+          {/* User & Staff: setup workflow */}
+          <Route path='/profile/' element={<Profile />} />
+          <Route path='/staff/' element={<Staff/>} />
+
+          {/* Navbar */}
+          <Route path='/showtimes/' element={<Showtimes />} />
+
+          {/* Footer */}
+        </Routes>
+    } />
   )
 }
 
