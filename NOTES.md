@@ -10,33 +10,6 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 ## Release Notes
 
 ### 🔜 v0.8.0-beta (completed on <i>TBA</i>)
-♻️ **Refactors:**
-- Design `Layout`, `Header`, `Navbar`, `Footer` components
-- Create `cityService`, `useGetCities` to fetch Navbar
-- Refactor `GoogleAuth`, `AuthContext` components
-- Refactor `MovieList` to `Home` page, `MoviesGrid` & `MovieCard` components
-- Add automatic refresh after City selection on `Navbar`
-- Create `ForwardButton`, `BackButton`, and `DateTimeFormat` components
-- Update button on `MovieCard`
-- Create `useGetMovie` & `useGetMovieShowtimesByCity`, `showtimeService` and update `movieService`
-- Refactor `MovieDetail` to `Movie` page, `MoviePresentation` & `MovieShowtimes` components
-- Create `useGetShowtime`, `useGetShowtimeSeats`, and update `showtimeService`
-- Refactor `ShowtimeDetail` to `Showtime` page, `ShowtimePresentation` & `ShowtimeSeats` components
-- Create `useShowtimeSeatSelect`, `ticketService`, `usePostTicketReserve` & `usePostTicketPurchase` and update `showtimeService`
-- Refactor `TicketReserve` & `TicketPay` components to `ShowtimeTicket` component
-- Create `useGetPaymentBookings`, `usePaymentTimeout`, `usePostPaymentComplete` and update `ticketService` 
-- Refactor `PaymentCreate` to `Payment` page, `PaymentPresentation`, `PaymentMethod`, `PaymentTimer`, `PaymentConfirmation` components
-- Create `Page404` component
-- Create `useUserBookingHistory`, `useUserCancelBooking` and update `ticketService`
-- Refactor `UserProfile` to `Profile` page, `StaffStatus` & `BookingHistory`, `BookingCancelButton` components
-- Refactor `PasswordSet`& `PasswordVerify` to `StaffSetPass` & `StaffVerifyPass`, `useStaffSetPass` & `useStaffVerifyPass` and update `authService`
-- Update page `StaffDashboard` to `Staff`
-- Create `SearchBar`, `ReusableTable`, `FormWrapper`, `SubmitButton` components, `useSearchBar` & `useFormState` for DRY
-- Update `BookingHistory` table with `ReusableTable` component
-- Create`useGetUsers`, `useUpdateUserGroup`, `useSetCashierCity` and `userService`
-- Refactor `UserManagement`, `GenreManagement`, `MovieManagement`, `ShowtimeManagement`, `CityManagement`, `TheaterManagement`, `BookingManagement`, `PaymentManagement`, `ShowtimeReport`, `BookingDashboard`, `ShowtimeDashboard`
-- Refactor `ShowtimesList` to `Showtimes` page, `ShowtimeCard` & `ShowtimesByDay` components
-
 
 ### ✅ v0.7.0-alpha (completed on 6 July 2025)
 🚀 **Features:**
