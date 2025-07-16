@@ -9,9 +9,7 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ## Release Notes
 
-### 🔜 v0.8.0-beta (completed on <i>TBA</i>)
-
-### ✅ v0.7.0-alpha (completed on 6 July 2025)
+### ✅ v0.7.0-alpha (completed on 6 July 2025; include Sprint #9)
 🚀 **Features:**
 - Extends user's account account informations with a user profile: contains only city for now, but can be developed for personalized emails (promotions for birthday, city).
 - Add "Cashier" role and permits access to Staff Dashboard, where they can complete a reservation or sell tickets for walk-in customers.
@@ -25,7 +23,7 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 - Update `UserManagement component` to set `Cashier role` and user's `City`, `UserProfile` & `StaffDashboard` pages to allow access to `Cashier` to new components
 - Create `BookingDashboard` & `ShowtimeDashboard`, `ShowtimeReport` components
 ---
-### ✅ v0.6.0-alpha (completed on 3 July 2025)
+### ✅ v0.6.0-alpha (completed on 3 July 2025; include Sprint #8)
 🚀 **Features:**
 - Build Shows page where users see complete list of showtimes in their City location.
 - Users can now reserve up to 5 seats in a single transaction but they can not make reservations for showtimes that have less than 30 minutes until starts.
@@ -49,7 +47,7 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 🐋**Docker Compose:**
 - Add services: Redis, Celery, django-celery-beat
 ---
-### ✅ v0.5.0-alpha (completed on 1 July 2025)
+### ✅ v0.5.0-alpha (completed on 1 July 2025; include Sprint #7)
 🚀 **Features:**
 - Build User Profile where users see some account details, their all time bookings, can cancel active reservations and reach Staff Dashboard.
 - Staff Dashboard is now marked as sensible content; in order to access it staff user need to set an account password first and then to enter it on every new session when they access the page.
@@ -139,15 +137,7 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ## Development Notes
 
-### 🔜 Sprint #10 (started on 9 June 2025; ended on <i>TBA</i>): "Backend & Frontend: Refactor & design"
-- **About current status and next steps:** 
-    - After completing the MVP (Minimum Viable Product), the next step is to systematically enhance each of the existing pages (7). This includes implementing a more user-friendly interface using Chakra UI library, completing the existing models with relevant fields, and improving overall code quality by refactoring the codebase, evaluating API endpoints, optimizing database queries, and increasing test coverage.
-
-- **About future development methodology:** 
-    - During this phase, which aligns with the beta version of the app, a new branch called `beta` will be created. The Pull Request (PR) workflow will be used to simulate working on an existing codebase that requires rework. This means starting a separate branch for each existing page and avoiding interaction with the `main` branch until the end of the sprint.
-    - Since this is not a feature development phase, the work will be more iterative and less task-oriented. All specific changes and improvements will be documented in the Release Notes for version v0.8.0-beta.
----
-### ✅ Sprint #9 (started on 6 June 2025; ended on 6 June 2025): "Backend & Frontend: Staff - Cashier group & showtime reporting"
+### ✅ Sprint #9 (started on 6 July 2025; ended on 6 July 2025): "Backend & Frontend: Staff - Cashier group & showtime reporting"
 - Create `UserProfile` model (extends`User` model) with field `city` (ForeignKey) to it
 - Create group `Cashier`, update `PATCH /api/users/user/update/{id}/` and the workflow around it to make possible to can set the group & a `city` for user
 - Update `AuthContext` & `GET /api/users/user/` to save the `city` in `user` object

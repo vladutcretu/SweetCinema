@@ -1,3 +1,5 @@
+**This branch contains the application MVP (Minimum Viable Product), including versions from 0.0.0-alpha to 0.7.0-alpha.**
+
 # SweetCinema
 SweetCinema is an open-source educational project inspired by an idea from [roadmap.sh](https://roadmap.sh/projects/movie-reservation-system) and utilizes [HappyCinema](https://www.happycinema.ro/) as a business model reference for replicating core functionalities and user flow patterns. The primary motivation was to develop a business solution that closely mirrors the selected reference model while maintaining originality in implementation.
 
@@ -8,7 +10,6 @@ SweetCinema is an open-source educational project inspired by an idea from [road
 3. [Technical achitecture](#technical-architecture)
     - [Features](#features)
     - [User workflow](#user-workflow)
-    - [DB schema design](#db-schema-design)
 4. [Local installation](#local-installation)
 
 
@@ -28,7 +29,6 @@ Check the file [NOTES.md](NOTES.md) to see Release Notes or Development Notes. I
     - 🐋 [Docker Compose](https://www.docker.com/) for local development.
     - 🔐[@react-oauth/google](https://www.npmjs.com/package/@react-oauth/google), [google-auth](https://pypi.org/project/google-auth/) and [djangorestframework-simplejwt](https://pypi.org/project/djangorestframework-simplejwt/) for authentication and authorization with Google OAuth2.0 and JWT.
     - 🥬[Celery](https://docs.celeryq.dev/en/stable/index.html), with [Redis](https://pypi.org/project/redis/) as broker/backend, and [django-celery-beat](https://django-celery-beat.readthedocs.io/en/latest/) for scheduling tasks.
-    
 
 
 ## Technical architecture
@@ -50,10 +50,7 @@ Check the file [NOTES.md](NOTES.md) to see Release Notes or Development Notes. I
 5. Reporting: `Manager` can generate reports for a showtime, including total tickets sold & revenue
 
 ### Users workflow
-![Users workflow](https://i.imgur.com/d7dOecV.jpeg)
-
-### DB schema design
-![DB schema design](https://i.imgur.com/yLJjfqx.png)
+![Users workflow](https://i.imgur.com/TqFAPnF.jpeg)
 
 
 ## Local installation
