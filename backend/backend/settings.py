@@ -197,6 +197,22 @@ CELERY_TIMEZONE = "Europe/Bucharest"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 
+# Django-Debug-Toolbar settings
+# https://django-debug-toolbar.readthedocs.io/en/latest/index.html
+if DEBUG:
+    INSTALLED_APPS += ["debug_toolbar"]
+    MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+    INTERNAL_IPS = ['127.0.0.1', 'localhost', '172.20.0.1']
+
+
+# Django-silk settings
+# https://silk.readthedocs.io/en/latest/index.html
+if DEBUG:
+    INSTALLED_APPS += ["silk"]
+    MIDDLEWARE.insert(0, "silk.middleware.SilkyMiddleware")
+    SILKY_PYTHON_PROFILER = True
+
+
 # Importing Environment (ENV) variables from .env file from main director
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
