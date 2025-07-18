@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework_simplejwt",
     "django_celery_beat",
+    "debug_toolbar",
     # Default apps
     "django.contrib.admin",
     "django.contrib.auth",
@@ -58,6 +59,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     # Added middleware
     "corsheaders.middleware.CorsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     # Default middleware
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -200,3 +202,8 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 # Importing Environment (ENV) variables from .env file from main director
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
+
+
+# Django-Debug-Toolbar settings
+# https://django-debug-toolbar.readthedocs.io/en/latest/index.html
+INTERNAL_IPS = ['127.0.0.1', 'localhost', '172.20.0.1']
