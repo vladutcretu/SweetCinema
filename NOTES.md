@@ -11,7 +11,21 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ### 🔜 v0.8.0-beta (completed on <i>TBA</i>)
 
-### ✅ v0.7.0-alpha (completed on 6 July 2025)
+### ✅ v0.7.0-beta (completed on 15 July 2025; include Sprint #10)
+🖼️♻️ **Frontend Refactors:**
+- Create reusable components `Submit`, `Forward` & `Back` buttons, `SearchBar`, `ReusableTable`, `FormWrapper`, `Page404`, `DateTimeFormat`
+- Create services & hooks directories to include individual files for API endpoints and their fetch logic
+- Create `Layout` component to include redesigned `Header`, `Navbar`, `Footer` components
+- Design & refactor `Home` page and it's components: `MoviesGrid` & `MovieCard`
+- Design & refactor `Movie` page and it's components: `MoviePresentation` & `MovieShowtimes` 
+- Design & refactor `Showtime` page and it's components: `ShowtimePresentation` & `ShowtimeSeats`
+- Design & refactor `Payment` page and it's components: `PaymentPresentation`, `PaymentMethod`, `PaymentTimer`, `PaymentConfirmation` 
+- Design & refactor `Profile` page and it's components: `StaffStatus`, `BookingHistory` & `BookingCancelButton` 
+- Design & refactor `Staff` page and it's components: `UserManagement`, `GenreManagement`, `MovieManagement`, `ShowtimeManagement`, `CityManagement`, `TheaterManagement`, `BookingManagement`, `PaymentManagement`, `ShowtimeReport`, `BookingDashboard`, `ShowtimeDashboard`
+- Design & refactor `Showtimes` page and it's components: `ShowtimeCard` & `ShowtimesByDay`
+- Refactor but not mentioned most of the existing components
+---
+### ✅ v0.7.0-alpha (completed on 6 July 2025; include Sprint #9)
 🚀 **Features:**
 - Extends user's account account informations with a user profile: contains only city for now, but can be developed for personalized emails (promotions for birthday, city).
 - Add "Cashier" role and permits access to Staff Dashboard, where they can complete a reservation or sell tickets for walk-in customers.
@@ -25,7 +39,7 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 - Update `UserManagement component` to set `Cashier role` and user's `City`, `UserProfile` & `StaffDashboard` pages to allow access to `Cashier` to new components
 - Create `BookingDashboard` & `ShowtimeDashboard`, `ShowtimeReport` components
 ---
-### ✅ v0.6.0-alpha (completed on 3 July 2025)
+### ✅ v0.6.0-alpha (completed on 3 July 2025; include Sprint #8)
 🚀 **Features:**
 - Build Shows page where users see complete list of showtimes in their City location.
 - Users can now reserve up to 5 seats in a single transaction but they can not make reservations for showtimes that have less than 30 minutes until starts.
@@ -49,7 +63,7 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 🐋**Docker Compose:**
 - Add services: Redis, Celery, django-celery-beat
 ---
-### ✅ v0.5.0-alpha (completed on 1 July 2025)
+### ✅ v0.5.0-alpha (completed on 1 July 2025; include Sprint #7)
 🚀 **Features:**
 - Build User Profile where users see some account details, their all time bookings, can cancel active reservations and reach Staff Dashboard.
 - Staff Dashboard is now marked as sensible content; in order to access it staff user need to set an account password first and then to enter it on every new session when they access the page.
@@ -139,15 +153,23 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ## Development Notes
 
-### 🔜 Sprint #10 (started on 9 June 2025; ended on <i>TBA</i>): "Backend & Frontend: Refactor & design"
-- **About current status and next steps:** 
-    - After completing the MVP (Minimum Viable Product), the next step is to systematically enhance each of the existing pages (7). This includes implementing a more user-friendly interface using Chakra UI library, completing the existing models with relevant fields, and improving overall code quality by refactoring the codebase, evaluating API endpoints, optimizing database queries, and increasing test coverage.
-
-- **About future development methodology:** 
-    - During this phase, which aligns with the beta version of the app, a new branch called `beta` will be created. The Pull Request (PR) workflow will be used to simulate working on an existing codebase that requires rework. This means starting a separate branch for each existing page and avoiding interaction with the `main` branch until the end of the sprint.
-    - Since this is not a feature development phase, the work will be more iterative and less task-oriented. All specific changes and improvements will be documented in the Release Notes for version v0.8.0-beta.
+### 🔜 Sprint #11 (started on 18 July 2025; ended on <i>TBA</i>): "Backend: Refactor & design"
+- After completing the frontend refactor and design phase, the next step is to fill business logic gaps by enhancing the existing models with relevant fields, by evaluating endpoints design (refactoring / updating serializers, view logic & URL naming), optimizing database queries, and increasing test coverage
+- The methodology cheatsheet for this stage includes:
+    1. Get every feature (e.g. retrieve movie) and identify all the components involved: url -> views -> serializers -> models.
+    2. Evaluate, including using Django Debug Toolbar, all components and perform the required updates & optimizations (e.g. avoiding over-fetching responses, using select_related & prefetch_related queries, adding Model indexes, new validators & rate limiting)
+    3. Write tests with Pytest Django to obtain a good coverage by pytest-cov library
+- During this phase there won't be interactions with the `main` branch and the Pull Request (PR) workflow will be used to merge every refactored feature to `beta`
 ---
-### ✅ Sprint #9 (started on 6 June 2025; ended on 6 June 2025): "Backend & Frontend: Staff - Cashier group & showtime reporting"
+### ✅ Sprint #10 (started on 9 July 2025; ended on 15 July 2025): "Frontend: Refactor & design"
+- After completing the MVP (Minimum Viable Product) with a wireframe frontend design and mixed logic inside components, the next step is to systematically enhance each of the 7 existing pages. This includes implementing Chakra UI library for designing components, Axios for fetching data, and improving overall frontend code quality by refactoring the codebase, creating reusable components, individual services & hooks
+- Since this is not a feature development phase and the work will be more iterative and less task-oriented, the methodology cheatsheet include:
+    1. Get every page (e.g. movies page) and identify all the components involved: design, hooks & fetches.
+    2. Evaluate all components and perform the required updates & optimizations to divide them into separate, cleaner, and reusable ones, while adding a user-friendly interface
+    3. Perform manual testing for all the reworked pages
+- The Pull Request (PR) workflow will be used to simulate working on an existing codebase that requires rework. This means starting a separate branch for each existing page and merging to `beta` when the rework is done, avoiding interaction with the `main` branch until the end of the Sprint
+---
+### ✅ Sprint #9 (started on 6 July 2025; ended on 6 July 2025): "Backend & Frontend: Cashier group & showtime reporting"
 - Create `UserProfile` model (extends`User` model) with field `city` (ForeignKey) to it
 - Create group `Cashier`, update `PATCH /api/users/user/update/{id}/` and the workflow around it to make possible to can set the group & a `city` for user
 - Update `AuthContext` & `GET /api/users/user/` to save the `city` in `user` object
@@ -171,8 +193,8 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 ---
 ### ✅ Sprint #7 (started on 1 July 2025; ended on 1 July 2025): "Backend & Frontend: User profile & personal bookings"
 - Create `UserProfile page` to use account info (username, group) from `AuthContext` and then the following endpoints:
-	- `GET /api/users/user/{id}/bookings/` to display user's bookings history
-	- `POST /api/tickets/booking/{id}/cancel/` to allow user to cancel reservation (Booking.status=canceled)
+    - `GET /api/users/user/{id}/bookings/` to display user's bookings history
+    - `POST /api/tickets/booking/{id}/cancel/` to allow user to cancel reservation (Booking.status=canceled)
 - On the same page group users staff, `Manager` & `Employee` will see a link to `StaffDashboard page`, but the access to it is password protected and groups will have the following access flow:
     - first time: since accounts are created using Google email, when groups will access link they need to set an account password using `POST /api/users/set-password/`
     - next times: they introduce the password on every session and it's get checked by `POST /api/users/verify-password/`
@@ -185,8 +207,8 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 ### ✅ Sprint #5 (started on 23 June 2025; ended on 25 June 2025): "Backend & Frontend - Tickets reservations & payments"
 - Start `tickets` app and create `Booking` and `Payment` models
 - Use the foreign key relationships between models `Booking`, `Showtime`, `Seat` (via `Theater`) to check the status of a `Seat` object for a `Showtime` in `Booking` table entries as is following: 
-	- no instance of `Booking` for `Showtime` + `Seat` means the `Seat` object is unoccupied
-	- instance of `Booking` for `Showtime` + `Seat` with status=reserved/purchased means the `Seat` object is reserved/purchased
+    - no instance of `Booking` for `Showtime` + `Seat` means the `Seat` object is unoccupied
+    - instance of `Booking` for `Showtime` + `Seat` with status=reserved/purchased means the `Seat` object is reserved/purchased
 - Create, respecting the above logic, the API endpoint `GET /api/showtimes/{id}/seats/` with following sample response:
     ```json
         [
@@ -197,17 +219,17 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
     ```
 - Fetch the above mentioned endpoint in `ShowtimeDetail page` to present the status of every seat of the theater for the specific showtime
 - Set, on the previously mentioned page, for every of the newly implemented seat representation two options: reserve a seat and pay a seat 
-	- Reserve a seat: fetch `POST /api/tickets/reserve/` (sending informations about `Showtime` and `Seat` objects) that will create a `Booking` instance with status=reserved and return a confirmation message afterwards
-	- Pay a seat: fetch `POST /api/tickets/pay/` (sending informations about `Showtime` and `Seat` objects) that will create a `Booking` instance with status=pending_payment and redirect user to `PaymentCreate page`, where user will introduce data to `POST /api/tickets/payment/{bookingId}/`; if data is correct (condition to fail is `Payment.amount` != `Payment.booking.showtime.price`) and `Payment` status is accepted then update `Booking` status to `purchased`, else if is not, `Payment` status gonna be declined and `Booking` status will be `payment declined` (seat becomes available to be booked)
+    - Reserve a seat: fetch `POST /api/tickets/reserve/` (sending informations about `Showtime` and `Seat` objects) that will create a `Booking` instance with status=reserved and return a confirmation message afterwards
+    - Pay a seat: fetch `POST /api/tickets/pay/` (sending informations about `Showtime` and `Seat` objects) that will create a `Booking` instance with status=pending_payment and redirect user to `PaymentCreate page`, where user will introduce data to `POST /api/tickets/payment/{bookingId}/`; if data is correct (condition to fail is `Payment.amount` != `Payment.booking.showtime.price`) and `Payment` status is accepted then update `Booking` status to `purchased`, else if is not, `Payment` status gonna be declined and `Booking` status will be `payment declined` (seat becomes available to be booked)
 ---
 ### ✅ Sprint #4 (started on 22 June 2025; ended on 23 June 2025): "Backend & Frontend - User authentication with Google"
 - Implement signing up & logging in with Google account using OAuth2.0 and JWT, respecting the following workflow:
-	- Create `users` app and `POST /api/auth/google/` endpoint to receive the `id_token` from the frontend after the user logs in with their Google account
+    - Create `users` app and `POST /api/auth/google/` endpoint to receive the `id_token` from the frontend after the user logs in with their Google account
     - Validate the `id_token` on the backend and create or retrieve the user account
     - Generate a JWT and return to the frontend to store it in `AuthContext`
     - Create `POST /api/token/verify/` to validate the token when required and `POST /api/token/refresh/` to renew access token when expires
-	- Display `reserve ticket` & `buy ticket` options from `ShowtimeDetail page` to logged in users only
-	- Build `logout` button to remove the token from `localStorage`
+    - Display `reserve ticket` & `buy ticket` options from `ShowtimeDetail page` to logged in users only
+    - Build `logout` button to remove the token from `localStorage`
 ---
 ### ✅ Sprint #3 (started on 14 June 2025; ended on 18 June 2025): "Frontend - Movies, Locations, Showtimes"
 - Build core design elements like `header`, `navbar`, `footer` to draw page layout

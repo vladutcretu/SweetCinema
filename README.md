@@ -22,7 +22,9 @@ Check the file [NOTES.md](NOTES.md) to see Release Notes or Development Notes. I
     - 🧶 [Ruff](https://docs.astral.sh/ruff/) for linting and code formatting.
     - 📄 [DRF-spectacular](https://drf-spectacular.readthedocs.io/en/latest/) for OpenAPI documentation.
 - 💾 Database: [PostgresQL](https://www.postgresql.org/).
-- 🖼️ Frontend: [React](https://react.dev/) and [Vite](https://vite.dev).
+- 🖼️ Frontend: [ReactJS](https://react.dev/) and [Vite](https://vite.dev) with
+    - ⚡ [Chakra UI](https://chakra-ui.com) for designing components.
+    - 🧲 [Axios](https://axios-http.com/) for fetching data.
 - 🧩Other tools:
     - 🗓️ [Jira](https://www.atlassian.com/software/jira) for planning work.
     - 🐋 [Docker Compose](https://www.docker.com/) for local development.
@@ -44,13 +46,13 @@ Check the file [NOTES.md](NOTES.md) to see Release Notes or Development Notes. I
 3. Movie, Genre, Showtime management:
     - `Manager` & `Employee` can create, read, update, and delete entries
     - All users can view these entries.
-4. Tickets Reservation/Purchasing management: 
-    - `regular user` can view all seats for a specific showtime, reserve/purchase seats, View their upcoming & past tickets and cancel active reservations
-    - `Cashier` can view all reservations within their assigned city, complete reservations and Ssll tickets to walk-in customers
+4. Tickets Reservation / Purchasing management: 
+    - `regular user` can view all seats for a specific showtime, reserve / purchase seats, view their upcoming / past tickets and cancel active reservations
+    - `Cashier` can view all reservations within their assigned city, complete reservations and sell tickets to walk-in customers
 5. Reporting: `Manager` can generate reports for a showtime, including total tickets sold & revenue
 
 ### Users workflow
-![Users workflow](https://i.imgur.com/d7dOecV.jpeg)
+![Users workflow](https://i.imgur.com/TqFAPnF.jpeg)
 
 ### DB schema design
 ![DB schema design](https://i.imgur.com/yLJjfqx.png)
