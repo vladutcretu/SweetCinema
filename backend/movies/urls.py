@@ -2,6 +2,9 @@ from django.urls import path
 
 # App
 from .views import (
+    # Movie - User
+    UserMovieListView,
+    # Other
     GenreListView,
     GenreCreateView,
     GenreUpdateDestroyView,
@@ -28,4 +31,6 @@ urlpatterns = [
     path(
         "movie/<int:pk>/", MovieUpdateDestroyView.as_view(), name="movie-update-destroy"
     ),
+    # Movie - User
+    path("user/", UserMovieListView.as_view(), name="user-read-movies")
 ]

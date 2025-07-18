@@ -1,3 +1,6 @@
+# Django
+from django.utils import timezone
+
 # DRF
 from rest_framework.generics import (
     ListAPIView,
@@ -6,15 +9,58 @@ from rest_framework.generics import (
     RetrieveAPIView,
 )
 from rest_framework.permissions import AllowAny
+from rest_framework.exceptions import ValidationError
 
 # App
 from .models import Genre, Movie
-from .serializers import GenreSerializer, MovieSerializer, MovieCreateSerializer
+from .serializers import (
+    # Movie - User
+    UserMovieListSerializer,
+    # Other
+    GenreSerializer, MovieSerializer, MovieCreateSerializer
+)
 from users.permissions import IsManagerOrEmployee
 
 # Create your views here.
 
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Movie - User
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class UserMovieListView(ListAPIView):
+    """
+    View to list all Movie objects that have future Showtime(s) in the City selected by User.\n
+    Method & URL: GET /movies/user/?city=city_id.\n
+    Response include only id, title, genres, poster fields and is sorted DESC by ID.\n
+    Available to `USER` without token authentication.\n
+    """
+
+    serializer_class = UserMovieListSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        city_id = self.request.query_params.get("city")
+
+        if not city_id:
+            raise ValidationError(
+                {"detail": "City param is needed: include ?city=city_id in the URL!"}
+            ) # status: 400
+        
+        return (
+            Movie.objects
+            .filter(
+                showtime__theater__city_id = city_id,
+                showtime__starts_at__gte = timezone.now()
+            )
+            .distinct()
+            .only("id", "title", "poster")
+            .prefetch_related("genres")
+            .order_by("-id")
+        )
+
+
+# Other
 class GenreListView(ListAPIView):
     """
     View to list all Genre objects.

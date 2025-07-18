@@ -2,20 +2,21 @@
 import { Box, Text, Heading, SimpleGrid, Spinner } from "@chakra-ui/react"
 
 // App
-import { useGetMovies } from "@/hooks/movies/movie/useGetMovies"
+import { useReadUserMovies } from "@/hooks/movies/movie/useReadUserMovies"
+import { useCityContext } from "@/contexts/CityContext"
 import MovieCard from "./MovieCard"
 
 // Components here
 
 const MoviesGrid = () => {
-  const { movies, loading: moviesLoading, error: moviesError } = useGetMovies()
-
+  const { selectedCityId } = useCityContext()
+  const { movies, loading: moviesLoading, error: moviesError } = useReadUserMovies(selectedCityId)
   if (moviesLoading) {
     return <Spinner />
   }
 
   if (moviesError) {
-    return <Text color="red.400">An error occurred: {moviesError}</Text>
+    return <Text color="red.400">{moviesError}</Text>
   }
 
   if (movies.length === 0) {
