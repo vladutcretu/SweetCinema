@@ -7,6 +7,27 @@ from .models import Genre, Movie
 # Create your serializers here.
 
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Serializers for Genre - USER
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+class UserGenreListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ["id", "name"]
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Serializers for Movie - USER
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+class UserMovieListSerializer(serializers.ModelSerializer):
+    genres = UserGenreListSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Movie
+        fields = ["id", "title", "genres", "poster"]
+
+
+# Others
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
