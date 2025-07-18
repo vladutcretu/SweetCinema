@@ -5,7 +5,8 @@ import api from "../Api"
 
 
 export const movieService = {
-    getMovies: () => api.get(`/movies/`),
+    // User
+    readUserMovies: (cityId) => api.get(`/movies/user/?city=${cityId}`),
     getMovie: (id) => api.get(`/movies/${id}/`),
 
     // Staff: CRUD
