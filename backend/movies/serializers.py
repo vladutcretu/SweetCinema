@@ -21,7 +21,7 @@ class UserGenreSerializer(serializers.ModelSerializer):
 # Movie - User
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class UserMovieListViewSerializer(serializers.ModelSerializer):
+class UserMovieListSerializer(serializers.ModelSerializer):
     genres = UserGenreSerializer(many=True, read_only=True)
 
     class Meta:

@@ -15,7 +15,7 @@ from rest_framework.exceptions import ValidationError
 from .models import Genre, Movie
 from .serializers import (
     # Movie - User
-    UserMovieListViewSerializer,
+    UserMovieListSerializer,
     # Other
     GenreSerializer, MovieSerializer, MovieCreateSerializer
 )
@@ -36,7 +36,7 @@ class UserMovieListView(ListAPIView):
     Available to `USER` without token authentication.\n
     """
 
-    serializer_class = UserMovieListViewSerializer
+    serializer_class = UserMovieListSerializer
     permission_classes = [AllowAny]
 
     def get_queryset(self):
