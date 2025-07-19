@@ -31,6 +31,14 @@ class UserMovieListSerializer(serializers.ModelSerializer):
 
 class UserMovieRetrieveSerializer(serializers.ModelSerializer):
     genres = UserGenreSerializer(many=True, read_only=True)
+    parental_guide = serializers.CharField(
+        source="get_parental_guide_display", 
+        read_only=True
+    )
+    language = serializers.CharField(
+        source="get_language_display",
+        read_only=True
+    )
 
     class Meta:
         model = Movie
