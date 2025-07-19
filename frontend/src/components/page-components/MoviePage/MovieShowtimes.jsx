@@ -1,5 +1,5 @@
 // UI
-import { useGetMovieShowtimesByCity } from "@/hooks/showtimes/usegetMovieShowtimesByCity"
+import { useReadShowtimesByMovieAndCity } from "@/hooks/showtimes/useReadShowtimesByMovieAndCity"
 
 // App
 import { Box, Heading, Text, SimpleGrid, Stack, Spinner } from "@chakra-ui/react"
@@ -10,15 +10,11 @@ import { formatDate, formatTime } from "@/utils/DateTimeFormat"
 
 
 const MovieShowtimes = ({ movieId, cityId }) => {
-  const { showtimes, loading: showtimesLoading, error: showtimesError } = useGetMovieShowtimesByCity(movieId, cityId)
+  const { showtimes, loading: showtimesLoading, error: showtimesError } = useReadShowtimesByMovieAndCity(movieId, cityId)
 
-  if (showtimesLoading) {
-    return <Spinner />
-  }
+  if (showtimesLoading) return <Spinner />
     
-  if (showtimesError) {
-    return <Text color="red.400">An error occurred: {showtimesError}</Text>
-  } 
+  if (showtimesError) return <Text color="red.400">{showtimesError}</Text>
 
   return (
     <Box mt={10}>
@@ -39,9 +35,8 @@ const MovieShowtimes = ({ movieId, cityId }) => {
               <Stack spacing={2}>
                 <Text><b>Date:</b> {formatDate(showtime.starts_at)}</Text>
                 <Text><b>Time:</b> {formatTime(showtime.starts_at)}</Text>
-                <Text><b>Theater:</b> {showtime.theater.name}</Text>
-                {/* <Text>{showtime.format}, {showtime.language}</Text> */}
-                <Text><b>Info:</b> 3D, RO sub</Text>
+                <Text><b>Theater:</b> {showtime.theater_name}</Text>
+                <Text><b>Format:</b> {showtime.format}</Text>
                 <ForwardButton to={`/showtime/${showtime.id}/`} text={"showtime"} />
               </Stack>
             </Box>
