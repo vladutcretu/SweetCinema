@@ -7,7 +7,7 @@ import api from "../Api"
 export const movieService = {
     // User
     readUserMovies: (cityId) => api.get(`movies/user/?city=${cityId}`),
-    getMovie: (id) => api.get(`/movies/${id}/`),
+    readMovie: (movieId) => api.get(`/movies/${movieId}/`),
 
     // Staff: CRUD
     createMovie: (title, description, genres) => api.post(`/movies/create/`, { 

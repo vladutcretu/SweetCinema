@@ -1,5 +1,7 @@
 # Django
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 # DRF
 from rest_framework.generics import (
@@ -16,6 +18,7 @@ from .models import Genre, Movie
 from .serializers import (
     # Movie - User
     UserMovieListSerializer,
+    UserMovieRetrieveSerializer,
     # Other
     GenreSerializer, MovieSerializer, MovieCreateSerializer
 )
@@ -60,6 +63,25 @@ class UserMovieListView(ListAPIView):
         )
 
 
+@method_decorator(cache_page(60 * 60 * 2), name="dispatch")
+class UserMovieRetrieveView(RetrieveAPIView):
+    """
+    View to retrieve a single Movie object by his ID.\n
+    Method & URL: GET /movies/movie_id/.\n
+    Response include all fields, excluding audit ones, and is cached for 2 hours.\n
+    Available to `USER` without token authentication.\n
+    """
+
+    lookup_field = "id"
+    serializer_class = UserMovieRetrieveSerializer
+    permission_classes = [AllowAny]
+    queryset = (
+        Movie.objects
+        .defer("created_at", "updated_at")
+        .prefetch_related("genres")
+    )
+
+
 # Other
 class GenreListView(ListAPIView):
     """
@@ -98,17 +120,6 @@ class GenreUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 class MovieListView(ListAPIView):
     """
     View to list all Movie objects.
-    Available to any role; not required token authentication.
-    """
-
-    queryset = Movie.objects.all()
-    serializer_class = MovieSerializer
-    permission_classes = [AllowAny]
-
-
-class MovieRetrieveView(RetrieveAPIView):
-    """
-    View to retrieve a single Movie object by his ID.
     Available to any role; not required token authentication.
     """
 
