@@ -13,13 +13,19 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 
 # 3rd party apps
 from django_filters.rest_framework import DjangoFilterBackend
 
 # App
 from .models import Showtime
-from .serializers import ShowtimeSerializer, ShowtimeCreateStaffSerializer
+from .serializers import (
+    # User
+    MovieShowtimeListSerializer,
+    # Other
+    ShowtimeSerializer, ShowtimeCreateStaffSerializer
+)
 from tickets.models import Booking, BookingStatus
 from users.permissions import IsManagerOrEmployee, IsManager
 from locations.models import Seat
@@ -27,6 +33,40 @@ from locations.models import Seat
 # Create your views here.
 
 
+class MovieShowtimeListView(ListAPIView):
+    """
+    View to list all Showtime objects that have starts_at value greater than current time
+    for the Movie and City selected by User.\n
+    Method & URL: GET /showtimes/movie/?movie=movieId&theater__city=cityId.\n
+    Response include only id, theater, starts_at, format fields is sorted ASC by starts_at.\n
+    Available to `USER` without token authentication.\n
+    """
+
+    serializer_class = MovieShowtimeListSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        movie_id = self.request.query_params.get("movie")
+        city_id = self.request.query_params.get("theater__city")
+
+        if not (movie_id and city_id):
+            raise ValidationError(
+                {"detail": "Movie and City params are needed: include ?movie=movie_id&theater__city=city_id in the URL!"}
+            ) # status: 400
+        
+        return (
+            Showtime.objects
+            .filter(
+                movie_id=movie_id,
+                theater__city_id=city_id,
+                starts_at__gte = timezone.now()
+            )
+            .select_related("theater")
+            .order_by("starts_at")
+        ) # status: 200
+
+
+# Other
 class ShowtimeListView(ListAPIView):
     """
     View to list all Showtime objects requested by Movie ID AND/OR City ID that

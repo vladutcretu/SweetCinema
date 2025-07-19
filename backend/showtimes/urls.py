@@ -2,6 +2,9 @@ from django.urls import path
 
 # App
 from .views import (
+    # User
+    MovieShowtimeListView,
+    # Other
     ShowtimeListView,
     ShowtimeRetrieveView,
     ShowtimeListStaffView,
@@ -27,4 +30,6 @@ urlpatterns = [
     ),
     path("<int:pk>/seats/", ShowtimeSeatsListView.as_view(), name="showtime-seats"),
     path("<int:pk>/report/", ShowtimeReportView.as_view(), name="showtime-report"),
+    # User
+    path("movie/", MovieShowtimeListView.as_view(), name="read-movie-showtimes"),
 ]
