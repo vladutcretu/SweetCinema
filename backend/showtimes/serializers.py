@@ -5,19 +5,8 @@ from rest_framework import serializers
 from .models import Showtime
 from movies.serializers import MovieSerializer
 from locations.serializers import TheaterSerializer
-from locations.models import Theater
 
 # Create your serializers here.
-
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Theater - User
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-class TheaterInShowtimeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Theater
-        fields = ["name"]
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -31,15 +20,6 @@ class MovieShowtimeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Showtime
         fields = ["id", "theater_name", "starts_at", "format"]
-    # theater = TheaterInShowtimeSerializer(read_only=True)
-    # format = serializers.CharField(
-    #     source="get_format_display", 
-    #     read_only=True
-    # )
-
-    # class Meta:
-    #     model = Showtime
-    #     fields = ["id", "theater", "starts_at", "format"]
 
 
 # Other

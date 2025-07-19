@@ -37,7 +37,7 @@ class MovieShowtimeListView(ListAPIView):
     """
     View to list all Showtime objects that have starts_at value greater than current time
     for the Movie and City selected by User.\n
-    Method & URL: GET /showtimes/movie/?movie=movieId&theater__city=cityId.\n
+    Method & URL: GET /showtimes/movie/?movie=movieId&city=cityId.\n
     Response include only id, theater, starts_at, format fields is sorted ASC by starts_at.\n
     Available to `USER` without token authentication.\n
     """
@@ -47,11 +47,11 @@ class MovieShowtimeListView(ListAPIView):
 
     def get_queryset(self):
         movie_id = self.request.query_params.get("movie")
-        city_id = self.request.query_params.get("theater__city")
+        city_id = self.request.query_params.get("city")
 
         if not (movie_id and city_id):
             raise ValidationError(
-                {"detail": "Movie and City params are needed: include ?movie=movie_id&theater__city=city_id in the URL!"}
+                {"detail": "Movie and City params are needed: include ?movie=movie_id&city=city_id in the URL!"}
             ) # status: 400
         
         return (
