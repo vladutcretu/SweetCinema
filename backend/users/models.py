@@ -15,10 +15,11 @@ class UserProfile(models.Model):
     city = models.ForeignKey(City, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
-        verbose_name_plural = "UserProfiles"
+        verbose_name_plural = "UserProfile"
+        ordering = ["-id"]
 
     def __str__(self):
-        return f"{self.user.username} - {self.city}"
+        return f"{self.user.username}, {self.city}"
 
 
 @receiver(post_save, sender=User)
