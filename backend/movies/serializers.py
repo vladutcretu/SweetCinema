@@ -29,6 +29,26 @@ class UserMovieListSerializer(serializers.ModelSerializer):
         fields = ["id", "title", "genres", "poster"]
 
 
+class UserMovieRetrieveSerializer(serializers.ModelSerializer):
+    genres = UserGenreSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Movie
+        fields = [
+            "id", 
+            "title", 
+            "description", 
+            "genres", 
+            "poster", 
+            "director",
+            "cast",
+            "release",
+            "duration",
+            "parental_guide",
+            "language"
+        ]
+
+
 # Other
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
