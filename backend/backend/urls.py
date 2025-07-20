@@ -17,6 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
 
 # 3rd party apps
 from drf_spectacular.views import (
@@ -61,3 +62,8 @@ urlpatterns = [
     *alpha_paterns,
     *v1_patterns,
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += [path("__debug__/", include(debug_toolbar.urls)),]
+    urlpatterns += [path("silk/", include("silk.urls", namespace="silk"))]
