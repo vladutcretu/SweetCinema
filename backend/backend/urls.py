@@ -42,7 +42,7 @@ alpha_paterns = [
 ]
 
 v1_patterns = [
-
+    path("api/v1/locations/", include("locations.urls")),
 ]
 
 urlpatterns = [

@@ -1,4 +1,5 @@
 # DRF
+from rest_framework import generics, mixins
 from rest_framework.generics import (
     ListAPIView,
     CreateAPIView,
@@ -8,12 +9,17 @@ from rest_framework.generics import (
 from rest_framework.permissions import AllowAny
 
 # 3rd party apps
+from drf_spectacular.utils import extend_schema
 from django_filters.rest_framework import DjangoFilterBackend
 
 # App
 from .models import City, Theater, Seat
 from .serializers import (
-    CitySerializer,
+    # City
+    CityPartialSerializer,
+    CityCompleteSerializer,
+    CityUpdateSerializer,
+    # Other
     TheaterSerializer,
     TheaterCreateSerializer,
     SeatSerializer,
@@ -23,40 +29,60 @@ from users.permissions import IsManager
 # Create your views here.
 
 
-class CityListView(ListAPIView):
-    """
-    View to list all City objects.
-    Available to any role; not required token authentication.
-    """
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# City
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-    queryset = City.objects.all()
-    serializer_class = CitySerializer
-    permission_classes = [AllowAny]
-
-
-class CityCreateView(CreateAPIView):
+@extend_schema(tags=["v1 - Cities"])
+class CityListCreateView(generics.ListCreateAPIView):
     """
-    View to create a City object.
-    Avalaible to `Manager` role; required token authentication.
+    GET: list all City objects, but the response is different for 
+    visitor / user and staff / 'Manager' group.\n
+    POST: create City object, but only for staff / 'Manager' group.\n
     """
 
     queryset = City.objects.all()
-    serializer_class = CitySerializer
+
+    def get_permissions(self):
+        if self.request.method == "POST":
+            return [IsManager()]
+        return [AllowAny()]
+
+    def get_serializer_class(self):
+        user = self.request.user
+        if user.is_authenticated and (
+            user.is_staff or 
+            user.groups.filter(name="Manager").exists()
+        ):
+            return CityCompleteSerializer
+        return CityPartialSerializer
+    
+
+@extend_schema(tags=["v1 - Cities"])
+class CityUpdateDestroyView(
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    generics.GenericAPIView
+):
+    """
+    Only available to staff or 'Manager' group.\n
+    PATCH: update City object (name, address).\n
+    DELETE: delete City object.\n
+    """
+
+    queryset = City.objects.all()
+    serializer_class = CityUpdateSerializer
     permission_classes = [IsManager]
+    lookup_field = "id"
+
+    def patch(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
 
-class CityUpdateDestroy(RetrieveUpdateDestroyAPIView):
-    """
-    View to update and destroy a single City object by his ID.
-    Avalaible to `Manager` role; required token authentication.
-    """
-
-    queryset = City.objects.all()
-    serializer_class = CitySerializer
-    permission_classes = [IsManager]
-    http_method_names = ["put", "delete"]
-
-
+# Other
 class TheaterListView(ListAPIView):
     """
     View to list all Theater objects, with optional filtering by City ID.
