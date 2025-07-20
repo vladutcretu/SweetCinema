@@ -5,9 +5,9 @@ from django.urls import reverse, resolve
 from rest_framework.test import APITestCase
 
 # App
-from .models import Genre, Movie
-from .serializers import GenreSerializer, MovieSerializer
-from .views import GenreListView, MovieListView, MovieRetrieveView
+from ..models import Genre, Movie
+from ..serializers import GenreSerializer, MovieSerializer
+from ..views import GenreListView, MovieListView, MovieRetrieveView
 
 # Create your tests here.
 

@@ -6,12 +6,12 @@ from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 
 # App
-from .models import Showtime
+from ..models import Showtime
 from movies.models import Movie
 from locations.models import City, Theater, Seat
 from tickets.models import Booking
-from .serializers import ShowtimeSerializer
-from .views import ShowtimeListView, ShowtimeRetrieveView, ShowtimeSeatsListView
+from ..serializers import ShowtimeSerializer
+from ..views import ShowtimeListView, ShowtimeRetrieveView, ShowtimeSeatsListView
 
 # Create your tests here.
 

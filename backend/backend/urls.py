@@ -25,6 +25,25 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
+# Write your urls here.
+
+alpha_paterns = [
+    # Locations app
+    path("api/locations/", include("locations.urls_alpha")),
+    # Movies app
+    path("api/movies/", include("movies.urls_alpha")),
+    # Showtimes app
+    path("api/showtimes/", include("showtimes.urls_alpha")),
+    # Tickets app
+    path("api/tickets/", include("tickets.urls_alpha")),
+    # Users app
+    path("api/users/", include("users.urls_alpha")),
+]
+
+v1_patterns = [
+
+]
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     # API documentation
@@ -39,14 +58,6 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc",
     ),
-    # Locations app
-    path("api/locations/", include("locations.urls")),
-    # Movies app
-    path("api/movies/", include("movies.urls")),
-    # Showtimes app
-    path("api/showtimes/", include("showtimes.urls")),
-    # Tickets app
-    path("api/tickets/", include("tickets.urls")),
-    # Users app
-    path("api/users/", include("users.urls")),
+    *alpha_paterns,
+    *v1_patterns,
 ]

@@ -5,9 +5,9 @@ from django.urls import reverse, resolve
 from rest_framework.test import APITestCase
 
 # App
-from .models import City, Theater, Seat
-from .serializers import CitySerializer, TheaterSerializer, SeatSerializer
-from .views import CityListView, TheaterListView, TheaterRetrieveView, SeatListView
+from ..models import City, Theater, Seat
+from ..serializers import CitySerializer, TheaterSerializer, SeatSerializer
+from ..views import CityListView, TheaterListView, TheaterRetrieveView, SeatListView
 
 # Create your tests here.
 
