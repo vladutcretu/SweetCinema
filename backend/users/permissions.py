@@ -1,61 +1,69 @@
 # DRF
 from rest_framework.permissions import BasePermission
 
-# Write permissions here
+# Write your permissions here.
 
 
-class IsInGroup(BasePermission):
+class IsAdminOrInGroup(BasePermission):
+    """ 
+    Checks user to be Admin (SuperUser/Staff) OR 
+    to be part of one of the specified group(s).
     """
-    Global permission class for import and use on permission_classes attributes on API views.
-    It checks user to be part of a group.
-    """
 
-    group_name = None
+    groups_names = []
 
     def has_permission(self, request, view):
         user = request.user
         return (
-            user.is_authenticated
-            and self.group_name
-            and user.groups.filter(name=self.group_name).exists()
+            user.is_authenticated and (
+                user.is_superuser or
+                user.is_staff or (
+                    self.group_name and 
+                    user.groups.filter(name__in=self.groups_names).exists()
+                )
+            )
         )
 
 
-class IsManager(IsInGroup):
-    group_name = "Manager"
-
-
-class IsEmployee(IsInGroup):
-    group_name = "Employee"
-
-
-class IsCashier(IsInGroup):
-    group_name = "Cashier"
-
-
-class IsManagerOrEmployee(BasePermission):
-    """
-    Global permission class for import and use on permission_classes attributes on API views.
-    User must be in either 'Manager' or 'Employee' group.
+class IsManager(IsAdminOrInGroup):
+    """ 
+    Checks user to be Admin (SuperUser/Staff) OR
+    to be part of the 'Manager' group. 
     """
 
-    def has_permission(self, request, view):
-        user = request.user
-        if not user or not user.is_authenticated:
-            return False
-
-        return user.groups.filter(name__in=["Manager", "Employee"]).exists()
+    groups_names = ["Manager"]
 
 
-class IsManagerOrEmployeeOrCashier(BasePermission):
-    """
-    Global permission class for import and use on permission_classes attributes on API views.
-    User must be in either 'Manager' or 'Employee' or 'Cashier' group.
+class IsManagerOrEmployee(IsAdminOrInGroup):
+    """ 
+    Checks user to be Admin (SuperUser/Staff) OR
+    to be part of one of the 'Manager', 'Employee' groups. 
     """
 
-    def has_permission(self, request, view):
-        user = request.user
-        if not user or not user.is_authenticated:
-            return False
+    groups_names = ["Manager", "Employee"]
 
-        return user.groups.filter(name__in=["Manager", "Employee", "Cashier"]).exists()
+
+class IsManagerOrCashier(IsAdminOrInGroup):
+    """
+    Checks user to be Admin (SuperUser/Staff) OR
+    to be part of one of the 'Manager', 'Cashier' groups. 
+    """
+
+    groups_names = ["Manager", "Cashier"]
+
+
+class IsCashier(IsAdminOrInGroup):
+    """
+    Checks user to be Admin (SuperUser/Staff) OR
+    to be part of the 'Cashier' group.
+    """
+    groups_names = ["Cashier"]
+
+
+class IsManagerOrEmployeeOrCashier(IsAdminOrInGroup):
+    """
+    Checks user to be Admin (SuperUser/Staff) OR
+    to be part of one of the 'Manager', 'Employee' 'Cashier' groups. 
+    """
+        
+    groups_names = ["Manager", "Employee", "Cashier"]
