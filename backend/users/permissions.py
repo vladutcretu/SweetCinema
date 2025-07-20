@@ -18,7 +18,7 @@ class IsAdminOrInGroup(BasePermission):
             user.is_authenticated and (
                 user.is_superuser or
                 user.is_staff or (
-                    self.group_name and 
+                    self.groups_names and
                     user.groups.filter(name__in=self.groups_names).exists()
                 )
             )
