@@ -58,14 +58,14 @@ const TheaterManagement = () => {
   // Read theaters
   const columns = [
     { key: "id", title: "ID" },
-    { key: "city", title: "City" },
+    { key: "city_name", title: "City" },
     { key: "name", title: "Name" },
     { key: "r-c", title: "Rows-Columns" }
   ]
   const renderCell = (theater, column) => {
     switch (column.key) {
       case "id": return theater.id
-      case "city": return theater.city.name
+      case "city_name": return theater.city_name
       case "name": return theater.name
       case "r-c": return `R${theater.rows}-C${theater.columns}`
     }

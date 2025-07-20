@@ -1,14 +1,15 @@
 // React, dependencies & packages
-import { theaterService } from "@/services/locations/theaterService"
 import { useEffect, useState } from "react"
 
 // App
-
+import { useAuthContext } from "@/contexts/AuthContext"
+import { theaterService } from "@/services/locations/theaterService"
 
 // Components here
 
 
 export const useReadTheaters = () => {
+  const { accessToken } = useAuthContext()
   const [theaters, setTheaters] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -19,10 +20,10 @@ export const useReadTheaters = () => {
       setError(null)
       const response = await theaterService.readTheaters()
       setTheaters(response.data)
-      console.log("Read Theaters successful:", response.data)
+      console.log("Staff - Read Theaters successful:", response.data)
     } catch (error) {
-      setError("Theaters cannot be loaded. Please try again!")
-      console.error('Read Theaters unsuccessful:', error)
+      setError("Something went wrong while reading theaters. Please try again.")
+      console.error('Staff - Read Theaters unsuccessful:', error)
     } finally {
       setLoading(false)
     }
@@ -30,7 +31,7 @@ export const useReadTheaters = () => {
     
   useEffect(() => {
     readTheaters()
-  }, [])
+  }, [accessToken])
 
   return { theaters, loading, error, refetch: readTheaters }
 }
