@@ -16,9 +16,10 @@ class UserProfile(models.Model):
 
     class Meta:
         verbose_name_plural = "UserProfiles"
+        ordering = ["-id"]
 
     def __str__(self):
-        return f"{self.user.username} - {self.city}"
+        return f"{self.user.username}, {self.city}"
 
 
 @receiver(post_save, sender=User)

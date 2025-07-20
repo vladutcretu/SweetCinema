@@ -40,8 +40,8 @@ class Booking(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Method fills, for the created Booking instances with `status=reserverd` or `status=pending_payment`,
-        the `expires_at` field.
+        Method fills the expires_at field for the instances created with 
+        status=reserved or status=pending_payment.
         """
         if (
             not self.expires_at
@@ -60,8 +60,11 @@ class Booking(models.Model):
 
     def __str__(self):
         return (
-            f"{self.showtime.starts_at.strftime('%d %b %Y %H:%M:%S')}, {self.seat} - "
-            f"{self.status}, {self.booked_at.strftime('%d %b %Y %H:%M:%S')}, {self.updated_at.strftime('%d %b %Y %H:%M:%S')}"
+            f"{self.seat}, "
+            f"{self.showtime.starts_at.strftime('%d %b %Y %H:%M:%S')}, "
+            f"{self.status}, "
+            f"booked on: {self.booked_at.strftime('%d %b %Y %H:%M:%S')}, "
+            f"status updated on: {self.updated_at.strftime('%d %b %Y %H:%M:%S')}"
         )
 
 
@@ -78,7 +81,7 @@ class PaymentStatus(models.TextChoices):
 class Payment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     bookings = models.ManyToManyField(Booking, related_name="payments")
-    amount = models.FloatField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
     method = models.CharField(max_length=55, choices=PaymentMethod.choices)
     status = models.CharField(max_length=55, choices=PaymentStatus.choices)
     paid_at = models.DateTimeField(auto_now_add=True)
@@ -89,5 +92,5 @@ class Payment(models.Model):
 
     def __str__(self):
         return (
-            f"{self.user} - {self.status}, {self.paid_at.strftime('%d %b %Y %H:%M:%S')}"
+            f"{self.user}, {self.status}, {self.paid_at.strftime('%d %b %Y %H:%M:%S')}"
         )
