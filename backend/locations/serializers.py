@@ -36,6 +36,39 @@ class CityUpdateSerializer(serializers.ModelSerializer):
         fields = ["name", "address"]
 
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Theater
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class TheaterCompleteSerializer(serializers.ModelSerializer):
+    """
+    Contains all fields. ForeignKey City is represented by city_name.
+    """
+    city_name = serializers.CharField(source="city.name")
+    class Meta:
+        model = Theater
+        fields = ["id", "name", "city_name", "rows", "columns", "created_at", "updated_at"]
+
+class TheaterCreateSerializer(serializers.ModelSerializer):
+    """
+    Contains all editable fields. Must introduce city name.
+    """
+    city = serializers.SlugRelatedField(
+        many=False, slug_field="name", queryset=City.objects.all()
+    )
+    class Meta:
+        model = Theater
+        fields = ["name", "city", "rows", "columns"]
+
+class TheaterUpdateSerializer(serializers.ModelSerializer):
+    """
+    Contains all editable fields, except city.
+    """
+    class Meta:
+        model = Theater
+        fields = ["name", "rows", "columns"]
+
+
 # Other
 class CitySerializer(serializers.ModelSerializer):
     class Meta:
@@ -49,16 +82,6 @@ class TheaterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Theater
         fields = ["id", "name", "city", "rows", "columns"]
-
-
-class TheaterCreateSerializer(serializers.ModelSerializer):
-    city = serializers.SlugRelatedField(
-        many=False, slug_field="name", queryset=City.objects.all()
-    )
-
-    class Meta:
-        model = Theater
-        fields = ["name", "city", "rows", "columns"]
 
 
 class SeatSerializer(serializers.ModelSerializer):

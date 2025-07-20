@@ -28,6 +28,7 @@ class Theater(models.Model):
     class Meta:
         verbose_name_plural = "Theaters"
         ordering = ["city__name", "name"]
+        unique_together = ("name", "city")
 
     def save(self, *args, **kwargs):
         """
