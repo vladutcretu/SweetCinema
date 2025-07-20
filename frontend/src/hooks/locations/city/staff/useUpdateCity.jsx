@@ -12,19 +12,19 @@ export const useUpdateCity = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const updateCity = async (cityId, name) => {
+  const updateCity = async (cityId, name, address) => {
     setLoading(true)
     setError(null)
     try {
-      const response = await cityService.updateCity(cityId, name)
+      const response = await cityService.updateCity(cityId, name, address)
       setData(response.data)
-      alert(`✅ City name updated to ${name}!`)
-      console.log("Update City successful:", response.data)
+      alert(`✅ City updated!`)
+      console.log("Staff - Update City successful:", response.data)
       return response.data
     } catch (error) {
       setError("Something went wrong while updating city. Please try again.")
-      alert(`❌ City name do not updated!`)
-      console.error("Update City unsuccessful:", error)
+      alert(`❌ City not updated!`)
+      console.error("Staff - Update City unsuccessful:", error)
       return null
     } finally {
       setLoading(false)

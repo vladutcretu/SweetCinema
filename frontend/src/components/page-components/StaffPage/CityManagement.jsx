@@ -14,6 +14,8 @@ import SubmitButton from '@/components/common/SubmitButton'
 import SearchBar from '@/components/common/SearchBar'
 import ReusableTable from '@/components/common/ReusableTable'
 import FormWrapper from '@/components/common/FormWrapper'
+import useFormState from '@/hooks/useFormState'
+import { formatDate, formatTime } from '@/utils/DateTimeFormat'
 
 // Write components here
 
@@ -26,24 +28,40 @@ const CityManagement = () => {
   const { searchTerm, handleChangeSearch, filteredData: filteredCities } = useSearchBar(cities, "name")
   
   // Create city
-  const [cityNameCreate, setCityNameCreate] = useState("")
+  const { 
+    formData: cityCreateForm,
+    handleChange: handleChangeCreate, 
+    resetForm: resetCreateForm 
+  } = useFormState({ name: "",  address: "" })
+
 
   const handleSubmitCreate = async (event) => {
     event.preventDefault()
-    const result = await createCity(cityNameCreate)
-    setCityNameCreate("")
-    if (result) return await readCities()
+    const result = await createCity(cityCreateForm.name, cityCreateForm.address)
+    if (result) {
+      resetCreateForm()
+      await readCities()
+    }
   }
 
   // Read cities
   const columns = [
     { key: "id", title: "ID" },
-    { key: "name", title: "Name" }
+    { key: "name", title: "Name" },
+    { key: "address", title: "Address"},
+    { key: "created-updated", title: "Created / Updated"},
   ]
   const renderCell = (city, column) => {
     switch (column.key) {
       case "id": return city.id
       case "name": return city.name
+      case "address": return city.address
+      case "created-updated": return (`
+        ${formatDate(city.created_at)}, 
+        ${formatTime(city.created_at)} /
+        ${formatDate(city.updated_at)}, 
+        ${formatTime(city.updated_at)}
+      `)
     }
   }
   const renderActions = (city) => (
@@ -65,20 +83,31 @@ const CityManagement = () => {
   const [isUpdating, setIsUpdating] = useState(false)
   const [cityToUpdate, setCityToUpdate] = useState(null)
   const [cityId, setCityId] = useState("")
-  const [updatedName, setUpdatedName] = useState("")
+  const { 
+    formData: updatedForm,
+    setFormData: setUpdatedForm,
+    handleChange: handleChangeUpdate,
+    resetForm: resetUpdatedForm
+  } = useFormState({ name: "",  address: "" })
+
 
   const handleStartUpdate = (city) => {
     setIsUpdating(true)
     setCityToUpdate(city)
     setCityId(city.id)
-    setUpdatedName(city.name)
+    setUpdatedForm({ name: city.name, address: city.address })
   }
 
   const handleSubmitUpdate = async (event) => {
     event.preventDefault()
-    const result = await updateCity(cityId, updatedName)
-    setIsUpdating(false)
-    if (result) return await readCities()
+    const result = await updateCity(cityId, updatedForm.name, updatedForm.address)
+    if (result) {
+      setIsUpdating(false)
+      setCityToUpdate(null)
+      setCityId("")
+      resetUpdatedForm()
+      await readCities()
+    }
   }
 
   // Delete city
@@ -116,12 +145,24 @@ const CityManagement = () => {
       >
         <Input 
           type="text"
-          value={cityNameCreate}
-          onChange={(event) => setCityNameCreate(event.target.value)}
+          name="name"
+          value={cityCreateForm.name}
+          onChange={handleChangeCreate}
           bg="white"
           color="black"
           size="xs"
           placeholder="Type name..."
+          required
+        />
+        <Input 
+          type="text"
+          name="address"
+          value={cityCreateForm.address}
+          onChange={handleChangeCreate}
+          bg="white"
+          color="black"
+          size="xs"
+          placeholder="Type address..."
           required
         />
       </FormWrapper>
@@ -139,13 +180,25 @@ const CityManagement = () => {
             <Field.Label>Update name for City {cityToUpdate.name}:</Field.Label>
             <Input
               type="text"
-              value={updatedName}
-              onChange={(event) => setUpdatedName(event.target.value)}
+              name="name"
+              value={updatedForm.name}
+              onChange={handleChangeUpdate}
               bg="white"
               color="black"
               size="xs"
               placeholder="Type name..."
               required 
+            />
+            <Input 
+              type="text"
+              name="address"
+              value={updatedForm.address}
+              onChange={handleChangeUpdate}
+              bg="white"
+              color="black"
+              size="xs"
+              placeholder="Type address..."
+              required
             />
           </Field.Root>
         </FormWrapper>

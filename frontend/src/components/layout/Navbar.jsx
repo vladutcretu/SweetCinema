@@ -1,12 +1,12 @@
 // React, dependencies & packages
-import { forwardRef } from "react"
+import { forwardRef, useState } from "react"
 
 // UI
 import { Box, Button, Flex, HStack, chakra, Portal } from "@chakra-ui/react"
 import { Menu } from "@ark-ui/react"
 
 // App
-import { useGetCities } from "@/hooks/locations/city/useGetCities"
+import { useReadCities } from "@/hooks/locations/city/useReadCities"
 import { useCityContext } from "@/contexts/CityContext"
 import { useAuthContext } from "@/contexts/AuthContext"
 import Auth from "../auth/Auth"
@@ -47,20 +47,19 @@ const NavLink = ({ children, href = "#" }) => (
 )
 
 const Navbar = () => {
+  const [shouldFetchCities, setShouldFetchCities] = useState(false)
   // Get cities list
-  const { cities, loading: citiesLoading, error: citiesError } = useGetCities()
+  const { cities, loading: citiesLoading, error: citiesError } = useReadCities(shouldFetchCities)
   // Save City data selected by user
   const { setSelectedCityId, selectedCityName, setSelectedCityName } = useCityContext()
   // Get user's auth status & account details from context
   const { isAuthenticated, user } = useAuthContext()
 
-  // if (citiesLoading) {
-  //   return <Text>{citiesLoading}</Text>
-  // }
-
-  // if (citiesError) {
-  //   return <Text>{citiesError}</Text>
-  // }
+  const handleMenuOpen = () => {
+    if (!shouldFetchCities) {
+      setShouldFetchCities(true)
+    }
+  }
 
   return (
     <Box bg="#7B7E82" w="100%" p={4} color="white">
@@ -75,7 +74,7 @@ const Navbar = () => {
         </HStack>
 
         <Flex alignItems="center" gap={4}>
-          <Menu.Root>
+            <Menu.Root onOpenChange={(details) => { if (details.open) { handleMenuOpen() }}}>
             <Menu.Trigger asChild>
               <Button variant="plain" size="xl" colorScheme="whiteAlpha">
                 {selectedCityName}
@@ -85,7 +84,7 @@ const Navbar = () => {
             <Portal>
               <Menu.Positioner>
                 <CustomMenuContent>
-                  {cities.map((city) => (
+                  {!citiesLoading && !citiesError && cities.map((city) => (
                     <Menu.Item
                       key={city.id}
                       onClick={() => {
@@ -114,7 +113,7 @@ const Navbar = () => {
         </Flex>
       </Flex>
     </Box>
-  );
-};
+  )
+}
 
 export default Navbar

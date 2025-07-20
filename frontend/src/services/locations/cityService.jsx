@@ -5,11 +5,14 @@ import api from "../Api"
 
 
 export const cityService = {
-  getCities: () => api.get(`/locations/cities/`),
-
-  // Staff: CRUD
-  createCity: (name) => api.post(`/locations/cities/create/`, { name: name }),
-  readCities: () => api.get(`/locations/cities/`),
-  updateCity: (cityId, name) => api.put(`/locations/cities/${cityId}/`, { name: name }),
-  deleteCity: (cityId) => api.delete(`/locations/cities/${cityId}/`),
+  readCities: () => api.get(`/v1/locations/cities/`),
+  createCity: (name, address) => api.post(`/v1/locations/cities/`, { 
+    name: name,
+    address: address
+  }),
+  updateCity: (cityId, name, address) => api.patch(`/v1/locations/cities/${cityId}/`, { 
+    name: name,
+    address: address
+  }),
+  deleteCity: (cityId) => api.delete(`/v1/locations/cities/${cityId}/`),
 }

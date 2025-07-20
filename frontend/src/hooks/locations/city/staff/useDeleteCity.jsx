@@ -19,12 +19,12 @@ export const useDeleteCity = () => {
       const response = await cityService.deleteCity(cityId)
       setData(response.data)
       alert(`✅ City deleted!`)
-      console.log("Delete City successful:", response.data)
+      console.log("Staff - Delete City successful:", response.data)
       return true
     } catch (error) {
       setError("Something went wrong while deleting city. Please try again.")
-      alert(`❌ City do not deleted!`)
-      console.error("Delete City unsuccessful:", error)
+      alert(`❌ City not deleted!`)
+      console.error("Staff - Delete City unsuccessful:", error)
       return false
     } finally {
       setLoading(false)

@@ -20,10 +20,10 @@ export const useReadCities = () => {
       setError(null)
       const response = await cityService.readCities()
       setCities(response.data)
-      console.log("Get Cities successful:", response.data)
+      console.log("Staff - Read Cities successful:", response.data)
     } catch (error) {
-      setError('Cities cannot be loaded. Please try again!')
-      console.error('Get Cities unsuccessful:', error)
+      setError('Something went wrong while reading cities. Please try again.')
+      console.error('Staff - Read Cities unsuccessful:', error)
     } finally {
       setLoading(false)
     }
