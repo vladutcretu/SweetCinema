@@ -5,7 +5,7 @@ from django.contrib.auth.models import Group, User
 import pytest
 
 # App
-from locations.models import City
+from locations.models import City, Theater
 
 # Write your fixtures here.
 
@@ -40,3 +40,18 @@ def staff_user():
 @pytest.fixture
 def normal_user():
     return User.objects.create_user(username="user", password="test123")
+
+@pytest.fixture
+def theaters_list():
+    city = City.objects.create(name="Berlin", address="Street Berlin")
+    return Theater.objects.bulk_create([
+        Theater(name="Room 1", city=city, rows=1, columns=2),
+        Theater(name="Room 2", city=city, rows=3, columns=4),
+        Theater(name="Room 3", city=city, rows=5, columns=6),
+        Theater(name="Room 4", city=city, rows=7, columns=8),
+    ])
+
+@pytest.fixture
+def theater_room_berlin():
+    city = City.objects.create(name="Berlin", address="Street Berlin")
+    return Theater.objects.create(name="Room", city=city, rows=2, columns=4)
