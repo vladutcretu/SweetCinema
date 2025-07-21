@@ -10,10 +10,21 @@ from .models import Genre, Movie
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # Genre
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-class GenreSerializer(serializers.ModelSerializer):
+class GenrePartialSerializer(serializers.ModelSerializer):
+    """
+    Contains id, name fields.
+    """
     class Meta:
         model = Genre
         fields = ["id", "name"]
+
+class GenreCompleteSerializer(serializers.ModelSerializer):
+    """
+    Contains all fields.
+    """
+    class Meta:
+        model = Genre
+        fields = ["id", "name", "created_at", "updated_at"]
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -24,7 +35,7 @@ class MoviePartialSerializer(serializers.ModelSerializer):
     """
     Contains id, title, genres, poster fields. Foreign Key Genres include id, name fields.
     """
-    genres = GenreSerializer(many=True)
+    genres = GenrePartialSerializer(many=True)
     class Meta:
         model = Movie
         fields = ["id", "title", "genres", "poster"]
@@ -33,7 +44,7 @@ class MovieCompleteSerializer(serializers.ModelSerializer):
     """
     Contains all fields. Foreign Key Genres include id, name fields.
     """
-    genres = GenreSerializer(many=True)
+    genres = GenrePartialSerializer(many=True)
     parental_guide = serializers.CharField(source="get_parental_guide_display")
     language = serializers.CharField(source="get_language_display")
     class Meta:
@@ -80,7 +91,7 @@ class MovieRetrieveSerializer(serializers.ModelSerializer):
     """
     Contains id, all editable fields. Foreign Key Genres include id, name fields.
     """
-    genres = GenreSerializer(many=True)
+    genres = GenrePartialSerializer(many=True)
     parental_guide = serializers.CharField(source="get_parental_guide_display")
     language = serializers.CharField(source="get_language_display")
     class Meta:
@@ -102,7 +113,7 @@ class MovieRetrieveSerializer(serializers.ModelSerializer):
 
 # Other
 class MovieSerializer(serializers.ModelSerializer):
-    genres = GenreSerializer(many=True, read_only=True)
+    genres = GenrePartialSerializer(many=True, read_only=True)
 
     class Meta:
         model = Movie

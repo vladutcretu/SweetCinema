@@ -31,8 +31,6 @@ from drf_spectacular.views import (
 alpha_paterns = [
     # Locations app
     path("api/locations/", include("locations.urls_alpha")),
-    # Movies app
-    path("api/movies/", include("movies.urls_alpha")),
     # Showtimes app
     path("api/showtimes/", include("showtimes.urls_alpha")),
     # Tickets app
