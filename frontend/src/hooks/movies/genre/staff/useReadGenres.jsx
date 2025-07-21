@@ -20,10 +20,10 @@ export const useReadGenres = () => {
       setError(null)
       const response = await genreService.readGenres()
       setGenres(response.data)
-      console.log("Get Genres successful:", response.data)
+      console.log("Staff - Read Genres successful:", response.data)
     } catch (error) {
       setError('Genres cannot be loaded. Please try again!')
-      console.error('Get Genres unsuccessful:', error)
+      console.error('Staff - Read Genres unsuccessful:', error)
     } finally {
       setLoading(false)
     }

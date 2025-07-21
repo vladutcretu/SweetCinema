@@ -19,12 +19,12 @@ export const useUpdateGenre = () => {
       const response = await genreService.updateGenre(genreId, name)
       setData(response.data)
       alert(`✅ Genre name updated to ${name}!`)
-      console.log("Update Genre successful:", response.data)
+      console.log("Staff - Update Genre successful:", response.data)
       return response.data
     } catch (error) {
       setError("Something went wrong while updating genre. Please try again.")
-      alert(`❌ Genre name do not updated!`)
-      console.error("Update Genre unsuccessful:", error)
+      alert(`❌ Genre name not updated!`)
+      console.error("Staff - Update Genre unsuccessful:", error)
       return null
     } finally {
       setLoading(false)
