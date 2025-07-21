@@ -9,9 +9,212 @@ from rest_framework import status
 import pytest
 
 # App
-from ..models import Movie
+from ..models import Genre, Movie
 
 # Write your tests here.
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Genre - LIST
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+@pytest.mark.django_db
+def test_genre_list_as_visitor(genres_list):
+    client = APIClient()
+    url = reverse("create-read-genres")
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.django_db
+def test_genre_list_as_normal_user(genres_list, normal_user):
+    client = APIClient()
+    client.force_authenticate(user=normal_user)
+    url = reverse("create-read-genres")
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+def test_genre_list_as_manager(genres_list, manager_user):
+    client = APIClient()
+    client.force_authenticate(user=manager_user)
+    url = reverse("create-read-genres")
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+
+    assert len(response.data) == 3
+    assert "id" in response.data[0] 
+    assert response.data[0]["name"] == "Comedy"
+    assert "created_at" in response.data[0] 
+    assert "updated_at" in response.data[0]
+
+@pytest.mark.django_db
+def test_genre_list_as_employee(genres_list, manager_user):
+    client = APIClient()
+    client.force_authenticate(user=manager_user)
+    url = reverse("create-read-genres")
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+
+    assert len(response.data) == 3
+    assert "id" in response.data[1] 
+    assert response.data[1]["name"] == "Drama"
+    assert "created_at" in response.data[1] 
+    assert "updated_at" in response.data[1]
+
+
+@pytest.mark.django_db
+def test_genre_list_as_staff(genres_list, staff_user):
+    client = APIClient()
+    client.force_authenticate(user=staff_user)
+    url = reverse("create-read-genres")
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+
+    assert len(response.data) == 3
+    assert "id" in response.data[2] 
+    assert response.data[2]["name"] == "Thriller"
+    assert "created_at" in response.data[2] 
+    assert "updated_at" in response.data[2]
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Genre - CREATE
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+@pytest.mark.django_db
+def test_genre_create_as_visitor():
+    client = APIClient()
+    url = reverse("create-read-genres")
+    response = client.post(url, data={"name": "Sport"})
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.django_db
+def test_genre_create_as_normal_user(normal_user):
+    client = APIClient()
+    client.force_authenticate(user=normal_user)
+    url = reverse("create-read-genres")
+    response = client.post(url, data={"name": "Sport"})
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+def test_genre_create_as_manager(manager_user):
+    client = APIClient()
+    client.force_authenticate(user=manager_user)
+    url = reverse("create-read-genres")
+    response = client.post(url, data={"name": "Sport"})
+
+    assert response.status_code == status.HTTP_201_CREATED
+
+
+@pytest.mark.django_db
+def test_genre_create_as_employee(employee_user):
+    client = APIClient()
+    client.force_authenticate(user=employee_user)
+    url = reverse("create-read-genres")
+    response = client.post(url, data={"name": "Sport"})
+
+    assert response.status_code == status.HTTP_201_CREATED
+
+@pytest.mark.django_db
+def test_genre_create_as_staff(staff_user):
+    client = APIClient()
+    client.force_authenticate(user=staff_user)
+    url = reverse("create-read-genres")
+    response = client.post(url, data={"name": "Sport"})
+
+    assert response.status_code == status.HTTP_201_CREATED
+
+
+@pytest.mark.django_db
+def test_genre_create_as_manager_no_field(manager_user):
+    client = APIClient()
+    client.force_authenticate(user=manager_user)
+    url = reverse("create-read-genres")
+    response = client.post(url, data={})
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.django_db
+def test_genre_create_as_manager_invalid_field(employee_user):
+    client = APIClient()
+    client.force_authenticate(user=employee_user)
+    url = reverse("create-read-genres")
+    response = client.post(url, data={"type": "Horror"})
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Genre - PATCH
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+@pytest.mark.django_db
+def test_genre_patch_as_normal_user(normal_user, genre_action):
+    client = APIClient()
+    client.force_authenticate(user=normal_user)
+    url = reverse("update-delete-genres", kwargs={"id": genre_action.id})
+    response = client.patch(url, data={"name": "Updated"})
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+def test_genre_patch_as_manager(manager_user, genre_action):
+    client = APIClient()
+    client.force_authenticate(user=manager_user)
+    url = reverse("update-delete-genres", kwargs={"id": genre_action.id})
+    response = client.patch(url, data={"name": "Updated"})
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["name"] == "Updated"
+
+
+@pytest.mark.django_db
+def test_genre_patch_as_employee(employee_user, genre_action):
+    client = APIClient()
+    client.force_authenticate(user=employee_user)
+    url = reverse("update-delete-genres", kwargs={"id": genre_action.id})
+    response = client.patch(url, data={"name": "Updated"})
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["name"] == "Updated"
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Genre - DELETE
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+@pytest.mark.django_db
+def test_genre_delete_as_visitor(genre_action):
+    client = APIClient()
+    url = reverse("update-delete-genres", kwargs={"id": genre_action.id})
+    response = client.delete(url)
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.django_db
+def test_genre_delete_as_staff(staff_user, genre_action):
+    client = APIClient()
+    client.force_authenticate(user=staff_user)
+    url = reverse("update-delete-genres", kwargs={"id": genre_action.id})
+    response = client.delete(url)
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert not Genre.objects.filter(id=genre_action.id).exists()
+
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
