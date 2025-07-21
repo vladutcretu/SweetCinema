@@ -4,7 +4,8 @@ import pytest
 # App
 from ..serializers import (
     # Genre
-    GenreSerializer,
+    GenrePartialSerializer,
+    GenreCompleteSerializer,
     # Movie
     MoviePartialSerializer,
     MovieCompleteSerializer,
@@ -20,14 +21,31 @@ from ..serializers import (
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 @pytest.mark.django_db
-def test_genre_serializer(genres_list):
-    serializer = GenreSerializer(genres_list, many=True)
+def test_genre_partial_serializer(genres_list):
+    serializer = GenrePartialSerializer(genres_list, many=True)
     data = serializer.data
 
     assert "id" in data[0]
     assert data[0]["name"] == "Thriller"
+    assert "created_at" not in data[0]
     assert "id" in data[1]
     assert data[1]["name"] == "Comedy"
+    assert "updated_at" not in data[1]
+    assert "id" in data[2]
+    assert data[2]["name"] == "Drama"
+
+
+@pytest.mark.django_db
+def test_genre_complete_serializer(genres_list):
+    serializer = GenreCompleteSerializer(genres_list, many=True)
+    data = serializer.data
+
+    assert "id" in data[0]
+    assert data[0]["name"] == "Thriller"
+    assert "created_at" in data[0]
+    assert "id" in data[1]
+    assert data[1]["name"] == "Comedy"
+    assert "updated_at" in data[1]
     assert "id" in data[2]
     assert data[2]["name"] == "Drama"
 

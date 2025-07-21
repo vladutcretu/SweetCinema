@@ -3,6 +3,9 @@ from django.urls import resolve, reverse
 
 # App
 from ..views import (
+    # Genre
+    GenreListCreateView,
+    GenreUpdateDestroyView,
     # Movie
     MovieListView,
     MovieStaffListCreateView,
@@ -10,6 +13,30 @@ from ..views import (
 )
 
 # Write your tests here.
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# GenreListCreateView,
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+def test_genre_list_create_resolves():
+    match = resolve("/api/v1/movies/genres/")
+    assert match.func.view_class == GenreListCreateView
+
+def test_genre_list_create_reverse():
+    assert reverse("create-read-genres") == "/api/v1/movies/genres/"
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# GenreUpdateDestroyView
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+def test_genre_update_delete_resolves():
+    match = resolve("/api/v1/movies/genres/1/")
+    assert match.func.view_class == GenreUpdateDestroyView
+
+def test_genre_update_delete_reverse():
+    assert reverse("update-delete-genres", args=[1]) == "/api/v1/movies/genres/1/"
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

@@ -2,12 +2,7 @@
 from django.utils import timezone
 
 # DRF
-from rest_framework import generics
-from rest_framework.generics import (
-    ListAPIView,
-    CreateAPIView,
-    RetrieveUpdateDestroyAPIView,
-)
+from rest_framework import generics, mixins
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import ValidationError
 
@@ -17,17 +12,63 @@ from drf_spectacular.utils import extend_schema
 # App
 from .models import Genre, Movie
 from .serializers import (
+    # Genre
+    GenrePartialSerializer,
+    GenreCompleteSerializer,
     # Movie
     MoviePartialSerializer,
     MovieCompleteSerializer,
     MovieCreateUpdateSerializer,
-    MovieRetrieveSerializer,
-    # Other
-    GenreSerializer
+    MovieRetrieveSerializer
 )
 from users.permissions import IsManagerOrEmployee
 
 # Create your views here.
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Genre
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+@extend_schema(tags=["v1 - Genres"])
+class GenreListCreateView(generics.ListCreateAPIView):
+    """
+    Only available to staff or 'Manager', 'Employee' group.\n
+    GET: list all Genre objects, with complete fields on response.\n
+    POST: create Genre object.\n
+    """
+
+    queryset = Genre.objects.all()
+    permission_classes = [IsManagerOrEmployee]
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return GenreCompleteSerializer
+        return GenreCompleteSerializer
+
+
+@extend_schema(tags=["v1 - Genres"])
+class GenreUpdateDestroyView(
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    generics.GenericAPIView
+):
+    """
+    Only available to staff or 'Manager', 'Employee' group.\n
+    PATCH: update name of Genre object.\n
+    DELETE: delete Genre object.\n
+    """
+
+    queryset = Genre.objects.all()
+    serializer_class = GenrePartialSerializer
+    permission_classes = [IsManagerOrEmployee]
+    lookup_field = "id"
+
+    def patch(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
+    def delete(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -88,7 +129,7 @@ class MovieStaffListCreateView(generics.ListCreateAPIView):
 class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     """
     GET: retrieve Movie object (id, all editable fields), available to anyone.\n
-    PATCH: update Movie object, available to staff or 'Manager', 'Employee' group.\n
+    PATCH: partial update Movie object, available to staff or 'Manager', 'Employee' group.\n
     DELETE: delete Movie object, available to staff or 'Manager', 'Employee' group.\n
     """
 
@@ -105,37 +146,3 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method == "GET":
             return MovieRetrieveSerializer
         return MovieCreateUpdateSerializer
-    
-
-# Other
-class GenreListView(ListAPIView):
-    """
-    View to list all Genre objects.
-    Available to any role; not required token authentication.
-    """
-
-    queryset = Genre.objects.all()
-    serializer_class = GenreSerializer
-    permission_classes = [AllowAny]
-
-class GenreCreateView(CreateAPIView):
-    """
-    View to create a Genre object.
-    Available to `Manager` or `Employee` role; required token authentication.
-    """
-
-    queryset = Genre.objects.all()
-    serializer_class = GenreSerializer
-    permission_classes = [IsManagerOrEmployee]
-
-class GenreUpdateDestroyView(RetrieveUpdateDestroyAPIView):
-    """
-    View to update and destroy a single Genre object by his ID.
-    Avalaible to `Manager` or `Employee` role; required token authentication.
-    """
-
-    queryset = Genre.objects.all()
-    serializer_class = GenreSerializer
-    permission_classes = [IsManagerOrEmployee]
-    http_method_names = ["put", "delete"]
-

@@ -14,6 +14,7 @@ import SubmitButton from '@/components/common/SubmitButton'
 import SearchBar from '@/components/common/SearchBar'
 import ReusableTable from '@/components/common/ReusableTable'
 import FormWrapper from '@/components/common/FormWrapper'
+import { formatDate, formatTime } from '@/utils/DateTimeFormat'
 
 // Write components here
 
@@ -38,12 +39,19 @@ const GenreManagement = () => {
   // Read genres
   const columns = [
     { key: "id", title: "ID" },
-    { key: "name", title: "Name" }
+    { key: "name", title: "Name" },
+    { key: "created-updated", title: "Created / Updated"}
   ]
   const renderCell = (genre, column) => {
     switch (column.key) {
       case "id": return genre.id
       case "name": return genre.name
+      case "created-updated": return (`
+        ${formatDate(genre.created_at)}, 
+        ${formatTime(genre.created_at)} /
+        ${formatDate(genre.updated_at)}, 
+        ${formatTime(genre.updated_at)}
+      `)
     }
   }
   const renderActions = (genre) => (

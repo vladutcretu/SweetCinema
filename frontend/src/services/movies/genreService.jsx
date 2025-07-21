@@ -5,9 +5,8 @@ import api from "../Api"
 
 
 export const genreService = {
-    // Staff: CRUD
-    createGenre: (name) => api.post(`/movies/genres/create/`, { name: name }),
-    readGenres: () => api.get(`/movies/genres/`),
-    updateGenre: (genreId, name) => api.put(`/movies/genres/${genreId}/`, { name: name }),
-    deleteGenre: (genreId) => api.delete(`/movies/genres/${genreId}/`),
+    readGenres: () => api.get(`/v1/movies/genres/`),
+    createGenre: (name) => api.post(`/v1/movies/genres/`, { name: name }),
+    updateGenre: (genreId, name) => api.patch(`/v1/movies/genres/${genreId}/`, { name: name }),
+    deleteGenre: (genreId) => api.delete(`/v1/movies/genres/${genreId}/`),
 }
