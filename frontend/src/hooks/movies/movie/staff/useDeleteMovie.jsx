@@ -19,12 +19,12 @@ export const useDeleteMovie = () => {
       const response = await movieService.deleteMovie(movieId)
       setData(response.data)
       alert(`✅ Movie deleted!`)
-      console.log("Delete Movie successful:", response.data)
+      console.log("Staff - Delete Movie successful:", response.data)
       return true
     } catch (error) {
       setError("Something went wrong while deleting movie. Please try again.")
-      alert(`❌ Movie do not deleted!`)
-      console.error("Delete Movie unsuccessful:", error)
+      alert(`❌ Movie not deleted!`)
+      console.error("Staff - Delete Movie unsuccessful:", error)
       return false
     } finally {
       setLoading(false)

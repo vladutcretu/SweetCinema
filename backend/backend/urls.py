@@ -43,6 +43,7 @@ alpha_paterns = [
 
 v1_patterns = [
     path("api/v1/locations/", include("locations.urls")),
+    path("api/v1/movies/", include("movies.urls")),
 ]
 
 urlpatterns = [
