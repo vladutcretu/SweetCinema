@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom"
 import { Box, Heading, Text, Stack, Image, Badge, SimpleGrid, Spinner } from "@chakra-ui/react"
 
 // App
-import { useGetMovie } from "@/hooks/movies/movie/useGetMovie"
+import { useReadMovie } from "@/hooks/movies/movie/useReadMovie"
 import MovieShowtimes from "./MovieShowtimes"
 import BackButton from "@/components/common/BackButton"
 import { useCityContext } from "@/contexts/CityContext"
@@ -16,7 +16,7 @@ import { useCityContext } from "@/contexts/CityContext"
 const MoviePresentation = () => {
   const { movieId } = useParams()
   const { selectedCityId } = useCityContext()
-  const { movie, loading: movieLoading, error: movieError } = useGetMovie(movieId)
+  const { movie, loading: movieLoading, error: movieError } = useReadMovie(movieId)
 
   if (movieLoading) {
     return <Spinner />
@@ -56,17 +56,16 @@ const MoviePresentation = () => {
 
           {/* Info Grid */}
           <SimpleGrid columns={{ base: 1, sm: 2 }} spacingY={2} spacingX={6}>
-            <Text><b>Release Date:</b> {movie.releaseDate}</Text>
+            <Text><b>Release Date:</b> {movie.release}</Text>
             <Text><b>Duration:</b> {movie.duration}</Text>
             <Text><b>Language:</b> {movie.language}</Text>
-            <Text><b>Parental Guide:</b> {movie.parentalGuidance}</Text>
+            <Text><b>Parental Guide:</b> {movie.parental_guide}</Text>
           </SimpleGrid>
 
           {/* Cast */}
           <Box>
             <Text><b>Director:</b> {movie.director}</Text>
-            {/* <Text><b>Cast:</b> {movie.cast.join(", ")}</Text> */}
-            <Text><b>Cast:</b> Name1 Surname1, Name2 Surname2</Text>
+            <Text><b>Cast:</b> {movie.cast}</Text>
           </Box>
 
           {/* Description */}
@@ -85,7 +84,7 @@ const MoviePresentation = () => {
           {/* Back to movie list button */}
           <BackButton
             to={"/"}
-            text={"movies list"}
+            text={"home"}
           />
         </Stack>
       </SimpleGrid>

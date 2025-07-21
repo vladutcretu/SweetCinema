@@ -12,19 +12,41 @@ export const useCreateMovie = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const createMovie = async (title, description, genres) => {
+  const createMovie = async (
+        title, 
+        description, 
+        genres,
+        poster,
+        director,
+        cast,
+        release,
+        duration,
+        parental_guide,
+        language
+  ) => {
     setLoading(true)
     setError(null)
     try {
-      const response = await movieService.createMovie(title, description, genres)
+      const response = await movieService.createMovie(
+        title, 
+        description, 
+        genres,
+        poster,
+        director,
+        cast,
+        release,
+        duration,
+        parental_guide,
+        language
+      )
       setData(response.data)
       alert(`✅ Movie ${title} created!`)
-      console.log("Create Movie successful:", response.data)
+      console.log("Staff - Create Movie successful:", response.data)
       return response.data
     } catch (error) {
       setError("Something went wrong while creating movie. Please try again.")
-      alert(`❌ Movie ${title} do not created!`)
-      console.error("Create Movie unsuccessful:", error)
+      alert(`❌ Movie ${title} not created!`)
+      console.error("Staff - Create Movie unsuccessful:", error)
       return null
     } finally {
       setLoading(false)

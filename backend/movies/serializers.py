@@ -80,7 +80,9 @@ class MovieRetrieveSerializer(serializers.ModelSerializer):
     """
     Contains id, all editable fields. Foreign Key Genres include id, name fields.
     """
-    genres = GenreSerializer(many=True) 
+    genres = GenreSerializer(many=True)
+    parental_guide = serializers.CharField(source="get_parental_guide_display")
+    language = serializers.CharField(source="get_language_display")
     class Meta:
         model = Movie
         fields = [
