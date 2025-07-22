@@ -15,7 +15,7 @@ from .views import (
 urlpatterns = [
     path("", ShowtimeListView.as_view(), name="read-showtimes"),
     path("staff/", ShowtimeStaffListCreateView.as_view(), name="create-read-showtimes"),
-    path("<int:id>/", ShowtimeRetrieveUpdateDestroyView.as_view(), name="retrieve-update-destroy-showtimes"),
+    path("<int:id>/", ShowtimeRetrieveUpdateDestroyView.as_view(), name="retrieve-update-delete-showtimes"),
     path("<int:id>/seats/", ShowtimeSeatsListView.as_view(), name="read-showtimes-seats"),
     path("<int:id>/report/", ShowtimeReportRetrieveView.as_view(), name="retrieve-showtimes-report"),
 ]
