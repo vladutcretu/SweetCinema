@@ -33,7 +33,6 @@ class Showtime(models.Model):
     presentation = models.CharField(
         max_length=55, choices=ShowtimePresentation.choices, default=ShowtimePresentation.NATIVE
     )
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

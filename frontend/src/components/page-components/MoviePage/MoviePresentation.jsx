@@ -23,7 +23,7 @@ const MoviePresentation = () => {
   }
     
   if (movieError) {
-    return <Text color="red.400">An error occurred: {movieError}</Text>
+    return <Text color="red.400">{movieError}</Text>
   }    
 
   return (
@@ -77,8 +77,8 @@ const MoviePresentation = () => {
 
           {/* Showtimes section */}
           <MovieShowtimes 
-            movieId={movieId}
             cityId={selectedCityId}
+            movieId={movieId}
           />
 
           {/* Back to movie list button */}

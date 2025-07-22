@@ -7,28 +7,28 @@ import { showtimeService } from "@/services/showtimes/showtimeService"
 // Components here
 
 
-export const useGetShowtime = (showtimeId) => {
+export const useReadShowtime = (showtimeId) => {
   const [showtime, setShowtime] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const getShowtime = async () => {
+  const readShowtime = async () => {
     try {
       setLoading(true)
       setError(null)
-      const response = await showtimeService.getShowtime(showtimeId)
+      const response = await showtimeService.readShowtime(showtimeId)
       setShowtime(response.data)
-      console.log("Get Showtime successful:", response.data)
+      console.log("User - Read Showtime successful:", response.data)
     } catch (error) {
       setError('Showtime cannot be loaded. Please try again!')
-      console.error('Get Showtime unsuccessful:', error)
+      console.error('User - Read Showtime unsuccessful:', error)
     } finally {
       setLoading(false)
     }
   }
   
   useEffect(() => {
-    getShowtime(showtimeId)
+    readShowtime(showtimeId)
   }, [showtimeId])
 
   return { showtime, loading, error }

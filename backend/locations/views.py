@@ -27,7 +27,7 @@ from .serializers import (
     TheaterSerializer,
     SeatSerializer,
 )
-from users.permissions import IsManager
+from users.permissions import IsManager, IsManagerOrEmployee
 
 # Create your views here.
 
@@ -99,7 +99,11 @@ class TheaterListCreateView(generics.ListCreateAPIView):
 
     queryset = Theater.objects.select_related("city")
     serializer_class = TheaterCompleteSerializer
-    permission_classes = [IsManager]
+    
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [IsManagerOrEmployee()]
+        return [IsManager()]
 
     def get_serializer_class(self):
         if self.request.method == "POST":

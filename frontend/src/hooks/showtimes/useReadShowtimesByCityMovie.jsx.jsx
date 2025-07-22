@@ -7,29 +7,29 @@ import { showtimeService } from "@/services/showtimes/showtimeService"
 // Components here
 
 
-export const useGetMovieShowtimesByCity = (movieId, cityId) => {
+export const useReadShowtimesByCityMovie = (cityId, movieId) => {
   const [showtimes, setShowtimes] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const getMovieShowtimesByCity = async (movieId, cityId) => {
+  const readShowtimesByCityMovie = async (cityId, movieId) => {
     try {
       setLoading(true)
       setError(null)
-      const response = await showtimeService.getMovieShowtimesByCity(movieId, cityId)
+      const response = await showtimeService.readShowtimesByCityMovie(cityId, movieId)
       setShowtimes(response.data)
-      console.log("Get Movie Showtimes by City successful:", response.data)
+      console.log("User - Read Showtimes by City and Movie successful:", response.data)
     } catch (error) {
-      setError('Movie Showtimes for City cannot be loaded. Please try again!')
-      console.error('Get Movie Showtimes by City unsuccessful:', error)
+      setError('Showtimes for City and Movie cannot be loaded. Please try again!')
+      console.error('User - Read Showtimes by City and Movie unsuccessful:', error)
     } finally {
       setLoading(false)
     }
   }
   
   useEffect(() => {
-    getMovieShowtimesByCity(movieId, cityId)
-  }, [])
+    readShowtimesByCityMovie(cityId, movieId)
+  }, [cityId, movieId])
 
   return { showtimes, loading, error }
 }

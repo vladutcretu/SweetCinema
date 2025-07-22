@@ -7,29 +7,29 @@ import { showtimeService } from "@/services/showtimes/showtimeService"
 // Components here
 
 
-export const useGetShowtimeSeats = (showtimeId) => {
+export const useReadShowtimeSeats = (showtimeId) => {
   const [showtimeSeats, setShowtimeSeats] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const getShowtimeSeats = async () => {
+  const readShowtimeSeats = async () => {
     try {
       setLoading(true)
       setError(null)
-      const response = await showtimeService.getShowtimeSeats(showtimeId)
+      const response = await showtimeService.readShowtimeSeats(showtimeId)
       setShowtimeSeats(response.data)
-      console.log("Get Showtime Seats successful:", response.data)
+      console.log("User - Read Showtime Seats successful:", response.data)
     } catch (error) {
       setError('Showtime Seats cannot be loaded. Please try again!')
-      console.error('Get Showtime Seats unsuccessful:', error)
+      console.error('User - Read Showtime Seats unsuccessful:', error)
     } finally {
       setLoading(false)
     }
   }
   
   useEffect(() => {
-    getShowtimeSeats(showtimeId)
+    readShowtimeSeats(showtimeId)
   }, [showtimeId])
 
-  return { showtimeSeats, loading, error, refetch: getShowtimeSeats }
+  return { showtimeSeats, loading, error, refetch: readShowtimeSeats }
 }
