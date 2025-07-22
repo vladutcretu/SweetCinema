@@ -1,182 +1,231 @@
 # Django
 from django.utils import timezone
-from django.shortcuts import get_object_or_404
-
+from django.db.models import Prefetch
 # DRF
-from rest_framework.generics import (
-    ListAPIView,
-    RetrieveAPIView,
-    CreateAPIView,
-    RetrieveUpdateDestroyAPIView,
-)
-from rest_framework.views import APIView
+from rest_framework import generics
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.exceptions import ValidationError, NotFound
 
 # 3rd party apps
+from drf_spectacular.utils import extend_schema
+import django_filters
 from django_filters.rest_framework import DjangoFilterBackend
 
 # App
 from .models import Showtime
-from .serializers import ShowtimeSerializer, ShowtimeCreateStaffSerializer
-from tickets.models import Booking, BookingStatus
+from .serializers import (
+    ShowtimePartialSerializer,
+    ShowtimeMoviePartialSerializer,
+    ShowtimeCompleteSerializer,
+    ShowtimeCreateUpdateSerializer,
+    ShowtimeRetrieveSerializer,
+    ShowtimeSeatStatusSerializer,
+    ShowtimeReportSerializer
+)
 from users.permissions import IsManagerOrEmployee, IsManager
+from tickets.models import Booking, BookingStatus
+from movies.models import Genre
 from locations.models import Seat
 
 # Create your views here.
 
 
-class ShowtimeListView(ListAPIView):
+@extend_schema(tags=["v1 - Showtimes"])
+class ShowtimeListView(generics.ListAPIView):
     """
-    View to list all Showtime objects requested by Movie ID AND/OR City ID that
-    have `date`, `time` value greather than or equal to current `date`, `time` (timezone now).
-    Available to any role; not required token authentication.
+    GET: list all future Showtime objects (starts_at > now), filtered by City and optionally Movie.\n
+    Response is different without movie param (include movie details).
     """
 
-    queryset = Showtime.objects.filter(starts_at__gte=timezone.now())
-    serializer_class = ShowtimeSerializer
-    permission_classes = [AllowAny]
+    class ShowtimeFilter(django_filters.FilterSet):
+        city = django_filters.NumberFilter(field_name="theater__city_id")
+        movie = django_filters.NumberFilter(field_name="movie_id")
+
+        class Meta:
+            model = Showtime
+            fields = ["city", "movie"]
+
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["movie", "theater__city"]
-
-
-class ShowtimeRetrieveView(RetrieveAPIView):
-    """
-    View to retrieve a single Showtime object by his ID.
-    Available to any role; not required token authentication.
-    """
-
-    queryset = Showtime.objects.all()
-    serializer_class = ShowtimeSerializer
+    filterset_class = ShowtimeFilter
     permission_classes = [AllowAny]
-
-
-class ShowtimeListStaffView(ListAPIView):
-    """
-    View to list all Showtime objects.
-    Available to `Manager` or `Employee` role; required token authentication.
-    """
-
-    queryset = Showtime.objects.all()
-    serializer_class = ShowtimeSerializer
-    permission_classes = [IsManagerOrEmployee]
-
-
-class ShowtimeCreateStaffView(CreateAPIView):
-    """
-    View to create a Showtime object.
-    Available to `Manager` or `Employee` role; required token authentication.
-    """
-
-    queryset = Showtime.objects.all()
-    serializer_class = ShowtimeCreateStaffSerializer
-    permission_classes = [IsManagerOrEmployee]
-
-
-class ShowtimeUpdateDeleteView(RetrieveUpdateDestroyAPIView):
-    """
-    View to update and destroy a single Showtime object by his ID.
-    Avalaible to `Manager` or `Employee` role; required token authentication.
-    """
-
-    queryset = Showtime.objects.all()
-    serializer_class = ShowtimeCreateStaffSerializer
-    permission_classes = [IsManagerOrEmployee]
-    http_method_names = ["patch", "delete"]
-
-
-class ShowtimeSeatsListView(APIView):
-    """
-    View to list all Seat objects and their status for a Showtime requested by ID.
-    Avalaible to any role; no required token authentication.
-    """
-
-    def get(self, request, pk):
-        # Get the Showtime object requested by ID (pk)
-        showtime = get_object_or_404(Showtime, id=pk)
-        # Get the Theater object linked to requested Showtime object
-        theater = showtime.theater
-        # Get all Seat objects of the Theater linked to requested Showtime object
-        seats = theater.seats.all()  # seats is related_name of the Seat-Theater link
-        # Get all Booking objects linked to request Showtime object
-        bookings = Booking.objects.filter(showtime=showtime).exclude(
-            status=BookingStatus.FAILED_PAYMENT
+    queryset = (
+        Showtime.objects
+        .filter(starts_at__gte=timezone.now())
+        .select_related("movie", "theater", "theater__city")
+        .prefetch_related(
+            Prefetch("movie__genres", queryset=Genre.objects.only("id", "name"))
         )
-        # Create a dict with key=seat_id of Booking object and value=booking (a Booking object)
-        booked_map = {(booking.seat_id): booking for booking in bookings}
+        .order_by("starts_at")
+    )
 
-        # Start from an empty list and for every Seat object, check if it's exists in Booking objects,
-        # then set his status accordingly and add Seat to the list that got returned at the end of iterations
-        seat_status_list = []
-
-        for seat in seats:
-            booking = booked_map.get(seat.id)
-
-            if (
-                not booking
-                or booking.status == BookingStatus.FAILED_PAYMENT
-                or booking.status == BookingStatus.CANCELED
-                or booking.status == BookingStatus.EXPIRED
-            ):
-                status = "available"
-            elif (
-                booking.status == BookingStatus.RESERVED
-                or booking.status == BookingStatus.PENDING_PAYMENT
-            ):
-                status = "reserved"
-            elif booking.status == BookingStatus.PURCHASED:
-                status = "purchased"
-
-            seat_status_list.append(
-                {
-                    "id": seat.id,
-                    "row": seat.row,
-                    "column": seat.column,
-                    "status": status,
-                }
-            )
-
-        return Response(seat_status_list)
+    def get_serializer_class(self):
+        params = self.request.query_params
+        if params.get("city") and params.get("movie"):
+            return ShowtimePartialSerializer
+        elif params.get("city"):
+            return ShowtimeMoviePartialSerializer
+        else:
+            raise ValidationError({"detail": "Missing param city on query string."})
 
 
-class ShowtimeReportView(APIView):
+@extend_schema(tags=["v1 - Showtimes"])
+class ShowtimeStaffListCreateView(generics.ListCreateAPIView):
     """
-    View to retrieve a report about a Showtime requested by ID.
-    Avalaible to `Manager` role; required token authentication.
+    Only available to staff or 'Manager', 'Employee' group.\n
+    GET: list all Showtime objects (all fields).\n
+    POST: create Showtime object (all editable fields).\n
+    """
+
+    permission_classes = [IsManagerOrEmployee]
+    queryset = (
+        Showtime.objects
+        .select_related("movie", "theater", "theater__city")
+    )
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return ShowtimeCreateUpdateSerializer
+        return ShowtimeCompleteSerializer
+
+
+@extend_schema(tags=["v1 - Showtimes"])
+class ShowtimeRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    GET: retrieve Showtime object (id, movie_name, theater_name, all editable fields); available to anyone.\n
+    PATCH: partial update Showtime object, available to staff or 'Manager', 'Employee' group.\n
+    DELETE: delete Showtime object, available to staff or 'Manager', 'Employee' group.\n
+    """
+
+    queryset = Showtime.objects.select_related("movie", "theater", "theater__city")
+    lookup_field = "id"
+    http_method_names = ["get", "patch", "delete"]
+
+    def get_permissions(self):
+        if self.request.method in ["PATCH", "DELETE"]:
+            return [IsManagerOrEmployee()]
+        return [AllowAny()]
+    
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return ShowtimeRetrieveSerializer
+        return ShowtimeCreateUpdateSerializer
+
+
+@extend_schema(tags=["v1 - Showtimes"])
+class ShowtimeSeatsListView(generics.ListAPIView):
+    """
+    GET: list all Seat objects (id, row, column, status fields) assigned to a Showtime.\n
+    """
+
+    serializer_class = ShowtimeSeatStatusSerializer
+
+    def get_queryset(self):
+        showtime_id = self.kwargs.get("id")
+
+        try: 
+            self.showtime = (
+                Showtime.objects
+                .select_related("theater")
+                .prefetch_related("theater__seats")
+                .get(id=showtime_id)
+            )
+        except Showtime.DoesNotExist:
+            raise NotFound(detail=f"Showtime with ID {showtime_id} not found.")
+        
+        self.bookings_map = {
+            booking.seat_id: booking 
+            for booking in (
+                Booking.objects
+                .filter(showtime=self.showtime)
+                .only("seat_id", "status")
+            )
+        }
+
+        return self.showtime.theater.seats.all()
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+
+        def booking_status(seat_id):
+            booking = self.bookings_map.get(seat_id)
+            if booking and booking.status == BookingStatus.PURCHASED:
+                return "purchased"
+            elif booking and booking.status in (BookingStatus.RESERVED, BookingStatus.PENDING_PAYMENT):
+                return "reserved"
+            else: # no booking, or status = canceled, expired, failed_payment
+                return "available"
+
+        seat_status_data = [
+            {
+                "id": seat.id,
+                "row": seat.row,
+                "column": seat.column,
+                "status": booking_status(seat.id),
+            }
+            for seat in queryset
+        ]
+
+        return Response(seat_status_data)
+
+
+@extend_schema(tags=["v1 - Showtimes"])
+class ShowtimeReportRetrieveView(generics.RetrieveAPIView):
+    """
+    Available to Staff or 'Manager' group.\n
+    GET: retrieve statistics of a specific Showtime.\n 
     """
 
     permission_classes = [IsManager]
+    serializer_class = ShowtimeReportSerializer
 
-    def get(self, request, pk):
-        # Get the Showtime object requested by ID (pk)
-        showtime = get_object_or_404(Showtime, id=pk)
+    def get_queryset(self):
+        showtime_id = self.kwargs.get("id")
 
-        # Tickets sold count
-        tickets_sold = Booking.objects.filter(
-            showtime=showtime, status=BookingStatus.PURCHASED
-        ).count()
+        try:
+            self.showtime = (
+                Showtime.objects
+                .select_related("movie", "theater", "theater__city")
+                .get(id=showtime_id)
+            )
+        except Showtime.DoesNotExist:
+            raise NotFound(detail=f"Showtime with ID {showtime_id} not found.")
 
-        # Total revenue
-        total_revenue = tickets_sold * showtime.price
+        return self.showtime
 
-        # Room occupancy percentage
-        total_seats = Seat.objects.filter(theater=showtime.theater).count()
-        occupancy_percentage = round(
-            (tickets_sold / total_seats * 100) if total_seats else 0, 2
-        )
 
-        # Return calculated data
+    def retrieve(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+
+        def tickets_sold(showtime):
+            return (
+                Booking.objects
+                .filter(
+                    showtime=showtime, 
+                    status=BookingStatus.PURCHASED
+                ).count()
+            )
+        
+        def total_revenue(showtime):
+            return tickets_sold(showtime) * showtime.price
+        
+        def occupancy_percentage(showtime):
+            total_seats = (
+                Seat.objects
+                .filter(theater=showtime.theater)
+                .count()
+            )
+            return round((tickets_sold(showtime) / total_seats * 100) if total_seats else 0, 2)
+
         return Response(
             {
-                "showtime_id": showtime.id,
-                "movie": showtime.movie.title,
-                "theater": showtime.theater.name,
-                "city": showtime.theater.city.name,
-                "starts_at": showtime.starts_at,
-                "tickets_sold": tickets_sold,
-                "total_revenue": total_revenue,
-                "occupancy_percentage": occupancy_percentage,
-            },
-            status=status.HTTP_200_OK,
+                "showtime_id": queryset.id,
+                "movie_title": queryset.movie.title,
+                "city_name": queryset.theater.city.name,
+                "theater_name": queryset.theater.name,
+                "starts_at": queryset.starts_at,
+                "tickets_sold": tickets_sold(queryset),
+                "total_revenue": total_revenue(queryset),
+                "occupancy_percentage": occupancy_percentage(queryset),
+            }
         )
