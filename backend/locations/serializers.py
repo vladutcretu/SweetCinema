@@ -68,6 +68,14 @@ class TheaterUpdateSerializer(serializers.ModelSerializer):
         model = Theater
         fields = ["name", "rows", "columns"]
 
+class TheaterShowtimeSerializer(serializers.ModelSerializer):
+    """
+    Contains name, columns fields.
+    """
+    class Meta:
+        model = Theater
+        fields = ["name", "columns"]
+
 
 # Other
 class CitySerializer(serializers.ModelSerializer):

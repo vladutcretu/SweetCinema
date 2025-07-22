@@ -12,19 +12,33 @@ export const useCreateShowtime = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const createShowtime = async (movie, theater, price, starts_at) => {
+  const createShowtime = async (
+    movie, 
+    theater, 
+    price, 
+    starts_at, 
+    format, 
+    presentation
+  ) => {
     setLoading(true)
     setError(null)
     try {
-      const response = await showtimeService.createShowtime(movie, theater, price, starts_at)
+      const response = await showtimeService.createShowtime(
+        movie, 
+        theater, 
+        price, 
+        starts_at, 
+        format, 
+        presentation
+      )
       setData(response.data)
       alert(`✅ Showtime created!`)
-      console.log("Create Showtime successful:", response.data)
+      console.log("Staff - Create Showtime successful:", response.data)
       return response.data
     } catch (error) {
       setError("Something went wrong while creating showtime. Please try again.")
-      alert(`❌ Showtime do not created!`)
-      console.error("Create Showtime unsuccessful:", error)
+      alert(`❌ Showtime not created!`)
+      console.error("Staff - Create Showtime unsuccessful:", error)
       return null
     } finally {
       setLoading(false)

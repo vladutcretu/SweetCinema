@@ -12,19 +12,31 @@ export const useUpdateShowtime = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const updateShowtime = async (showtimeId, price, starts_at) => {
+  const updateShowtime = async (
+    showtimeId, 
+    price, 
+    starts_at, 
+    format, 
+    presentation
+  ) => {
     setLoading(true)
     setError(null)
     try {
-      const response = await showtimeService.updateShowtime(showtimeId, price, starts_at)
+      const response = await showtimeService.updateShowtime(
+        showtimeId, 
+        price, 
+        starts_at,
+        format,
+        presentation
+      )
       setData(response.data)
       alert(`✅ Showtime updated!`)
-      console.log("Update Showtime successful:", response.data)
+      console.log("Staff - Update Showtime successful:", response.data)
       return response.data
     } catch (error) {
       setError("Something went wrong while updating showtime. Please try again.")
-      alert(`❌ Showtime name do not updated!`)
-      console.error("Update Showtime unsuccessful:", error)
+      alert(`❌ Showtime not updated!`)
+      console.error("Staff - Update Showtime unsuccessful:", error)
       return null
     } finally {
       setLoading(false)

@@ -19,12 +19,12 @@ export const useDeleteShowtime = () => {
       const response = await showtimeService.deleteShowtime(showtimeId)
       setData(response.data)
       alert(`✅ Showtime deleted!`)
-      console.log("Delete Showtime successful:", response.data)
+      console.log("Staff - Delete Showtime successful:", response.data)
       return true
     } catch (error) {
       setError("Something went wrong while deleting showtime. Please try again.")
-      alert(`❌ Showtime do not deleted!`)
-      console.error("Delete Showtime unsuccessful:", error)
+      alert(`❌ Showtime not deleted!`)
+      console.error("Staff - Delete Showtime unsuccessful:", error)
       return false
     } finally {
       setLoading(false)

@@ -9,8 +9,8 @@ import { formatDate, formatTime } from "@/utils/DateTimeFormat"
 
 
 function ShowtimeCard({ showtime, movie }) {
-  const { id, starts_at, theater } = showtime
-  const { poster, title, genres } = movie
+  const { id, theater, starts_at, format, presentation } = showtime
+  const { title, genres, poster } = movie
 
   return (
     <Box
@@ -44,7 +44,7 @@ function ShowtimeCard({ showtime, movie }) {
           ))}
         </Stack>
         <Text><b>Date/Time:</b> {formatDate(starts_at)}, {formatTime(starts_at)}</Text>
-        <Text><b>Info:</b> {theater.name}, AP12, 3D, EN SUB</Text>
+        <Text><b>Details:</b> {theater.name}, {format}, {presentation}</Text>
         <ForwardButton to={`/showtime/${id}/`} text={"showtime"} />
       </Stack>
     </Box>

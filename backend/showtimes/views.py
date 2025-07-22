@@ -92,7 +92,7 @@ class ShowtimeStaffListCreateView(generics.ListCreateAPIView):
 @extend_schema(tags=["v1 - Showtimes"])
 class ShowtimeRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     """
-    GET: retrieve Showtime object (id, movie_name, theater_name, all editable fields); available to anyone.\n
+    GET: retrieve Showtime object (id, movie_name, theater - name, columns, all editable fields).\n
     PATCH: partial update Showtime object, available to staff or 'Manager', 'Employee' group.\n
     DELETE: delete Showtime object, available to staff or 'Manager', 'Employee' group.\n
     """

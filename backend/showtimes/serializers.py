@@ -4,7 +4,7 @@ from rest_framework import serializers
 # App
 from .models import Showtime
 from movies.serializers import MoviePartialSerializer, MovieSerializer
-from locations.serializers import TheaterSerializer
+from locations.serializers import TheaterShowtimeSerializer, TheaterSerializer
 
 # Create your serializers here.
 
@@ -20,15 +20,32 @@ class ShowtimePartialSerializer(serializers.ModelSerializer):
         model = Showtime
         fields = ["id", "theater_name", "price", "starts_at", "format", "presentation"]
 
-class ShowtimeMoviePartialSerializer(serializers.ModelSerializer):
+class ShowtimeCashierSerializer(serializers.ModelSerializer):
     """
-    Contains id, movie (FK), starts_at, format, presentation fields.
-    Foreing Key Movie include id, title, genres, poster fields.
+    Contains id, movie_title, theater (FK), starts_at, format, presentation fields.
+    Foreing Key Theater include name, columns fields.
     """
-    movie = MoviePartialSerializer(read_only=True)
+    movie_title = serializers.CharField(source="movie.title")
+    theater = TheaterShowtimeSerializer(read_only=True)
+    format = serializers.CharField(source="get_format_display")
+    presentation = serializers.CharField(source="get_presentation_display")
     class Meta:
         model = Showtime
-        fields = ["id", "movie", "starts_at", "format", "presentation"]
+        fields = ["id", "movie_title", "theater", "starts_at", "format", "presentation"]
+
+class ShowtimeMoviePartialSerializer(serializers.ModelSerializer):
+    """
+    Contains id, movie (FK), theater (FK), starts_at, format, presentation fields.
+    Foreing Key Movie include id, title, genres, poster fields.
+    Foreign Key Theater include name, columns.
+    """
+    movie = MoviePartialSerializer(read_only=True)
+    theater = TheaterShowtimeSerializer(read_only=True)
+    format = serializers.CharField(source="get_format_display")
+    presentation = serializers.CharField(source="get_presentation_display")
+    class Meta:
+        model = Showtime
+        fields = ["id", "movie", "theater", "starts_at", "format", "presentation"]
 
 class ShowtimeCompleteSerializer(serializers.ModelSerializer):
     """
@@ -38,6 +55,8 @@ class ShowtimeCompleteSerializer(serializers.ModelSerializer):
     movie_title = serializers.CharField(source="movie.title")
     city_name = serializers.CharField(source="theater.city.name")
     theater_name = serializers.CharField(source="theater.name")
+    format = serializers.CharField(source="get_format_display")
+    presentation = serializers.CharField(source="get_presentation_display")
     class Meta:
         model = Showtime
         fields = [
@@ -61,19 +80,19 @@ class ShowtimeCreateUpdateSerializer(serializers.ModelSerializer):
     # theater = serializers.SlugRelatedField(slug_field="id", queryset=Theater.objects.all())
     class Meta:
         model = Showtime
-        fields = [ "movie", "theater", "price", "starts_at", "format", "presentation" ]
+        fields = ["movie", "theater", "price", "starts_at", "format", "presentation"]
 
 class ShowtimeRetrieveSerializer(serializers.ModelSerializer):
     """
-    Contains id, all editable fields. FK Movie is title, FK Theater is name.
+    Contains id, all editable fields. FK Movie is title, FK Theater is name, columns.
     """
     movie_title = serializers.CharField(source="movie.title")
-    theater_name = serializers.CharField(source="theater.name")
+    theater = TheaterShowtimeSerializer(read_only=True)
     format = serializers.CharField(source="get_format_display")
     presentation = serializers.CharField(source="get_presentation_display")
     class Meta:
         model = Showtime
-        fields = ["id", "movie_title", "theater_name", "price", "starts_at", "format", "presentation"]
+        fields = ["id", "movie_title", "theater", "price", "starts_at", "format", "presentation"]
 
 class ShowtimeSeatStatusSerializer(serializers.Serializer):
     """
