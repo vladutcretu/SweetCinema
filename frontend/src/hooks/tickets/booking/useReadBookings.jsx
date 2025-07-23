@@ -11,27 +11,28 @@ import { bookingService } from "@/services/tickets/bookingService"
 export const useReadBookings = () => {
   const { accessToken } = useAuthContext()
   const [bookings, setBookings] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
   const readBookings = async () => {
+    setLoading(true)
+    setError(null)
     try {
-      setLoading(true)
-      setError(null)
       const response = await bookingService.readBookings()
       setBookings(response.data)
-      console.log("Read Bookings successful:", response.data)
+      console.log("User - Read Booking History successful:", response.data)
     } catch (error) {
-      setError('Bookings cannot be loaded. Please try again!')
-      console.error('Read Bookings unsuccessful:', error)
+      setError("Something went wrong while getting bookings history. Please try again.")
+      console.error("User - Read Booking History unsuccessful:", error)
     } finally {
       setLoading(false)
     }
   }
-  
+
   useEffect(() => {
+    if (!accessToken) return
     readBookings()
   }, [accessToken])
 
-  return { bookings, loading, error }
+  return { bookings, loading, error, refetch: readBookings }
 }

@@ -5,15 +5,9 @@ import api from "../Api"
 
 
 export const bookingService = {
-  // User: Profile page
-  getBookingHistory: () => api.get(`/tickets/bookings/history/`),
-  patchBookingCancel: (bookingId) => api.patch(`/tickets/booking/${bookingId}/cancel/`, {
-    status: "canceled", 
-    expires_at: null
-  }),
-
-  // Staff: Read & Update
-  readBookings: () => api.get(`/tickets/bookings/`),
-  readBookingsCashier: (userCity) => api.get(`/tickets/booking/cashier/?city=${userCity}`),
-  updateBookingCashier: (bookingId) => api.patch(`/tickets/bookings/cashier/${bookingId}/`, { status: "purchased" }),
+  readBookings: () => api.get(`/v1/tickets/bookings/`),
+  readBookingsManager: () => api.get(`/v1/tickets/bookings/?staff=true`),
+  readBookingsCashier: (cashierCityId) => api.get(`/v1/tickets/bookings/?staff=true&city=${cashierCityId}`),
+  updateBooking: (bookingId) => api.patch(`/v1/tickets/bookings/${bookingId}/`, { status: "canceled" }),
+  updateBookingCashier: (bookingId) => api.patch(`/v1/tickets/bookings/${bookingId}/?staff=true`, { status: "purchased" }),
 }

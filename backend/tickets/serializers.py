@@ -5,12 +5,68 @@ from rest_framework import serializers
 from .models import Booking, BookingStatus, Payment, PaymentMethod
 from showtimes.models import Showtime
 from locations.serializers import Seat
-from showtimes.serializers import ShowtimeSerializer
-from locations.serializers import SeatSerializer
+from showtimes.serializers import ShowtimeSerializer, ShowtimeBookingSerializer
+from locations.serializers import SeatSerializer, SeatBookingSerializer
 
 # Create your serializers here.
 
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Booking
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class BookingPartialSerializer(serializers.ModelSerializer):
+    """
+    Contains id, FK showtime, FK seat, booked_at, expires_at fields.
+    FK showtime contains movie_title, city_name, theater_name, starts_at fields.
+    FK seat contains row, column fields.
+    """
+    showtime = ShowtimeBookingSerializer(read_only=True, many=False)
+    seat = SeatBookingSerializer(read_only=True, many=False)
+    status = serializers.CharField(source="get_status_display")
+    class Meta:
+        model = Booking
+        fields = [
+            "id", 
+            "showtime",
+            "seat",
+            "status",
+            "booked_at",
+            "expires_at"
+        ]
+
+class BookingCompleteSerializer(serializers.ModelSerializer):
+    """
+    Contains id, FK showtime, FK seat, booked_at, updated_at fields.
+    FK showtime contains movie_title, city_name, theater_name, starts_at fields.
+    FK seat contains row, column fields.
+    """
+    user = serializers.CharField(source="user.email")
+    showtime = ShowtimeBookingSerializer(read_only=True, many=False)
+    seat = SeatBookingSerializer(read_only=True, many=False)
+    status = serializers.CharField(source="get_status_display")
+    class Meta:
+        model = Booking
+        fields = [
+            "id", 
+            "user", 
+            "showtime",
+            "seat",
+            "status",
+            "booked_at",
+            "updated_at"
+        ]
+
+class BookingUpdateSerializer(serializers.ModelSerializer):
+    """
+    Contains editable fields status, expires_at.
+    """
+    class Meta:
+        model = Booking
+        fields = ["status", "expires_at"]
+
+
+# Other
 class BookingSerializer(serializers.ModelSerializer):
     showtime = ShowtimeSerializer(read_only=True)
     seat = SeatSerializer(read_only=True)

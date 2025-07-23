@@ -117,6 +117,13 @@ class ShowtimeReportSerializer(serializers.Serializer):
     total_revenue = serializers.IntegerField()
     occupancy_percentage = serializers.IntegerField()
 
+class ShowtimeBookingSerializer(serializers.ModelSerializer):
+    movie_title = serializers.CharField(source="movie.title")
+    city_name = serializers.CharField(source="theater.city.name")
+    theater_name = serializers.CharField(source="theater.name")
+    class Meta:
+        model = Showtime
+        fields = ["movie_title", "city_name", "theater_name", "starts_at"]
 
 # Other
 class ShowtimeSerializer(serializers.ModelSerializer):
