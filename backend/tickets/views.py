@@ -17,7 +17,6 @@ from rest_framework import status
 
 # 3rd party apps
 from drf_spectacular.utils import extend_schema
-import django_filters
 
 # App
 from .models import Booking, BookingStatus, Payment, PaymentStatus
@@ -55,48 +54,36 @@ class BookingListView(generics.ListAPIView):
     Response contains expires_at for user instead of updated_at for staff, beside id, 
     showtime (movie title, city and theater names, starts_at), status, booked_at.\n
     """
-    
-    class BookingFilter(django_filters.FilterSet):
-        staff = django_filters.BooleanFilter(method="filter_by_staff")
-        city = django_filters.NumberFilter(field_name="showtime__theater__city_id")
 
-        class Meta:
-            model = Booking
-            fields = ["staff", "city"]
-
-        def filter_by_staff(self, queryset, name, value):
-            user = self.request.user
-
-            if value is True:
-                if user.is_staff or user.groups.filter(name="Manager").exists():
-                    return queryset  # All bookings
-                elif user.is_staff or user.groups.filter(name="Cashier").exists():
-                    city_id = self.data.get("city")
-                    if not city_id:
-                        raise ValidationError(
-                            {"detail": "City param required for Cashier."}
-                        )
-                    return queryset.filter(showtime__theater__city_id=city_id) # All bookings in city
-                else:
-                    raise ValidationError(
-                        {"detail": "You are not allowed to access."}
-                    )
-            elif value is False:
-                return queryset.filter(user=user)
-            else:
-                return queryset.none()
-            
-    filterset_class = BookingFilter
     permission_classes = [IsAuthenticated]
-    queryset = Booking.objects.select_related(
-        "user",
-        "showtime",
-        "showtime__movie",
-        "showtime__theater",
-        "showtime__theater__city",
-        "seat"
-    )
 
+    def get_queryset(self):
+        user = self.request.user
+        staff_param = self.request.query_params.get("staff", "false").lower()
+        is_allowed = staff_param == "true"
+
+        queryset = Booking.objects.select_related(
+            "user",
+            "showtime",
+            "showtime__movie",
+            "showtime__theater",
+            "showtime__theater__city",
+            "seat"
+        )
+
+        if is_allowed:
+            if user.is_staff or user.groups.filter(name="Manager").exists():
+                return queryset
+            elif user.is_staff or user.groups.filter(name="Cashier").exists():
+                city_id = self.request.query_params.get("city")
+                if not city_id:
+                    raise ValidationError({"detail": "City param required for Cashier."})
+                return queryset.filter(showtime__theater__city_id=city_id)
+            else:
+                raise ValidationError({"detail": "You are not allowed to access."})
+        else:
+            return queryset.filter(user=user)
+        
     def get_serializer_class(self):
         staff = self.request.query_params.get("staff", "false").lower()
         if staff == "true":
@@ -161,7 +148,8 @@ class BookingUpdateView(generics.UpdateAPIView):
                     {"detail": "You can only cancel your booking."}
                 )
         else:
-            if new_status == BookingStatus.CANCELED and not is_owner:
+            if new_status == BookingStatus.CANCELED:
+                if not is_owner:
                     raise ValidationError(
                         {"detail": "You can only cancel your own booking, not others."}
                     )

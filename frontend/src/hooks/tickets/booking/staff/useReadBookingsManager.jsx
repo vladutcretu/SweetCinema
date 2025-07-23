@@ -8,30 +8,30 @@ import { bookingService } from "@/services/tickets/bookingService"
 // Components here
 
 
-export const useReadBookingsCashier = (cashierCity) => {
+export const useReadBookingsManager = () => {
   const { accessToken } = useAuthContext()
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const readBookingsCashier = async (cashierCity) => {
+  const readBookingsManager = async () => {
     try {
       setLoading(true)
       setError(null)
-      const response = await bookingService.readBookingsCashier(cashierCity)
+      const response = await bookingService.readBookingsManager()
       setBookings(response.data)
-      console.log("Staff / Cashier - Read Bookings Cashier successful:", response.data)
+      console.log("Staff / Manager - Read Bookings successful:", response.data)
     } catch (error) {
-      setError('Bookings for Cashier cannot be loaded. Please try again!')
-      console.error('Staff / Cashier - Read Bookings Cashier unsuccessful:', error)
+      setError('Bookings cannot be loaded. Please try again!')
+      console.error('Staff / Manager - Bookings unsuccessful:', error)
     } finally {
       setLoading(false)
     }
   }
   
   useEffect(() => {
-    readBookingsCashier(cashierCity)
-  }, [accessToken, cashierCity])
+    readBookingsManager()
+  }, [accessToken])
 
-  return { bookings, loading, error, refetch: readBookingsCashier }
+  return { bookings, loading, error }
 }

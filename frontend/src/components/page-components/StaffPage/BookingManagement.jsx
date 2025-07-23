@@ -2,7 +2,7 @@
 import { Center, Heading } from '@chakra-ui/react'
 
 // App
-import { useReadBookings } from '@/hooks/tickets/booking/staff/useReadBookings'
+import { useReadBookingsManager } from '@/hooks/tickets/booking/staff/useReadBookingsManager'
 import useSearchBar from '@/hooks/useSearchBar'
 import { formatDate, formatTime } from '@/utils/DateTimeFormat'
 import SearchBar from '@/components/common/SearchBar'
@@ -12,10 +12,10 @@ import ReusableTable from '@/components/common/ReusableTable'
 
 
 const BookingManagement = () => {
-  const { bookings, loading: loadingBookings, error: errorBookings } = useReadBookings()
+  const { bookings, loading: loadingBookings, error: errorBookings } = useReadBookingsManager()
   const { searchTerm, handleChangeSearch, filteredData: filteredBookings } = useSearchBar(
     bookings, 
-    (booking) => booking.showtime.movie.title
+    (booking) => booking.showtime.movie_title
   )
   
   // Read bookings
@@ -33,9 +33,9 @@ const BookingManagement = () => {
       case "id": return booking.id
       case "user": return booking.user
       case "showtime": return (`
-        ${booking.showtime.movie.title}: 
-        ${booking.showtime.theater.city.name}, 
-        ${booking.showtime.theater.name}, 
+        ${booking.showtime.movie_title}: 
+        ${booking.showtime.city_name}, 
+        ${booking.showtime.theater_name}, 
         ${formatDate(booking.showtime.starts_at)}, 
         ${formatTime(booking.showtime.starts_at)}
       `)

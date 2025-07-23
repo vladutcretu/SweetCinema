@@ -7,27 +7,28 @@ import { bookingService } from "@/services/tickets/bookingService"
 // Components here
 
 
-export const usePatchBookingCancel = () => {
+export const useUpdateBooking = () => {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const patchBookingCancel = async (bookingId) => {
+  const updateBooking = async (bookingId) => {
     setLoading(true)
     setError(null)
+    setData(null)
     try {
-      const response = await bookingService.patchBookingCancel(bookingId)
+      const response = await bookingService.updateBooking(bookingId)
       setData(response.data)
-      console.log("Update User Booking successful:", response.data)
+      console.log("User - Update Booking successful:", response.data)
       return response.data
     } catch (error) {
-      setError("Something went wrong while canceling booking. Please try again.")
-      console.error("Update User Booking unsuccessful:", error)
+      setError("Something went wrong while canceling the booking. Please try again.")
+      console.error("User - Update Booking unsuccessful:", error)
       return null
     } finally {
       setLoading(false)
     }
   }
 
-  return { patchBookingCancel, loading, error, data }
+  return { updateBooking, loading, error, data }
 }

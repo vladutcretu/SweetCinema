@@ -19,11 +19,11 @@ export const useUpdateBookingCashier = () => {
     try {
       const response = await bookingService.updateBookingCashier(bookingId)
       setData(response.data)
-      console.log("Update Booking Cashier successful:", response.data)
+      console.log("Staff / Cashier - Update Booking successful:", response.data)
       return response.data
     } catch (error) {
       setError("Something went wrong while updating the booking for Cashier. Please try again.")
-      console.error("Update Booking Cashier unsuccessful:", error)
+      console.error("Staff / Cashier - Update Booking unsuccessful:", error)
       return null
     } finally {
       setLoading(false)
