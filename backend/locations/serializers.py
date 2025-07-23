@@ -77,6 +77,15 @@ class TheaterShowtimeSerializer(serializers.ModelSerializer):
         fields = ["name", "columns"]
 
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Seat
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+class SeatBookingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Seat
+        fields = ["row", "column"]
+
+
 # Other
 class CitySerializer(serializers.ModelSerializer):
     class Meta:
