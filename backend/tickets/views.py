@@ -208,6 +208,9 @@ class BookingListPaymentView(APIView):
     Available to authenticated users.\n
     POST: list Booking objects given their list of IDs.\n
     """
+
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         serializer = BookingPaymentDisplaySerializer(
             data=request.data,
