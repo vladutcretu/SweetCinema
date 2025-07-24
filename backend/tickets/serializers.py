@@ -213,8 +213,7 @@ class BookingListPaymentSerializer(serializers.ModelSerializer):
     showtime_presentation = serializers.CharField(source="showtime.presentation")
     showtime_starts = serializers.DateTimeField(source="showtime.starts_at")
 
-    seat_row = serializers.IntegerField(source="seat.row")
-    seat_column = serializers.IntegerField(source="seat.column")
+    seat = SeatBookingSerializer(read_only=True)
 
     class Meta:
         model = Booking
@@ -228,8 +227,7 @@ class BookingListPaymentSerializer(serializers.ModelSerializer):
             "showtime_format",
             "showtime_presentation",
             "showtime_starts",
-            "seat_row",
-            "seat_column"
+            "seat"
         ]
 
 
@@ -339,8 +337,3 @@ class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = ["id", "user", "bookings", "amount", "method", "status", "paid_at"]
-
-# class BookingSummaryRequestSerializer(serializers.Serializer):
-#     booking_ids = serializers.ListField(
-#         child=serializers.IntegerField(min_value=1), min_length=1
-#     )

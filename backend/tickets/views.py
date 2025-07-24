@@ -221,7 +221,7 @@ class BookingListPaymentView(APIView):
         bookings, total_price = serializer.create(validated_data=serializer.validated_data)
         return Response(
             {
-                "bookings": BookingListPaymentSerializer(bookings[0], many=False).data,
+                "bookings": BookingListPaymentSerializer(bookings, many=True).data,
                 "total_price": total_price,
             },
             status=status.HTTP_200_OK,

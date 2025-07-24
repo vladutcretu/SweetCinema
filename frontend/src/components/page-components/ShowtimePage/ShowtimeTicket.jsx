@@ -5,19 +5,19 @@ import { useNavigate } from "react-router-dom"
 import { Box, Button, Spinner, Text } from "@chakra-ui/react"
 
 // App
-import { usePostTicketReserve } from "@/hooks/tickets/usePostTicketReserve"
-import { usePostTicketPurchase } from "@/hooks/tickets/usePostTicketPurchase"
+import { useCreateBookingReserve } from "@/hooks/tickets/useCreateBookingReserve"
+import { useCreateBookingPurchase } from "@/hooks/tickets/useCreateBookingPurchase"
 
 // Components here
 
 
 const ShowtimeTicket = ({ showtimeId, seatIds, allowed, onSuccess }) => {
-  const { postTicketReserve, loading: loadingReserve, error: errorReserve } = usePostTicketReserve()
-  const { postTicketPurchase, loading: loadingPurchase, error: errorPurchase } = usePostTicketPurchase()
+  const { createBookingReserve, loading: loadingReserve, error: errorReserve } = useCreateBookingReserve()
+  const { createBookingPurchase, loading: loadingPurchase, error: errorPurchase } = useCreateBookingPurchase()
   const navigate = useNavigate()
 
   const handleTicketReserve = async () => {
-    const result = await postTicketReserve(showtimeId, seatIds)
+    const result = await createBookingReserve(showtimeId, seatIds, "reserved")
     if (result) {
       alert("✅ Seats reserved successfully!")
       if (onSuccess) onSuccess()
@@ -27,7 +27,7 @@ const ShowtimeTicket = ({ showtimeId, seatIds, allowed, onSuccess }) => {
   }
 
   const handleTicketPurchase = async () => {
-    const result = await postTicketPurchase(showtimeId, seatIds)
+    const result = await createBookingPurchase(showtimeId, seatIds, "pending_payment")
     if (result) {
       alert("✅ Seats temporarely reserved successfully! Complete payment to purchase seats!")
       navigate(`/payment/`, { state: { bookingIds: result.booking_ids, seatsNumber: result.booking_ids.length }})
@@ -36,13 +36,8 @@ const ShowtimeTicket = ({ showtimeId, seatIds, allowed, onSuccess }) => {
     }
   }
 
-  if (errorReserve) {
-    return <Text>{errorReserve}</Text>
-  }
-
-  if (errorPurchase) {
-    return <Text>{errorReserve}</Text>
-  }
+  if (errorReserve) return <Text>{errorReserve}</Text>
+  if (errorPurchase) return <Text>{errorPurchase}</Text>
 
   return (
     <Box mt={5}>
