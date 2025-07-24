@@ -2,29 +2,29 @@
 import { useEffect, useState } from "react"
 
 // App
-import { ticketService } from "@/services/tickets/ticketService"
+import { bookingService } from "@/services/tickets/bookingService"
 
 // Components here
 
 
-export const useGetPaymentBookings = (bookingIds) => {
+export const useReadPaymentBookings = (bookingIds) => {
   const [bookings, setBookings] = useState({})
   const [totalPrice, setTotalPrice] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const getPaymentBookings = async () => {
+  const readPaymentBookings = async () => {
     setLoading(true)
     setError(null)
     try {
-      const response = await ticketService.getPaymentBookings(bookingIds)
+      const response = await bookingService.readPaymentBookings(bookingIds)
       setBookings(response.data.bookings)
       setTotalPrice(response.data.total_price)
-      console.log("Get Payment Bookings successful:", response.data)
+      console.log("User - Read Payment Bookings successful:", response.data)
       return response.data
     } catch (error) {
       setError("Something went wrong while getting payment bookings. Please try again.")
-      console.error("Get Payment Bookings unsuccessful:", error)
+      console.error("User - Read Payment Bookings unsuccessful:", error)
       return null
     } finally {
       setLoading(false)
@@ -32,7 +32,7 @@ export const useGetPaymentBookings = (bookingIds) => {
   }
 
   useEffect(() => {
-      getPaymentBookings(bookingIds)
+      readPaymentBookings(bookingIds)
   }, [bookingIds])
 
   return { bookings, totalPrice, loading, error }

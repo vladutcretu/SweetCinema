@@ -290,3 +290,21 @@ def payments_list(
 @pytest.fixture
 def booking_ids(booking_user, booking_staff, booking_manager, booking_cashier):
     return [booking_user.id, booking_staff.id, booking_manager.id, booking_cashier.id]
+
+@pytest.fixture
+def booking_pending_1(normal_user, showtime_f1_london, seats_theater_london):
+    return Booking.objects.create(
+        user=normal_user, 
+        showtime=showtime_f1_london, 
+        seat=seats_theater_london[0], 
+        status=BookingStatus.PENDING_PAYMENT
+    )
+
+@pytest.fixture
+def booking_pending_2(normal_user, showtime_f1_london, seats_theater_london):
+    return Booking.objects.create(
+        user=normal_user, 
+        showtime=showtime_f1_london, 
+        seat=seats_theater_london[1], 
+        status=BookingStatus.PENDING_PAYMENT
+    )

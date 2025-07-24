@@ -2,33 +2,33 @@
 import { useState } from "react"
 
 // App
-import { ticketService } from "@/services/tickets/ticketService"
+import { bookingService } from "@/services/tickets/bookingService"
 
 // Components here
 
 
-export const usePostTicketReserve = () => {
+export const useCreateBookingReserve = () => {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const postTicketReserve = async (showtimeId, seatIds) => {
+  const createBookingReserve = async (showtimeId, seatIds, status) => {
     setLoading(true)
     setError(null)
     setData(null)
     try {
-      const response = await ticketService.postTicketReserve(showtimeId, seatIds)
+      const response = await bookingService.createBooking(showtimeId, seatIds, status)
       setData(response.data)
-      console.log("Post Ticket Purchase successful:", response.data)
+      console.log("User - Create Booking with status=reserved successful:", response.data)
       return response.data
     } catch (error) {
       setError("Something went wrong while reserving the seats. Please try again.")
-      console.error("Post Ticket Purchase failed:", error)
+      console.error("User - Create Booking with status=reserved unsuccessful:", error)
       return null
     } finally {
       setLoading(false)
     }
   }
 
-  return { postTicketReserve, loading, error, data }
+  return { createBookingReserve, loading, error, data }
 }

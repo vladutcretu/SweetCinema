@@ -3,12 +3,12 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 // App
-import { ticketService } from "@/services/tickets/ticketService"
+import { bookingService } from "@/services/tickets/bookingService"
 
 // Components here
 
 
-export const usePaymentTimeout = (bookingIds, durationInSeconds = 60) => {
+export const updateBookingTimeout = (bookingIds, durationInSeconds = 60) => {
   const [secondsLeft, setSecondsLeft] = useState(durationInSeconds)
   const navigate = useNavigate()
 
@@ -25,9 +25,9 @@ export const usePaymentTimeout = (bookingIds, durationInSeconds = 60) => {
   useEffect(() => {
     if (secondsLeft !== 0) return
 
-    const putPaymentTimeout = async () => {
+    const updateBookingTimeout = async () => {
       try {
-        const response = await ticketService.putPaymentTimeout(bookingIds)
+        const response = await bookingService.updateBookingTimeout(bookingIds)
         alert("⏱️ You did not complete the payment. Please try again!")
         console.log("Put Payment Timeout successful:", response)
         navigate('/')
@@ -37,7 +37,7 @@ export const usePaymentTimeout = (bookingIds, durationInSeconds = 60) => {
       }
     }
 
-    putPaymentTimeout()
+    updateBookingTimeout()
   }, [secondsLeft, bookingIds])
 
   const formattedTime = `${Math.floor(secondsLeft / 60)}:${String(secondsLeft % 60).padStart(2, '0')}`
