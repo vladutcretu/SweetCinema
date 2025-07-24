@@ -7,6 +7,10 @@ from ..serializers import (
     BookingPartialSerializer,
     BookingCompleteSerializer,
     BookingUpdateSerializer,
+    BookingPaymentSerializer,
+    # Payment
+    PaymentCompleteSerializer,
+    PaymentCreateSerializer
 )
 
 # Create your tests here.
@@ -54,8 +58,8 @@ def test_booking_complete_serializer(bookings_list):
 
 
 @pytest.mark.django_db
-def test_booking_update_serializer(booking_normal):
-    serializer = BookingUpdateSerializer(booking_normal)
+def test_booking_update_serializer(booking_user):
+    serializer = BookingUpdateSerializer(booking_user)
     data = serializer.data
 
     assert len(data) == 2
@@ -68,3 +72,63 @@ def test_booking_update_serializer(booking_normal):
     assert "updated_at" not in data
     assert "status" in data
     assert "expires_at" in data
+
+
+@pytest.mark.django_db
+def test_booking_payment_serializer(booking_user):
+    serializer = BookingPaymentSerializer(booking_user)
+    data = serializer.data
+
+    assert len(data) == 1
+
+    assert "id" in data
+    assert "user" not in data
+    assert "showtime" in data
+    assert data[0]["showtime"]["movie_title"] == "F1"
+    assert data[0]["showtime"]["city_name"] == "London"
+    assert "seat" in data
+    assert "booked_at" not in data
+    assert "updated_at" not in data
+    assert "status" not in data
+    assert "expires_at" not in data
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Payment
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+@pytest.mark.django_db
+def test_payment_complete_serializer(payment_user):
+    serializer = PaymentCompleteSerializer(payment_user)
+    data = serializer.data
+
+    assert len(data) == 1
+
+    assert "id" in data
+    assert "user" in data
+    assert "@" in data["user"]
+    assert "bookings" in data
+    assert data[0]["bookings"]["showtime"]["movie_title"] == "F1"
+    assert data[0]["showtime"]["showtime"]["city_name"] == "London"
+    assert "seat" in data
+    assert "amount" in data
+    assert "method" in data
+    assert "status" in data
+    assert "paid_at" in data
+
+
+@pytest.mark.django_db
+def test_payment_create_serializer(payment_user):
+    serializer = PaymentCreateSerializer(payment_user)
+    data = serializer.data
+    assert len(data) == 1
+
+    assert "id" not in data
+    assert "booking_ids" in data
+    assert "user" not in data
+    assert "showtime" not in data
+    assert "seat" not in data
+    assert "amount" in data
+    assert "method" in data
+    assert "status" not in data
+    assert "paid_at" not in data

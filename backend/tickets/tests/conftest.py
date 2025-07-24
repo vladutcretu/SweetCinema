@@ -7,7 +7,7 @@ from datetime import timedelta
 import pytest
 
 # App
-from ..models import Booking, BookingStatus
+from ..models import Booking, BookingStatus, Payment, PaymentMethod, PaymentStatus
 from users.models import UserProfile
 from showtimes.models import Showtime
 from movies.models import Genre, Movie
@@ -232,3 +232,61 @@ def booking_cashier(cashier_user, showtime_f1_london, seats_theater_london):
         seat=seats_theater_london[0],
         status=BookingStatus.RESERVED,
     )
+
+
+@pytest.fixture
+def payment_user(normal_user, booking_user):
+    return Payment.objects.create(
+        user=normal_user,
+        bookings=booking_user,
+        amount=35,
+        method=PaymentMethod.VISA,
+        status=PaymentStatus.ACCEPTED
+    )
+
+
+@pytest.fixture
+def payments_list(
+    normal_user, 
+    booking_user,
+    staff_user,
+    booking_staff,
+    manager_user,
+    booking_manager,
+    cashier_user,
+    booking_cashier
+):
+    return Booking.objects.bulk_create([
+        Payment.objects.create(
+            user=normal_user,
+            bookings=booking_user,
+            amount=35,
+            method=PaymentMethod.VISA,
+            status=PaymentStatus.ACCEPTED
+        ),
+        Payment.objects.create(
+            user=staff_user,
+            bookings=booking_staff,
+            amount=50,
+            method=PaymentMethod.VISA,
+            status=PaymentStatus.DECLINED
+        ),
+        Payment.objects.create(
+            user=manager_user,
+            bookings=booking_manager,
+            amount=45.5,
+            method=PaymentMethod.MASTERCARD,
+            status=PaymentStatus.ACCEPTED
+        ),
+        Payment.objects.create(
+            user=cashier_user,
+            bookings=booking_cashier,
+            amount=15.99,
+            method=PaymentMethod.MASTERCARD,
+            status=PaymentStatus.DECLINED
+        )
+    ])
+
+@pytest.fixture
+def booking_ids(booking_user, booking_staff, booking_manager, booking_cashier):
+    return [booking_user.id, booking_staff.id, booking_manager.id, booking_cashier.id]
