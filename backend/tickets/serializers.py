@@ -93,6 +93,8 @@ class PaymentCompleteSerializer(serializers.ModelSerializer):
     """
     user = serializers.CharField(source="user.email")
     bookings = BookingPaymentSerializer(read_only=True, many=True)
+    method = serializers.CharField(source="get_method_display")
+    status = serializers.CharField(source="get_status_display")
     paid_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
     class Meta:
         model = Payment

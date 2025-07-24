@@ -5,22 +5,22 @@ import { useNavigate } from "react-router-dom"
 import { Box, Button, Spinner, Text } from "@chakra-ui/react"
 
 // App
-import { usePostPaymentComplete } from "@/hooks/tickets/usePostPaymentComplete"
+import { useCreatePayment } from "@/hooks/tickets/payment/useCreatePayment"
 
 // Components here
 
 
 const PaymentConfirmation = ({ bookingIds, paymentAmount, paymentMethod }) => {
-  const { postPaymentComplete, loading, error } = usePostPaymentComplete()
+  const { createPayment, loading, error } = useCreatePayment()
   const navigate = useNavigate()
 
   const handlePayment = async () => {
-    const result = await postPaymentComplete(bookingIds, paymentAmount, paymentMethod)
+    const result = await createPayment(bookingIds, paymentAmount, paymentMethod)
     if (result) {
-      alert("✅ Payment successfully! Enjoy your show!")
+      alert("✅ Payment accepted! Enjoy your show!")
       navigate('/')
     } else {
-      alert("✅ Payment unsuccessfully! Please try again!")
+      alert("✅ Payment declined! Please try again!")
       navigate('/')
     }
   }

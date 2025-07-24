@@ -21,10 +21,5 @@ export const ticketService = {
   }),
   putPaymentTimeout: (bookingIds) => api.put(`/tickets/pay/timeout/`, {
     booking_ids: bookingIds
-  }),
-  postPaymentComplete: (bookingIds, paymentAmount, paymentMethod) => api.post(`/tickets/pay/`, { 
-    booking_ids: bookingIds, 
-    amount: paymentAmount, 
-    method: paymentMethod 
-  }),
+  })
 }

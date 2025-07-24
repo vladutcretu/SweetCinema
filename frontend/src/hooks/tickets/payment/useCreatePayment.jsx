@@ -2,33 +2,33 @@
 import { useState } from "react"
 
 // App
-import { ticketService } from "@/services/tickets/ticketService"
+import { paymentService } from "@/services/tickets/paymentService"
 
 // Components here
 
 
-export const usePostPaymentComplete = () => {
+export const useCreatePayment = () => {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const postPaymentComplete = async (bookingIds, paymentAmount, paymentMethod) => {
+  const createPayment = async (bookingIds, paymentAmount, paymentMethod) => {
     setLoading(true)
     setError(null)
     setData(null)
     try {
-      const response = await ticketService.postPaymentComplete(bookingIds, paymentAmount, paymentMethod)
+      const response = await paymentService.createPayment(bookingIds, paymentAmount, paymentMethod)
       setData(response.data)
-      console.log("Post Payment Complete successful:", response.data)
+      console.log("User - Create Payment successful:", response.data)
       return response.data
     } catch (error) {
       setError("Something went wrong while completing the payment. Please try again.")
-      console.error("Post Payment Complete unsuccessful:", error)
+      console.error("User - Create Payment unsuccessful:", error)
       return null
     } finally {
       setLoading(false)
     }
   }
 
-  return { postPaymentComplete, loading, error, data }
+  return { createPayment, loading, error, data }
 }
