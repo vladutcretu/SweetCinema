@@ -66,6 +66,55 @@ class BookingUpdateSerializer(serializers.ModelSerializer):
         fields = ["status", "expires_at"]
 
 
+class BookingPaymentSerializer (serializers.ModelSerializer):
+    """
+    Contains fields id, FK showtime: movie_title, city_name, theater_name, starts_at,
+    FK seat: row, column.
+    """
+    showtime = ShowtimeBookingSerializer(read_only=True, many=False)
+    seat = SeatBookingSerializer(read_only=True, many=False)
+    class Meta:
+        model = Booking
+        fields = [
+            "id", 
+            "showtime",
+            "seat"
+        ]
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Payment
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class PaymentCompleteSerializer(serializers.ModelSerializer):
+    """
+    Contains id, user email, FK booking (FK showtime: movie_title, city_name, theater_name,
+    starts_at, FK seat: row, column), amount, method, status, paid_at fields.
+    """
+    user = serializers.CharField(source="user.email")
+    bookings = BookingPaymentSerializer(read_only=True, many=True)
+    paid_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
+    class Meta:
+        model = Payment
+        fields = ["id", "user", "bookings", "amount", "method", "status", "paid_at"]
+
+class PaymentCreateSerializer(serializers.ModelSerializer):
+    """
+    Contains booking_ids (a list with a minimum 1 integer), amount, method fields.
+    """
+    booking_ids = serializers.ListField(
+        child=serializers.IntegerField(write_only=True, min_value=1),
+        min_length=1,
+        write_only=True,
+    )
+    amount = serializers.DecimalField(write_only=True, max_digits=8, decimal_places=2)
+    method = serializers.ChoiceField(write_only=True, choices=PaymentMethod.choices)
+
+    class Meta:
+        model = Payment
+        fields = ["booking_ids", "amount", "method"]
+
+
 # Other
 class BookingSerializer(serializers.ModelSerializer):
     showtime = ShowtimeSerializer(read_only=True)
@@ -207,20 +256,6 @@ class BookingsListPaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = ["id", "showtime", "seat", "status"]
-
-
-class PaymentCreateSerializer(serializers.ModelSerializer):
-    booking_ids = serializers.ListField(
-        child=serializers.IntegerField(write_only=True, min_value=1),
-        min_length=1,
-        write_only=True,
-    )
-    amount = serializers.DecimalField(write_only=True, max_digits=8, decimal_places=2)
-    method = serializers.ChoiceField(write_only=True, choices=PaymentMethod.choices)
-
-    class Meta:
-        model = Payment
-        fields = ["booking_ids", "amount", "method"]
 
 
 class PaymentSerializer(serializers.ModelSerializer):

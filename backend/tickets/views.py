@@ -4,10 +4,7 @@ from django.db import transaction
 # DRF
 from rest_framework import generics
 from rest_framework.generics import (
-    CreateAPIView,
-    RetrieveAPIView,
-    ListAPIView,
-    UpdateAPIView,
+    CreateAPIView
 )
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -21,19 +18,21 @@ from drf_spectacular.utils import extend_schema
 # App
 from .models import Booking, BookingStatus, Payment, PaymentStatus
 from .serializers import (
+    # Booking
     BookingPartialSerializer,
     BookingCompleteSerializer,
     BookingUpdateSerializer,
+    # Payment
+    PaymentCompleteSerializer,
+    PaymentCreateSerializer,
     # Other
     BookingSerializer,
     BookingCreateReserveSerializer,
     BookingCreatePaymentSerializer,
     BookingSummaryRequestSerializer,
     BookingsListPaymentSerializer,
-    PaymentCreateSerializer,
-    PaymentSerializer,
 )
-from users.permissions import IsManager, IsCashier
+from users.permissions import IsManager
 
 # Create your views here.
 
@@ -78,7 +77,9 @@ class BookingListView(generics.ListAPIView):
                 city_id = self.request.query_params.get("city")
                 if not city_id:
                     raise ValidationError({"detail": "City param required for Cashier."})
-                return queryset.filter(showtime__theater__city_id=city_id)
+                return queryset.filter(
+                    showtime__theater__city_id=city_id, status=BookingStatus.RESERVED
+                )
             else:
                 raise ValidationError({"detail": "You are not allowed to access."})
         else:
@@ -166,18 +167,123 @@ class BookingUpdateView(generics.UpdateAPIView):
         serializer.save(expires_at=None)
 
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Payments
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+@extend_schema(tags=["v1 - Payments"])
+class PaymentListCreateView(generics.ListCreateAPIView):
+    """
+    GET: list all Payment objects; available to staff / 'Manager' group.\n
+    POST: create a Payment object for single or multiple Booking objects; available to anyone.\n
+    Receives a list of booking_ids, amount (sum paid by user) and method.
+    Sums the prices of every showtime included in bookings,compare to amount value, and set the
+    Payment status to accepted / declined, then for the Bookings as well.\n
+    """
+
+    queryset = (
+        Payment.objects
+        .select_related("user")
+        .prefetch_related("bookings", "bookings__showtime", "bookings__seat")
+    )
+
+    def get_permissions(self):
+        if self.request.method == "POST":
+            return [IsAuthenticated()]
+        return [IsManager()]
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return PaymentCreateSerializer
+        return PaymentCompleteSerializer
+    
+    @transaction.atomic
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = request.user
+        booking_ids = serializer.validated_data["booking_ids"]
+        amount = serializer.validated_data["amount"]
+        method = serializer.validated_data["method"]
+
+        bookings = self.get_bookings(booking_ids, user)
+        if bookings is None:
+            return self.build_reponse_invalid()
+        
+        total_price = self.get_total_price(bookings)
+        payment_status = self.get_payment_status(amount, total_price)
+        payment = self.create_payment(user, amount, method, payment_status, bookings)
+        self.update_booking_status(bookings, payment_status)
+        return self.build_reponse_success(payment, bookings)
+
+    def get_bookings(self, booking_ids, user):
+        bookings = Booking.objects.filter(
+                id__in=booking_ids, 
+                user=user, 
+                status=BookingStatus.PENDING_PAYMENT
+            )
+        if bookings.count() == len(booking_ids):
+            return bookings
+        return None
+        
+    def get_total_price(self, bookings):
+        return sum(booking.showtime.price for booking in bookings)
+
+    def get_payment_status(self, amount, expected_total):
+        return (
+            PaymentStatus.ACCEPTED 
+            if amount == expected_total
+            else PaymentStatus.DECLINED 
+        )
+    
+    def create_payment(self, user, amount, method, status, bookings):
+        payment = Payment.objects.create(
+            user=user,
+            amount=amount,
+            method=method,
+            status=status,
+        )
+        payment.bookings.set(bookings)
+        return payment
+    
+    def update_booking_status(self, bookings, payment_status):
+        new_status = (
+            BookingStatus.PURCHASED
+            if payment_status == PaymentStatus.ACCEPTED
+            else BookingStatus.FAILED_PAYMENT
+        )
+        for booking in bookings:
+            booking.status = new_status
+            booking.save()
+
+    def build_reponse_success(self, payment, bookings):
+        is_success = payment.status == PaymentStatus.ACCEPTED
+        return Response(
+            {
+                "status": "success" if is_success else "error",
+                "message": "Payment processed.",
+                "payment_id": payment.id,
+                "booking_statuses": [
+                    {"booking_id": booking.id, "status": booking.status}
+                    for booking in bookings
+                ],
+            },
+            status=status.HTTP_201_CREATED 
+            if is_success
+            else status.HTTP_402_PAYMENT_REQUIRED,
+        )
+    
+    def build_reponse_invalid(self):
+        return Response(
+            {
+                "error": "One or more bookings not found or not eligible for payment."
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
 # Other
-class BookingRetrieveView(RetrieveAPIView):
-    """
-    View to retrieve a single Booking object by his ID.
-    Available to any role; required token authentication.
-    """
-
-    queryset = Booking.objects.all()
-    serializer_class = BookingSerializer
-    permission_classes = [IsAuthenticated]
-
-
 class BookingCreateReserveView(CreateAPIView):
     """
     View to create a Booking object with status=reserved using given showtime_id and seat_id.
@@ -248,84 +354,6 @@ class BookingCreatePaymentView(CreateAPIView):
         return Response(
             {"booking_ids": [booking.id for booking in bookings]},
             status=status.HTTP_201_CREATED,
-        )
-
-
-class PaymentCreateView(CreateAPIView):
-    """
-    View to create a Payment object using given booking_id.
-    Payment will have `status=accepted` if amount is the same as booking.showtime.price,
-    else will have `status=declined`. Booking status also got updated after Payment object is created.
-    Available to any role; required token authentication.
-    """
-
-    serializer_class = PaymentCreateSerializer
-    permission_classes = [IsAuthenticated]
-
-    @transaction.atomic  # group Payment & Booking db actions to prevent data loss
-    def create(self, request):
-        # Serialize data and validate
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        # Get validated data for context
-        user = request.user
-        booking_ids = serializer.validated_data["booking_ids"]
-        amount = serializer.validated_data["amount"]
-        method = serializer.validated_data["method"]
-
-        # Get only the Booking instances created in the previously transaction
-        bookings = Booking.objects.filter(
-            id__in=booking_ids, user=user, status=BookingStatus.PENDING_PAYMENT
-        )
-        if bookings.count() != len(booking_ids):
-            return Response(
-                {
-                    "error": "One or more bookings not found or not eligible for payment."
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        # Calculate total price for the tickets and validate the transaction
-        total_price = sum(booking.showtime.price for booking in bookings)
-        payment_status = (
-            PaymentStatus.ACCEPTED if amount == total_price else PaymentStatus.DECLINED
-        )
-
-        # Create a single Payment instance for multiple Bookings
-        payment = Payment.objects.create(
-            user=request.user,
-            amount=amount,
-            method=method,
-            status=payment_status,
-        )
-        payment.bookings.set(bookings)
-
-        # Update Booking status accordingly to Payment status
-        for booking in bookings:
-            booking.status = (
-                BookingStatus.PURCHASED
-                if payment_status == PaymentStatus.ACCEPTED
-                else BookingStatus.FAILED_PAYMENT
-            )
-            booking.save()
-
-        # Send response depending on payment status
-        return Response(
-            {
-                "status": "success"
-                if payment_status == PaymentStatus.ACCEPTED
-                else "error",
-                "message": "Payment processed.",
-                "payment_id": payment.id,
-                "booking_statuses": [
-                    {"booking_id": booking.id, "status": booking.status}
-                    for booking in bookings
-                ],
-            },
-            status=status.HTTP_201_CREATED
-            if payment_status == PaymentStatus.ACCEPTED
-            else status.HTTP_402_PAYMENT_REQUIRED,
         )
 
 
@@ -405,88 +433,3 @@ class BookingUpdateStatusView(APIView):
             {"success": "Bookings status got updated to failed_payment!"},
             status=status.HTTP_200_OK,
         )
-
-class BoookingListView(ListAPIView):
-    """
-    View to list all Bookings objects.
-    Available to `Manager` role; required token authentication.
-    """
-
-    queryset = Booking.objects.all()
-    serializer_class = BookingSerializer
-    permission_classes = [IsManager]
-
-
-class BookingCashierListView(ListAPIView):
-    """
-    View to list all Bookings objects filtered by City ID.
-    Available to `Cashier` role; required token authentication.
-    """
-
-    serializer_class = BookingSerializer
-    permission_classes = [IsCashier]
-
-    def get_queryset(self):
-        city_id = self.request.query_params.get("city")
-        if not city_id:
-            return Booking.objects.none()
-
-        return Booking.objects.select_related(
-            "showtime__movie", "showtime__theater__city", "seat", "user"
-        ).filter(showtime__theater__city__id=city_id, status=BookingStatus.RESERVED)
-
-
-class BookingCashierUpdateView(UpdateAPIView):
-    """
-    View to update a Booking object requested by ID.
-    Available to `Cashier` role; required token authentication.
-    """
-
-    queryset = Booking.objects.filter(status=BookingStatus.RESERVED)
-    serializer_class = BookingSerializer
-    permission_classes = [IsCashier]
-    http_method_names = ["patch"]
-
-
-class BookingUserListView(ListAPIView):
-    """
-    View to list all Bookings objects owned by requested user.
-    Available to any role; required token authentication.
-    """
-
-    serializer_class = BookingSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        """
-        Queryset retrieve only the objects owned by requested user.
-        """
-        return Booking.objects.filter(user=self.request.user)
-
-
-class BookingUserUpdateView(UpdateAPIView):
-    """
-    View to update a Booking object requested by ID.
-    Available to any role; required token authentication.
-    """
-
-    serializer_class = BookingSerializer
-    permission_classes = [IsAuthenticated]
-    http_method_names = ["patch"]
-
-    def get_queryset(self):
-        """
-        Queryset retrieve only the objects owned by requested user.
-        """
-        return Booking.objects.filter(user=self.request.user)
-
-
-class PaymentListView(ListAPIView):
-    """
-    View to list all Payments objects.
-    Available to `Manager` role; required token authentication.
-    """
-
-    queryset = Payment.objects.all()
-    serializer_class = PaymentSerializer
-    permission_classes = [IsManager]
