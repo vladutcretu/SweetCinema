@@ -6,6 +6,8 @@ from ..views import (
     # Booking
     BookingListView,
     BookingUpdateView,
+    # Payment
+    PaymentListCreateView,
 )
 
 # Write your tests here.
@@ -33,3 +35,15 @@ def test_booking_update_resolves():
 
 def test_booking_update_reverse():
     assert reverse("update-bookings", args=[1]) == "/api/v1/tickets/bookings/1/"
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# PaymentListCreateView
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+def test_payment_list_create_resolves():
+    match = resolve("/api/v1/tickets/payments/")
+    assert match.func.view_class == PaymentListCreateView
+
+def test_payment_list_create_reverse():
+    assert reverse("create-read-payments") == "/api/v1/tickets/payments/"
