@@ -3,9 +3,6 @@ from django.db import transaction
 
 # DRF
 from rest_framework import generics
-from rest_framework.generics import (
-    CreateAPIView
-)
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -21,16 +18,14 @@ from .serializers import (
     # Booking
     BookingPartialSerializer,
     BookingCompleteSerializer,
+    BookingCreateSerializer,
     BookingUpdateSerializer,
+    BookingPaymentTimeoutSerializer,
+    BookingPaymentDisplaySerializer,
+    BookingListPaymentSerializer,
     # Payment
     PaymentCompleteSerializer,
     PaymentCreateSerializer,
-    # Other
-    BookingSerializer,
-    BookingCreateReserveSerializer,
-    BookingCreatePaymentSerializer,
-    BookingSummaryRequestSerializer,
-    BookingsListPaymentSerializer,
 )
 from users.permissions import IsManager
 
@@ -42,7 +37,7 @@ from users.permissions import IsManager
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 @extend_schema(tags=["v1 - Bookings"])
-class BookingListView(generics.ListAPIView):
+class BookingListCreateView(generics.ListCreateAPIView):
     """
     Available to authenticated users, staff and 'Manager', 'Cashier' group.\n
     GET without query params or param staff=false: list all Booking objects owned.\n
@@ -52,10 +47,21 @@ class BookingListView(generics.ListAPIView):
     Booking objects created by users for showtimes in that city.\n
     Response contains expires_at for user instead of updated_at for staff, beside id, 
     showtime (movie title, city and theater names, starts_at), status, booked_at.\n
+    POST: create one or more Booking objects for Seats in a Showtime with specified
+    status; only reserved and pending_payment allowed.
     """
 
     permission_classes = [IsAuthenticated]
 
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return BookingCreateSerializer
+        
+        staff = self.request.query_params.get("staff", "false").lower()
+        if staff == "true":
+            return BookingCompleteSerializer
+        return BookingPartialSerializer
+    
     def get_queryset(self):
         user = self.request.user
         staff_param = self.request.query_params.get("staff", "false").lower()
@@ -84,13 +90,16 @@ class BookingListView(generics.ListAPIView):
                 raise ValidationError({"detail": "You are not allowed to access."})
         else:
             return queryset.filter(user=user)
-        
-    def get_serializer_class(self):
-        staff = self.request.query_params.get("staff", "false").lower()
-        if staff == "true":
-            return BookingCompleteSerializer
-        return BookingPartialSerializer
     
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        bookings = serializer.save()
+        booking_ids = [booking.id for booking in bookings]
+
+        return Response({"booking_ids": booking_ids}, status=status.HTTP_201_CREATED)
+
 
 @extend_schema(tags=["v1 - Bookings"])
 class BookingUpdateView(generics.UpdateAPIView):
@@ -165,6 +174,55 @@ class BookingUpdateView(generics.UpdateAPIView):
                 )
 
         serializer.save(expires_at=None)
+
+
+@extend_schema(tags=["v1 - Bookings"])
+class BookingPaymentTimeoutView(APIView):
+    """
+    Available to authenticated users to update Booking objects status to 
+    'failed_payment' for objects that current status is 'pending_payment'.\n
+    `Info:` while /bookings/:id/ is build to be interactive for user/staff,
+    this endpoint's scope is fallback when the user do not complete
+    the payment in given time, abandon the page etc.\n
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        serializer = BookingPaymentTimeoutSerializer(
+            data=request.data, 
+            context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+
+        bookings = serializer.save()
+        return Response(
+            {"success": "Bookings status got updated to failed_payment!"},
+            status=status.HTTP_200_OK,
+        )
+
+
+@extend_schema(tags=["v1 - Bookings"])
+class BookingListPaymentView(APIView):
+    """
+    Available to authenticated users.\n
+    POST: list Booking objects given their list of IDs.\n
+    """
+    def post(self, request):
+        serializer = BookingPaymentDisplaySerializer(
+            data=request.data,
+            context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+
+        bookings, total_price = serializer.create(validated_data=serializer.validated_data)
+        return Response(
+            {
+                "bookings": BookingListPaymentSerializer(bookings[0], many=False).data,
+                "total_price": total_price,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -280,156 +338,4 @@ class PaymentListCreateView(generics.ListCreateAPIView):
                 "error": "One or more bookings not found or not eligible for payment."
             },
             status=status.HTTP_400_BAD_REQUEST,
-        )
-
-
-# Other
-class BookingCreateReserveView(CreateAPIView):
-    """
-    View to create a Booking object with status=reserved using given showtime_id and seat_id.
-    Available to any role; required token authentication.
-    """
-
-    serializer_class = BookingCreateReserveSerializer
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, *args, **kwargs):
-        # Serialize data and validate
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        # Get validated data for context
-        user = request.user
-        showtime_id = serializer.validated_data["showtime_id"]
-        seat_ids = serializer.validated_data["seat_ids"]
-
-        # Create booking instances from validated data
-        bookings = []
-        for seat_id in seat_ids:
-            booking = Booking.objects.create(
-                user=user,
-                showtime_id=showtime_id,
-                seat_id=seat_id,
-                status=BookingStatus.RESERVED,
-            )
-            bookings.append(booking)
-
-        # Send as response the Booking created instances for being used in frontend
-        return Response(
-            BookingSerializer(bookings, many=True).data, status=status.HTTP_201_CREATED
-        )
-
-
-class BookingCreatePaymentView(CreateAPIView):
-    """
-    View to create a Booking object with status=pending_payment using given showtime_id and seat_id.
-    Available to any role; required token authentication.
-    """
-
-    serializer_class = BookingCreatePaymentSerializer
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, *args, **kwargs):
-        # Serialize data and validate
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        # Get validated data for context
-        user = request.user
-        showtime_id = serializer.validated_data["showtime_id"]
-        seat_ids = serializer.validated_data["seat_ids"]
-
-        # Create booking instances from validated data
-        bookings = []
-        for seat_id in seat_ids:
-            booking = Booking.objects.create(
-                user=user,
-                showtime_id=showtime_id,
-                seat_id=seat_id,
-                status=BookingStatus.PENDING_PAYMENT,
-            )
-            bookings.append(booking)
-
-        # Send as response the Booking created instances for being used in frontend
-        return Response(
-            {"booking_ids": [booking.id for booking in bookings]},
-            status=status.HTTP_201_CREATED,
-        )
-
-
-class BookingListPaymentView(APIView):
-    """
-    View to list all Bookings objects included in a Payment.
-    Available to any role; required token authentication.
-    """
-
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        # Serialize data and validate
-        serializer = BookingSummaryRequestSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        # Get validated data for context
-        user = request.user
-        booking_ids = serializer.validated_data["booking_ids"]
-
-        # Get Booking objects included in payment
-        bookings = Booking.objects.filter(id__in=booking_ids, user=user).select_related(
-            "showtime__movie", "showtime__theater__city", "seat"
-        )
-        if bookings.count() != len(booking_ids):
-            return Response(
-                {
-                    "error": "One or more bookings not found or not eligible for payment."
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        # Calculate total price for the tickets
-        total_price = sum(booking.showtime.price for booking in bookings)
-
-        # Send response depending on payment status
-        return Response(
-            {
-                "bookings": BookingsListPaymentSerializer(bookings, many=True).data,
-                "total_price": total_price,
-            },
-            status=status.HTTP_200_OK,
-        )
-
-
-class BookingUpdateStatusView(APIView):
-    """
-    View to update a Booking status to `failed_payment` if user failed to complete the transaction.
-    Available to any role; required token authentication.
-    """
-
-    permission_classes = [IsAuthenticated]
-
-    def put(self, request):
-        # Serialize data and validate
-        serializer = BookingSummaryRequestSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        # Get validated data for context
-        user = request.user
-        booking_ids = serializer.validated_data["booking_ids"]
-
-        # Get Booking objects included in payment
-        bookings = Booking.objects.filter(
-            id__in=booking_ids, user=user, status=BookingStatus.PENDING_PAYMENT
-        )
-        if bookings.count() != len(booking_ids):
-            return Response(
-                {
-                    "error": "One or more bookings not found or not eligible for update to failed_payment."
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        bookings.update(status=BookingStatus.FAILED_PAYMENT)
-        return Response(
-            {"success": "Bookings status got updated to failed_payment!"},
-            status=status.HTTP_200_OK,
         )

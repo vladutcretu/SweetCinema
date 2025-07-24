@@ -3,10 +3,12 @@ from django.urls import path
 # App
 from .views import (
     # Booking
-    BookingListView,
+    BookingListCreateView,
     BookingUpdateView,
+    BookingPaymentTimeoutView,
     # Payment
-    PaymentListCreateView
+    PaymentListCreateView,
+    BookingListPaymentView,
 )
 
 # Create your urls here.
@@ -14,8 +16,10 @@ from .views import (
 
 urlpatterns = [
     # Booking
-    path("bookings/", BookingListView.as_view(), name="read-bookings"),
+    path("bookings/", BookingListCreateView.as_view(), name="read-create-bookings"),
     path("bookings/<int:id>/", BookingUpdateView.as_view(), name="update-bookings"),
+    path("bookings/mark-failed/", BookingPaymentTimeoutView.as_view(), name="mark-failed-bookings"),
+    path("bookings/payments/", BookingListPaymentView.as_view(), name="read-payment-bookings"),
     # Payment
-    path("payments/", PaymentListCreateView.as_view(), name="create-read-payments")
+    path("payments/", PaymentListCreateView.as_view(), name="create-read-payments"),
 ]
