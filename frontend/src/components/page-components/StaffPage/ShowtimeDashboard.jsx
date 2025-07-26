@@ -13,7 +13,7 @@ import ShowtimeSeats from "../ShowtimePage/ShowtimeSeats"
 
 const ShowtimeDashboard = () => {
   const { user } = useAuthContext()
-  const { showtimes, loading: loadingShowtimes, error: errorShowtimes, } = useReadShowtimesCashier(user?.city)
+  const { showtimes, loading: loadingShowtimes, error: errorShowtimes, } = useReadShowtimesCashier(user?.city_id)
   const [selectedShowtime, setSelectedShowtime] = useState({ id: "", columns: "", starts_at: "" })
 
   const handleShowtimeSelect = (event) => {
