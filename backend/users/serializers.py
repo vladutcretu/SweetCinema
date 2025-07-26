@@ -16,9 +16,12 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """
+    Contains id, email, username, groups, is_staff, is_superuser, password(bool), city_id.
+    """
     groups = serializers.SlugRelatedField(many=True, read_only=True, slug_field="name")
     password = serializers.BooleanField()
-    city = serializers.SerializerMethodField()
+    city_id = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -30,10 +33,10 @@ class UserSerializer(serializers.ModelSerializer):
             "is_staff",
             "is_superuser",
             "password",
-            "city",
+            "city_id",
         ]
 
-    def get_city(self, obj):
+    def get_city_id(self, obj):
         """
         Get city.id from User.UserProfile.City.
         """
@@ -45,49 +48,58 @@ class UserSerializer(serializers.ModelSerializer):
             return None
 
 
-class UserUpdateSerializer(serializers.ModelSerializer):
+class UserUpdateSerializer(serializers.Serializer):
+    """
+    Include user account groups and user profile city (both fields expects names, not ids).
+    """
     groups = serializers.SlugRelatedField(
-        many=True, slug_field="name", queryset=Group.objects.all()
+        many=True, 
+        slug_field="name", 
+        queryset=Group.objects.all(),
+        required=False
     )
-
-    class Meta:
-        model = User
-        fields = ["groups"]
-
-
-class UserUpdateCitySerializer(serializers.ModelSerializer):
-    city = serializers.CharField(write_only=True)
-
-    class Meta:
-        model = UserProfile
-        fields = ["city"]
+    city = serializers.CharField(write_only=True, required=False)
 
     def validate_city(self, value):
         """
         Validate that city exists before update.
         """
-        if not value:
-            raise serializers.ValidationError("City name cannot be empty.")
-
         try:
             City.objects.get(name=value)
         except City.DoesNotExist:
-            raise serializers.ValidationError(f"City '{value}' not found!")
+            raise serializers.ValidationError(f"City name '{value}' not found!")
 
         return value
 
     def update(self, instance, validated_data):
-        city_name = validated_data.get("city")
+        # Handle groups update (User model)
+        groups = validated_data.pop("groups", None)
+        if groups is not None:
+            instance.groups.set(groups)
+
+        # Handle city update (UserProfile model)
+        city_name = validated_data.pop("city", None)
         if city_name:
+            try:
+                user_profile = instance.userprofile
+            except UserProfile.DoesNotExist:
+                # Create profile if it doesn't exist
+                user_profile = UserProfile.objects.create(user=instance)
+            
             city = City.objects.get(name=city_name)
-            instance.city = city
-            instance.save()
+            user_profile.city = city
+            user_profile.save()
+
+        # Save any remaining User model fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        
+        instance.save()
         return instance
 
 
-class UserPasswordCreateSerializer(serializers.Serializer):
-    new_password = serializers.CharField(required=True, write_only=True, min_length=8)
-
-
-class UserPasswordVerifySerializer(serializers.Serializer):
-    password = serializers.CharField(required=True, write_only=True)
+class UserPassworderializer(serializers.Serializer):
+    """
+    Contains password field.
+    """
+    password = serializers.CharField(required=True, write_only=True, min_length=8)

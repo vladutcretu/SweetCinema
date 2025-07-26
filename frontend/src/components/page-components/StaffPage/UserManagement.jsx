@@ -27,16 +27,16 @@ const UserManagement = () => {
   // Build table
   const columns = [
     { key: 'id', title: 'ID' },
-    { key: 'user', title: 'Username / Email' },
+    { key: 'user', title: 'Email' },
     { key: 'groups', title: 'Groups' },
-    { key: 'setGroup', title: 'Set Group' }
+    { key: 'city', title: 'City' }
   ]
   const renderCell = (user, column) => {
     switch (column.key) {
       case 'id': return user.id
       case 'user': return `${user.username} / ${user.email}`
       case 'groups': return user.groups.join(", ")
-      default: return user[column.key]
+      case 'city': return user.city
     }
   }
   const renderActions = (user) => (
