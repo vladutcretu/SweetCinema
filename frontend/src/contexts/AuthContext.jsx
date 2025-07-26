@@ -11,6 +11,7 @@ import { authService } from "@/services/users/authService"
 const AuthContext = createContext()
  
 export function AuthProvider({ children }) {
+  const [loading, setLoading] = useState(true)
   // State for user auth status, user account details and user's access token
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [user, setUser] = useState(null)
@@ -23,6 +24,8 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (accessToken) {
       setAuthToken(accessToken)
+    } else {
+      setAuthToken(null) // clean up token from interceptor
     }
   }, [accessToken])
 
@@ -41,24 +44,35 @@ export function AuthProvider({ children }) {
       const response = await authService.verifyToken(accessToken)
       return response.status === 200
     } catch (error) {
-      if (error.response?.status === 401) { return false } // token expired
+      if (error.response?.status === 401) { 
+        return false // token expired
+      }
+      throw error
     }
   }
 
   // POST with refreshToken to obtain a new accessToken
   const getAccessUsingRefresh = async() => {
     const refreshToken = sessionStorage.getItem("refresh_token")
-    if (!refreshToken) return false
+    if (!refreshToken) {
+      console.log("No refresh token available")
+      return false
+    }
 
     try {
       const response = await authService.refreshToken(refreshToken)
-      sessionStorage.setItem("access_token", response.data.access) // development only
-      setAccessToken(response.data.access)
-      setAuthToken(response.data.access)
+      const newAccessToken = response.data.access
+      
+      sessionStorage.setItem("access_token", newAccessToken) // development only
+      setAccessToken(newAccessToken)
+      setAuthToken(newAccessToken)
       setIsAuthenticated(true)
+
       await getUserData()
       return true
-    } catch {
+    } catch (error) {
+      console.error("Refresh token failed:", error)
+      await logout()
       return false
     }
   }
@@ -68,31 +82,52 @@ export function AuthProvider({ children }) {
     try {
       const response = await authService.getUserData()
       setUser(response.data)
-      console.log("Get User Data successful:", response.data)
+      console.log("Read User Data successful:", response.data)
     } catch (error) {
-      console.error("Get User Data unsuccessful:", error)
+      console.error("Read User Data unsuccessful:", error)
+      throw error
     }
   }
 
   // Verify current accessToken before getting a new one using refreshToken
   useEffect(() => {
     const checkAccessToken = async () => {
-      const access = accessToken || sessionStorage.getItem("access_token")
-      if (!access) {
-        const refreshed = await getAccessUsingRefresh()
-        if (!refreshed) setUser(null)
-        return
-      }
-      const valid = await verifyAccessToken(access)
-      if (valid) {
+      try {
+        const access = accessToken || sessionStorage.getItem("access_token")
+
+        if (!access) {
+          console.log("No access token found, refreshing...")
+          const refreshed = await getAccessUsingRefresh()
+          if (!refreshed) {
+            setUser(null)
+            setIsAuthenticated(false)
+          }
+          return
+        }
+
+        // Set token in state & interceptor
         setAccessToken(access)
         setAuthToken(access)
-        setIsAuthenticated(true)
-        await getUserData()
-      } else {
-        const refreshed = await getAccessUsingRefresh()
-        if (!refreshed) setUser(null)
-        return
+
+        const valid = await verifyAccessToken(access)
+        if (valid) {
+          console.log("Token is valid")
+          setIsAuthenticated(true)
+          await getUserData()
+        } else {
+          console.log("Access token expired, refreshing...")
+          const refreshed = await getAccessUsingRefresh()
+          if (!refreshed) {
+            setUser(null)
+            setIsAuthenticated(false)
+           }
+        }
+      } catch (error) {
+        console.error("Auth check failed:", error)
+        setUser(null)
+        setIsAuthenticated(false)
+      } finally {
+        setLoading(false)
       }
     }
 
@@ -101,28 +136,41 @@ export function AuthProvider({ children }) {
 
   // Login logic to update auth status and user data
   const login = async (access, refresh) => {
-    sessionStorage.setItem("access_token", access)
-    sessionStorage.setItem("refresh_token", refresh)
-    setIsAuthenticated(true)
-    setAccessToken(access)
-    setAuthToken(access)
-    await getUserData()
+    try {
+      sessionStorage.setItem("access_token", access)
+      sessionStorage.setItem("refresh_token", refresh)
+
+      setAccessToken(access)
+      setAuthToken(access)
+
+      setIsAuthenticated(true)
+
+      await getUserData()
+    } catch (error) {
+      console.error("Login failed:", error)
+      await logout()
+    }
   }
 
   // Logout logic to update auth status and user data
   const logout = async () => {
     sessionStorage.removeItem("access_token")
     sessionStorage.removeItem("refresh_token")
-    setIsAuthenticated(false)
+
     setAccessToken(null)
+    setAuthToken(null)
+    setIsAuthenticated(true)
+
     setUser(null)
+  
+    setIsAuthenticated(false)
     setTwoFactorAuth(false)
 }
-
 
   return (
     <AuthContext
       value={{
+        loading,
         isAuthenticated,
         accessToken,
         user,

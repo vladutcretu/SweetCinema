@@ -28,18 +28,12 @@ from drf_spectacular.views import (
 
 # Write your urls here.
 
-alpha_paterns = [
-    # Locations app
-    path("api/locations/", include("locations.urls_alpha")),
-    # Users app
-    path("api/users/", include("users.urls_alpha")),
-]
-
 v1_patterns = [
     path("api/v1/locations/", include("locations.urls")),
     path("api/v1/movies/", include("movies.urls")),
     path("api/v1/showtimes/", include("showtimes.urls")),
     path("api/v1/tickets/", include("tickets.urls")),
+    path("api/v1/users/", include("users.urls")),
 ]
 
 urlpatterns = [
@@ -56,7 +50,6 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc",
     ),
-    *alpha_paterns,
     *v1_patterns,
 ]
 

@@ -5,13 +5,13 @@ import { useState } from "react"
 import { Box, Heading, Stack, Text, Input, Button, Spinner } from "@chakra-ui/react"
 
 // App
-import { useStaffVerifyPass } from "@/hooks/users/staff/useStaffVerifyPass"
+import { useVerifyPass } from "@/hooks/users/staff/useVerifyPass"
 
 // Components here
 
 
 const StaffVerifyPass = () => {
-  const { verifyPasswordStaff, loading, error } = useStaffVerifyPass()
+  const { verifyPasswordStaff, loading, error } = useVerifyPass()
   const [password, setPassword] = useState("")
     
   const handleChange = (event) => {

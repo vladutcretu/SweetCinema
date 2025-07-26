@@ -2,7 +2,6 @@
 import { useState } from "react"
 
 // App
-import { ticketService } from "@/services/tickets/ticketService"
 import { bookingService } from "@/services/tickets/bookingService"
 
 // Components here

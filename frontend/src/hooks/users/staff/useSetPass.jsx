@@ -8,30 +8,30 @@ import { authService } from "@/services/users/authService"
 // Components here
 
 
-export const useStaffVerifyPass = () => {
+export const useSetPass = () => {
   const { setTwoFactorAuth } = useAuthContext()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const verifyPasswordStaff = async (password) => {
+  const setPassword = async (password) => {
     setLoading(true)
     setError(null)
     setData(null)
     try {
-      const response = await authService.verifyPasswordStaff(password)
+      const response = await authService.setPassword(password)
       setData(response.data)
       setTwoFactorAuth(true)
-      console.log("Verify Password Staff successful:", response.data)
+      console.log("Staff - Set Password successful:", response.data)
       return response.data
     } catch (error) {
-      setError("Something went wrong while verifying password for staff. Please try again.")
-      console.error("Verify Password Staff unsuccessful:", error)
+      setError("Something went wrong while setting password. Please try again.")
+      console.error("Staff - Set Password unsuccessful:", error)
       return null
     } finally {
       setLoading(false)
     }
   }
 
-  return { verifyPasswordStaff, loading, error, data }
+  return { setPassword, loading, error, data }
 }

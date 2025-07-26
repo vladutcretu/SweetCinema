@@ -20,11 +20,11 @@ export const useReadUsers = () => {
     try {
       const response = await userService.readUsers()
       setUsers(response.data)
-      console.log("Read Users successful:", response.data)
+      console.log("Staff - Read Users successful:", response.data)
       return response.data
     } catch (error) {
       setError("Something went wrong while reading users. Please try again.")
-      console.error("Read Users unsuccessful:", error)
+      console.error("Staff - Read Users unsuccessful:", error)
       return null
     } finally {
       setLoading(false)
