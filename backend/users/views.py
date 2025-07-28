@@ -208,7 +208,6 @@ class UserSetPasswordView(APIView):
     permission_classes = [IsManagerOrEmployeeOrCashier]
 
     def post(self, request):
-        # serializer = UserPasswordCreateSerializer(data=request.data)
         serializer = UserPassworderializer(data=request.data)
         if serializer.is_valid():
             new_password = serializer.validated_data["password"]
@@ -231,7 +230,6 @@ class UserVerifyPasswordView(APIView):
     permission_classes = [IsManagerOrEmployeeOrCashier]
 
     def post(self, request):
-        # serializer = UserPasswordVerifySerializer(data=request.data)
         serializer = UserPassworderializer(data=request.data)
         if serializer.is_valid():
             password = serializer.validated_data["password"]

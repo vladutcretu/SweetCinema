@@ -17,7 +17,7 @@ User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     """
-    Contains id, email, username, groups, is_staff, is_superuser, password(bool), city_id.
+    Contains fields: id, email, username, groups, is_staff, is_superuser, password(bool), city_id.
     """
     groups = serializers.SlugRelatedField(many=True, read_only=True, slug_field="name")
     password = serializers.BooleanField()
@@ -58,7 +58,10 @@ class UserUpdateSerializer(serializers.Serializer):
         queryset=Group.objects.all(),
         required=False
     )
-    city = serializers.CharField(write_only=True, required=False)
+    city = serializers.CharField(
+        write_only=True,
+        required=False
+    )
 
     def validate_city(self, value):
         """

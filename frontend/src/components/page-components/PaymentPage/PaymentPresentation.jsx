@@ -69,7 +69,7 @@ const PaymentPresentation = () => {
                   borderRadius="md"
                   textAlign="center"
                 >
-                  <Text fontWeight="bold">R{bookings.seat.row} C{bookings.seat.column}</Text>
+                  <Text fontWeight="bold">R{bookings.seat_row} C{bookings.seat_column}</Text>
                   <Text><b>Price:</b> ${bookings[0].showtime_price}</Text>
                 </Box>
               ))}

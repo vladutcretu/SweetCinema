@@ -1,19 +1,12 @@
 # DRF
 from rest_framework import generics, mixins
-from rest_framework.generics import (
-    ListAPIView,
-    CreateAPIView,
-    RetrieveUpdateDestroyAPIView,
-    RetrieveAPIView,
-)
 from rest_framework.permissions import AllowAny
 
 # 3rd party apps
 from drf_spectacular.utils import extend_schema
-from django_filters.rest_framework import DjangoFilterBackend
 
 # App
-from .models import City, Theater, Seat
+from .models import City, Theater
 from .serializers import (
     # City
     CityPartialSerializer,
@@ -22,10 +15,7 @@ from .serializers import (
     # Theater
     TheaterCompleteSerializer,
     TheaterCreateSerializer,
-    TheaterUpdateSerializer,
-    # Other
-    TheaterSerializer,
-    SeatSerializer,
+    TheaterUpdateSerializer
 )
 from users.permissions import IsManager, IsManagerOrEmployee
 
@@ -133,64 +123,3 @@ class TheaterUpdateDestroyView(
     
     def delete(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
-
-
-# Other
-class TheaterListView(ListAPIView):
-    """
-    View to list all Theater objects, with optional filtering by City ID.
-    Available to any role; not required token authentication.
-    """
-
-    queryset = Theater.objects.all()
-    serializer_class = TheaterSerializer
-    permission_classes = [AllowAny]
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["city"]
-
-
-class TheaterRetrieveView(RetrieveAPIView):
-    """
-    View to retrieve a single Theater object by his ID.
-    Available to any role; not required token authentication.
-    """
-
-    queryset = Theater.objects.all()
-    serializer_class = TheaterSerializer
-    permission_classes = [AllowAny]
-
-
-class TheaterCreateView(CreateAPIView):
-    """
-    View to create a Theater object.
-    Avalaible to `Manager` role; required token authentication.
-    """
-
-    queryset = Theater.objects.all()
-    serializer_class = TheaterCreateSerializer
-    permission_classes = [IsManager]
-
-
-class TheaterUpdateDestroy(RetrieveUpdateDestroyAPIView):
-    """
-    View to update and destroy a single Theater object by his ID.
-    Avalaible to `Manager` role; required token authentication.
-    """
-
-    queryset = Theater.objects.all()
-    serializer_class = TheaterSerializer
-    permission_classes = [IsManager]
-    http_method_names = ["patch", "delete"]
-
-
-class SeatListView(ListAPIView):
-    """
-    View to list all Seat objects, with optional filtering by Theater ID.
-    Available to any role; not required token authentication.
-    """
-
-    queryset = Seat.objects.all()
-    serializer_class = SeatSerializer
-    permission_classes = [AllowAny]
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["theater"]

@@ -14,7 +14,7 @@ export const useVerifyPass = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const verifyPassword = async (password) => {
+  const verifyPasswordStaff = async (password) => {
     setLoading(true)
     setError(null)
     setData(null)
@@ -33,5 +33,5 @@ export const useVerifyPass = () => {
     }
   }
 
-  return { verifyPassword, loading, error, data }
+  return { verifyPasswordStaff, loading, error, data }
 }

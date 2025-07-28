@@ -21,7 +21,7 @@ const BookingDashboard = () => {
     loading: loadingBookings, 
     error: errorBookings, 
     refetch: readBookingsCashier 
-  } = useReadBookingsCashier(user?.city)
+  } = useReadBookingsCashier(user?.city_id)
   const { 
     updateBookingCashier, 
     loading: loadingUpdateBooking, 
@@ -38,7 +38,7 @@ const BookingDashboard = () => {
 
   const handleUpdate = async (bookingId) => {
     const result = await updateBookingCashier(bookingId)
-    if (result) return await readBookingsCashier(user?.city)
+    if (result) return await readBookingsCashier(user?.city_id)
   }
 
   // Read bookings

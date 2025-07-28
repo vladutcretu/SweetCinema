@@ -14,7 +14,7 @@ export const useSetPass = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const setPassword = async (password) => {
+  const setPasswordStaff = async (password) => {
     setLoading(true)
     setError(null)
     setData(null)
@@ -33,5 +33,5 @@ export const useSetPass = () => {
     }
   }
 
-  return { setPassword, loading, error, data }
+  return { setPasswordStaff, loading, error, data }
 }

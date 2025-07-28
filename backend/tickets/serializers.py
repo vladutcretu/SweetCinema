@@ -4,11 +4,42 @@ from rest_framework import serializers
 # App
 from .models import Booking, BookingStatus, Payment, PaymentMethod
 from showtimes.models import Showtime
-from locations.serializers import Seat
-from showtimes.serializers import ShowtimeSerializer, ShowtimeBookingSerializer
-from locations.serializers import SeatSerializer, SeatBookingSerializer
+from locations.models import Seat
 
 # Create your serializers here.
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Others
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class ShowtimeBookingSerializer(serializers.ModelSerializer):
+    """
+    Contains starts_at, FK Movie, City & Theater as movie_title, city_name & theater_name.
+    """
+    movie_title = serializers.CharField(source="movie.title")
+    city_name = serializers.CharField(source="theater.city.name")
+    theater_name = serializers.CharField(source="theater.name")
+    class Meta:
+        model = Showtime
+        fields = [
+            "movie_title", 
+            "city_name", 
+            "theater_name", 
+            "starts_at"
+        ]
+
+
+class SeatBookingSerializer(serializers.ModelSerializer):
+    """
+    Include row, column fields.
+    """
+    class Meta:
+        model = Seat
+        fields = [
+            "row",
+            "column"
+        ]
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -18,8 +49,8 @@ from locations.serializers import SeatSerializer, SeatBookingSerializer
 class BookingPartialSerializer(serializers.ModelSerializer):
     """
     Contains id, FK showtime, FK seat, booked_at, expires_at fields.
-    FK showtime contains movie_title, city_name, theater_name, starts_at fields.
-    FK seat contains row, column fields.
+    FK showtime contains [movie_title, city_name, theater_name, starts_at] fields.
+    FK seat contains [row, column] fields.
     """
     showtime = ShowtimeBookingSerializer(read_only=True, many=False)
     seat = SeatBookingSerializer(read_only=True, many=False)
@@ -38,8 +69,8 @@ class BookingPartialSerializer(serializers.ModelSerializer):
 class BookingCompleteSerializer(serializers.ModelSerializer):
     """
     Contains id, FK showtime, FK seat, booked_at, updated_at fields.
-    FK showtime contains movie_title, city_name, theater_name, starts_at fields.
-    FK seat contains row, column fields.
+    FK showtime contains [movie_title, city_name, theater_name, starts_at] fields.
+    FK seat contains [row, column] fields.
     """
     user = serializers.CharField(source="user.email")
     showtime = ShowtimeBookingSerializer(read_only=True, many=False)
@@ -57,7 +88,12 @@ class BookingCompleteSerializer(serializers.ModelSerializer):
             "updated_at"
         ]
 
+
 class BookingCreateSerializer(serializers.ModelSerializer):
+    """
+    Contains showtime_id, seat_ids (list of seats), status fields.
+    Receive, validate then create objects with values.
+    """
     showtime_id = serializers.IntegerField(write_only=True)
     seat_ids = serializers.ListField(
         child=serializers.IntegerField(write_only=True, min_value=0),
@@ -67,7 +103,11 @@ class BookingCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Booking
-        fields = ["showtime_id", "seat_ids", "status"]
+        fields = [
+            "showtime_id", 
+            "seat_ids", 
+            "status"
+        ]
 
     def validate(self, data):
         showtime_id = data["showtime_id"]
@@ -89,7 +129,7 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         if data["status"] == BookingStatus.RESERVED and len(seat_ids) > 5:
             raise serializers.ValidationError({"seat_ids": "Maximum 5 seats can be reserved at once."})
 
-        seats = Seat.objects.filter(id__in=seat_ids)
+        seats = Seat.objects.select_related("theater").filter(id__in=seat_ids)
         if seats.count() != len(seat_ids):
             raise serializers.ValidationError({"seat_ids": "One or more seats do not exist."})
         
@@ -98,40 +138,35 @@ class BookingCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {"seat_ids": f"Seat {seat.id} does not belong to the correct Theater."}
                 )
-            if (
-                Booking.objects
-                .filter(showtime=showtime, seat=seat)
-                .exclude(
-                    status__in=[
-                        BookingStatus.CANCELED,
-                        BookingStatus.EXPIRED,
-                        BookingStatus.FAILED_PAYMENT
-                    ]
-                ).exists()
-            ):
-                raise serializers.ValidationError(
-                     {"seat_ids": f"Seat {seat.id} is already reserved or purchased."}
-                )
+        
+        conflicting = set(Booking.objects
+            .filter(showtime=showtime,seat_id__in=seat_ids)
+            .exclude(status__in=[BookingStatus.CANCELED, BookingStatus.EXPIRED, BookingStatus.FAILED_PAYMENT])
+            .values_list("seat_id", flat=True)
+            )
+           
+        for seat in seats:
+            if seat.id in conflicting:
+                raise serializers.ValidationError({
+                    "seat_ids": f"Seat {seat.id} is already reserved or purchased."
+            })
             
+        data["seats"] = seats
+        data["showtime"] = showtime
         return data
     
     def create(self, validated_data):
         user = self.context["request"].user
-        showtime_id = validated_data["showtime_id"]
-        seat_ids = validated_data["seat_ids"]
+        showtime = validated_data["showtime"]
+        seats = validated_data["seats"]
         status = validated_data["status"]
 
-        bookings = []
-        for seat_id in seat_ids:
-            booking = Booking.objects.create(
-                user=user,
-                showtime_id=showtime_id,
-                seat_id=seat_id,
-                status=status,
-            )
-            bookings.append(booking)
+        bookings = Booking.objects.bulk_create([
+            Booking(user=user, showtime=showtime, seat=seat, status=status) for seat in seats
+        ])
 
         return bookings
+
 
 class BookingUpdateSerializer(serializers.ModelSerializer):
     """
@@ -139,13 +174,17 @@ class BookingUpdateSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Booking
-        fields = ["status", "expires_at"]
+        fields = [
+            "status", 
+            "expires_at"
+        ]
 
 
 class BookingPaymentSerializer (serializers.ModelSerializer):
     """
-    Contains fields id, FK showtime: movie_title, city_name, theater_name, starts_at,
-    FK seat: row, column.
+    Contains fields id, FK showtime, FK seat.
+    Foreing Key showtime include [movie_title, city_name, theater_name, starts_at].
+    Foreign Key seat include [row, column].
     """
     showtime = ShowtimeBookingSerializer(read_only=True, many=False)
     seat = SeatBookingSerializer(read_only=True, many=False)
@@ -157,10 +196,11 @@ class BookingPaymentSerializer (serializers.ModelSerializer):
             "seat"
         ]
 
+
 class BookingPaymentTimeoutSerializer(serializers.Serializer):
     """
-    Receive bookings ids, validate and update their Booking objects status and
-    return the objects.
+    Contains booking_ids (a list with a minimum 1 integer); receive, validate and
+    update their Booking objects status and return the objects.
     """
     booking_ids = serializers.ListField(
         child=serializers.IntegerField(min_value=1), 
@@ -195,11 +235,10 @@ class BookingPaymentTimeoutSerializer(serializers.Serializer):
 
 class BookingListPaymentSerializer(serializers.ModelSerializer):
     """
-    Contains movie_title, movie_release, theater_name, city_name, city_address,
-    showtime_price, showtime_format, showtime_presentation, showtime_starts,
-    seat_row, seat_column fields.
+    Contains different foreign keys: movie_title, movie_release, theater_name, 
+    city_name, city_address, showtime_price, showtime_format, showtime_presentation,
+    showtime_starts, FK seat include [row, column] fields.
     """
-
     movie_title = serializers.CharField(source="showtime.movie.title")
     movie_release = serializers.DateField(source="showtime.movie.release")
 
@@ -233,8 +272,8 @@ class BookingListPaymentSerializer(serializers.ModelSerializer):
 
 class BookingPaymentDisplaySerializer(serializers.Serializer):
     """
-    Receive bookings ids, validate, calculate their total price and returns it
-    with the objects itself.
+    Contains bookings ids (a list with a minimum 1 integer); receive, validate, 
+    calculate their total price and returns it with the objects itself.
     """
     booking_ids = serializers.ListField(
         child=serializers.IntegerField(min_value=1), min_length=1
@@ -272,17 +311,25 @@ class BookingPaymentDisplaySerializer(serializers.Serializer):
 
 class PaymentCompleteSerializer(serializers.ModelSerializer):
     """
-    Contains id, user email, FK booking (FK showtime: movie_title, city_name, theater_name,
-    starts_at, FK seat: row, column), amount, method, status, paid_at fields.
+    Contains id, user email, FK booking (FK showtime: [movie_title, city_name, theater_name,
+    starts_at], FK seat: [row, column]), amount, method, status, paid_at fields.
     """
     user = serializers.CharField(source="user.email")
     bookings = BookingPaymentSerializer(read_only=True, many=True)
     method = serializers.CharField(source="get_method_display")
     status = serializers.CharField(source="get_status_display")
-    paid_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
     class Meta:
         model = Payment
-        fields = ["id", "user", "bookings", "amount", "method", "status", "paid_at"]
+        fields = [
+            "id", 
+            "user", 
+            "bookings", 
+            "amount", 
+            "method", 
+            "status", 
+            "paid_at"
+        ]
+
 
 class PaymentCreateSerializer(serializers.ModelSerializer):
     """
@@ -298,42 +345,8 @@ class PaymentCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Payment
-        fields = ["booking_ids", "amount", "method"]
-
-
-# Other
-class BookingSerializer(serializers.ModelSerializer):
-    showtime = ShowtimeSerializer(read_only=True)
-    seat = SeatSerializer(read_only=True)
-    booked_at = serializers.DateTimeField(read_only=True, format="%Y-%m-%d %H:%M")
-    updated_at = serializers.DateTimeField(read_only=True, format="%Y-%m-%d %H:%M")
-
-    class Meta:
-        model = Booking
         fields = [
-            "id",
-            "user",
-            "showtime",
-            "seat",
-            "status",
-            "booked_at",
-            "updated_at",
-            "expires_at",
+            "booking_ids", 
+            "amount", 
+            "method"
         ]
-
-class BookingsListPaymentSerializer(serializers.ModelSerializer):
-    showtime = ShowtimeSerializer(read_only=True)
-    seat = SeatSerializer(read_only=True)
-
-    class Meta:
-        model = Booking
-        fields = ["id", "showtime", "seat", "status"]
-
-
-class PaymentSerializer(serializers.ModelSerializer):
-    bookings = BookingSerializer(many=True, read_only=True)
-    paid_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
-
-    class Meta:
-        model = Payment
-        fields = ["id", "user", "bookings", "amount", "method", "status", "paid_at"]

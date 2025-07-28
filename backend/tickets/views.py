@@ -194,8 +194,8 @@ class BookingPaymentTimeoutView(APIView):
             context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
-
-        bookings = serializer.save()
+        serializer.save()
+        
         return Response(
             {"success": "Bookings status got updated to failed_payment!"},
             status=status.HTTP_200_OK,
@@ -279,12 +279,13 @@ class PaymentListCreateView(generics.ListCreateAPIView):
         return self.build_reponse_success(payment, bookings)
 
     def get_bookings(self, booking_ids, user):
-        bookings = Booking.objects.filter(
+        bookings = Booking.objects.select_related("showtime").filter(
                 id__in=booking_ids, 
                 user=user, 
                 status=BookingStatus.PENDING_PAYMENT
             )
-        if bookings.count() == len(booking_ids):
+        bookings_length = list(bookings)
+        if len(bookings_length) == len(booking_ids):
             return bookings
         return None
         
@@ -314,9 +315,7 @@ class PaymentListCreateView(generics.ListCreateAPIView):
             if payment_status == PaymentStatus.ACCEPTED
             else BookingStatus.FAILED_PAYMENT
         )
-        for booking in bookings:
-            booking.status = new_status
-            booking.save()
+        bookings.update(status=new_status)
 
     def build_reponse_success(self, payment, bookings):
         is_success = payment.status == PaymentStatus.ACCEPTED

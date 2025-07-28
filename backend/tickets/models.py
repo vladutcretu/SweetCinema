@@ -64,7 +64,6 @@ class Booking(models.Model):
             f"{self.showtime.starts_at.strftime('%d %b %Y %H:%M:%S')}, "
             f"{self.status}, "
             f"booked on: {self.booked_at.strftime('%d %b %Y %H:%M:%S')}, "
-            f"status updated on: {self.updated_at.strftime('%d %b %Y %H:%M:%S')}"
         )
 
 

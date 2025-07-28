@@ -14,7 +14,7 @@ class City(models.Model):
         ordering = ["name"]
 
     def __str__(self):
-        return f"Sweet Cinema {self.name}"
+        return {self.name}
 
 
 class Theater(models.Model):
@@ -46,7 +46,7 @@ class Theater(models.Model):
         Seat.objects.bulk_create(seats)
 
     def __str__(self):
-        return f"{self.city}, {self.name}, Rows: {self.rows} - Columns: {self.columns}"
+        return f"{self.city.name}, {self.name}, R{self.rows}-C{self.columns}"
 
 
 class Seat(models.Model):
