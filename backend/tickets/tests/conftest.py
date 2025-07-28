@@ -36,7 +36,7 @@ def theater_london(city_london):
 @pytest.fixture
 def theater_berlin(city_berlin):
     return Theater.objects.create(
-        name="Room 1\2",
+        name="Room 1",
         city=city_berlin,
         rows=2,
         columns=4
@@ -44,51 +44,20 @@ def theater_berlin(city_berlin):
 
 @pytest.fixture
 def seats_theater_london(theater_london):
-    seat1 = Seat.objects.create(
-        theater=theater_london,
-        row=1,
-        columns=1
-    )
-    seat2 = Seat.objects.create(
-        theater=theater_london,
-        row=1,
-        columns=2
-    )
-    seat3 = Seat.objects.create(
-        theater=theater_london,
-        row=1,
-        columns=3
-    )
-    seat4 = Seat.objects.create(
-        theater=theater_london,
-        row=1,
-        columns=4
-    )
+    seats = Seat.objects.filter(theater=theater_london)
+    seat1 = seats[0]
+    seat2 = seats[1]
+    seat3 = seats[2]
+    seat4 = seats[3]
     return [seat1, seat2, seat3, seat4]
-
 
 @pytest.fixture
 def seats_theater_berlin(theater_berlin):
-    seat1 = Seat.objects.create(
-        theater=theater_berlin,
-        row=1,
-        columns=1
-    )
-    seat2 = Seat.objects.create(
-        theater=theater_berlin,
-        row=1,
-        columns=2
-    )
-    seat3 = Seat.objects.create(
-        theater=theater_berlin,
-        row=1,
-        columns=3
-    )
-    seat4 = Seat.objects.create(
-        theater=theater_berlin,
-        row=1,
-        columns=4
-    )
+    seats = Seat.objects.filter(theater=theater_berlin)
+    seat1 = seats[0]
+    seat2 = seats[1]
+    seat3 = seats[2]
+    seat4 = seats[3]
     return [seat1, seat2, seat3, seat4]
 
 @pytest.fixture
@@ -157,7 +126,7 @@ def staff_user():
 
 @pytest.fixture
 def normal_user():
-    return User.objects.create_user(username="user", password="test123")
+    return User.objects.create_user(username="user", password="test123", email="test@mail.com")
 
 @pytest.fixture
 def bookings_list(
@@ -171,29 +140,29 @@ def bookings_list(
     seats_theater_berlin
 ):
     return Booking.objects.bulk_create([
-        Booking.objects.create(
+        Booking(
             user=normal_user,
             showtime=showtime_f1_london,
             seat=seats_theater_london[0],
             status=BookingStatus.RESERVED,
         ),
-        Booking.objects.create(
+        Booking(
             user=staff_user,
             showtime=showtime_f1_london,
             seat=seats_theater_london[1],
             status=BookingStatus.CANCELED,
         ),
-        Booking.objects.create(
+        Booking(
             user=manager_user,
             showtime=showtime_f1_london,
             seat=seats_theater_london[2],
             status=BookingStatus.PURCHASED,
         ),
-        Booking.objects.create(
+        Booking(
             user=cashier_user,
             showtime=showtime_f1_berlin,
             seat=seats_theater_berlin[0],
-            status=BookingStatus.FAILED_PAYMENT,
+            status=BookingStatus.RESERVED,
         )
     ])
 
@@ -229,21 +198,20 @@ def booking_cashier(cashier_user, showtime_f1_london, seats_theater_london):
     return Booking.objects.create(
         user=cashier_user,
         showtime=showtime_f1_london,
-        seat=seats_theater_london[0],
+        seat=seats_theater_london[3],
         status=BookingStatus.RESERVED,
     )
 
-
 @pytest.fixture
 def payment_user(normal_user, booking_user):
-    return Payment.objects.create(
+    payment = Payment.objects.create(
         user=normal_user,
-        bookings=booking_user,
         amount=35,
         method=PaymentMethod.VISA,
         status=PaymentStatus.ACCEPTED
     )
-
+    payment.bookings.set([booking_user])
+    return payment
 
 @pytest.fixture
 def payments_list(
@@ -256,40 +224,102 @@ def payments_list(
     cashier_user,
     booking_cashier
 ):
-    return Booking.objects.bulk_create([
-        Payment.objects.create(
+    payments = [
+        Payment(
             user=normal_user,
-            bookings=booking_user,
             amount=35,
             method=PaymentMethod.VISA,
             status=PaymentStatus.ACCEPTED
         ),
-        Payment.objects.create(
+        Payment(
             user=staff_user,
-            bookings=booking_staff,
             amount=50,
             method=PaymentMethod.VISA,
             status=PaymentStatus.DECLINED
         ),
-        Payment.objects.create(
+        Payment(
             user=manager_user,
-            bookings=booking_manager,
             amount=45.5,
             method=PaymentMethod.MASTERCARD,
             status=PaymentStatus.ACCEPTED
         ),
-        Payment.objects.create(
+        Payment(
             user=cashier_user,
-            bookings=booking_cashier,
             amount=15.99,
             method=PaymentMethod.MASTERCARD,
             status=PaymentStatus.DECLINED
-        )
-    ])
+        ),
+    ]
+    
+    Payment.objects.bulk_create(payments)
+    payments = Payment.objects.all()
+
+    for payment, bookings in zip(
+        payments, 
+        [[booking_user], [booking_staff], [booking_manager], [booking_cashier]]
+    ):
+        payment.bookings.set(bookings)
+
+    return payments
+
 
 @pytest.fixture
-def booking_ids(booking_user, booking_staff, booking_manager, booking_cashier):
-    return [booking_user.id, booking_staff.id, booking_manager.id, booking_cashier.id]
+def booking_ids_normal(normal_user, showtime_f1_london, seats_theater_london):
+    b1 = Booking.objects.create(
+        user=normal_user,
+        showtime=showtime_f1_london,
+        seat=seats_theater_london[0],
+        status=BookingStatus.PENDING_PAYMENT,
+    )
+    b2 = Booking.objects.create(
+        user=normal_user,
+        showtime=showtime_f1_london,
+        seat=seats_theater_london[1],
+        status=BookingStatus.PENDING_PAYMENT,
+    )
+    return [b1.id, b2.id]
+
+@pytest.fixture
+def booking_ids_staff(staff_user, showtime_f1_london, seats_theater_london):
+    b1 = Booking.objects.create(
+        user=staff_user,
+        showtime=showtime_f1_london,
+        seat=seats_theater_london[2],
+        status=BookingStatus.PENDING_PAYMENT,
+    )
+    return [b1.id]
+
+@pytest.fixture
+def booking_ids_manager(manager_user, showtime_f1_berlin, seats_theater_berlin):
+    b1 = Booking.objects.create(
+        user=manager_user,
+        showtime=showtime_f1_berlin,
+        seat=seats_theater_berlin[0],
+        status=BookingStatus.PENDING_PAYMENT,
+    )
+    b2 = Booking.objects.create(
+        user=manager_user,
+        showtime=showtime_f1_berlin,
+        seat=seats_theater_berlin[1],
+        status=BookingStatus.PENDING_PAYMENT,
+    )
+    b3 = Booking.objects.create(
+        user=manager_user,
+        showtime=showtime_f1_berlin,
+        seat=seats_theater_berlin[2],
+        status=BookingStatus.PENDING_PAYMENT,
+    )
+    return [b1.id, b2.id, b3.id]
+
+@pytest.fixture
+def booking_ids_cashier(cashier_user, showtime_f1_berlin, seats_theater_berlin):
+    b1 = Booking.objects.create(
+        user=cashier_user,
+        showtime=showtime_f1_berlin,
+        seat=seats_theater_berlin[3],
+        status=BookingStatus.PENDING_PAYMENT,
+    )
+    return [b1.id]
 
 @pytest.fixture
 def booking_pending_1(normal_user, showtime_f1_london, seats_theater_london):

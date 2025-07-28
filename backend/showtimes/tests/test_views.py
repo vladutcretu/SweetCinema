@@ -1,5 +1,7 @@
 # Django
 from django.urls import reverse
+from django.utils import timezone
+from datetime import timedelta
 
 # DRF
 from rest_framework.test import APIClient
@@ -37,7 +39,7 @@ def test_showtime_list_with_invalid_city_param(showtimes_list):
 
 
 @pytest.mark.django_db
-def test_showtime_list_with_valid_city_param(showtime_f1_london, showtime_f1, city_london):
+def test_showtime_list_with_valid_city_param(showtime_f1_london, city_london):
     client = APIClient()
     url = reverse("read-showtimes")
     response = client.get(url, {"city": city_london.id})
@@ -48,12 +50,12 @@ def test_showtime_list_with_valid_city_param(showtime_f1_london, showtime_f1, ci
     assert "id" in response.data[0]
     assert "movie" in response.data[0]
     assert response.data[0]["movie"]["title"] == "F1"
-    assert response.data[0]["movie"]["genre"][0]["name"] == "Action"
+    assert response.data[0]["movie"]["genres"][0]["name"] == "Action"
     assert "starts_at" in response.data[0]
 
 
 @pytest.mark.django_db
-def test_showtime_list_with_valid_city_movie_params(showtime_f1_london, showtime_f1, city_london, movie_f1):
+def test_showtime_list_with_valid_city_movie_params(showtime_f1_london, city_london, movie_f1):
     client = APIClient()
     url = reverse("read-showtimes")
     response = client.get(url, {"city": city_london.id, "movie": movie_f1.id})
@@ -63,7 +65,7 @@ def test_showtime_list_with_valid_city_movie_params(showtime_f1_london, showtime
     assert len(response.data) == 1
     assert "id" in response.data[0]
     assert "movie" not in response.data[0]
-    assert response.data[0]["theater_name"] == "Room1"
+    assert response.data[0]["theater_name"] == "Room 1"
     assert "starts_at" in response.data[0]
 
 
@@ -143,7 +145,11 @@ def test_showtime_staff_list_as_staff(showtimes_list, staff_user):
 def test_showtime_create_as_visitor(movie_f1, theater_london):
     client = APIClient()
     url = reverse("create-read-showtimes")
-    response = client.post(url, data={"movie": 1, "theater": 1, "starts_at": "2025-07-23T23:00:00Z"})
+    response = client.post(url, data={
+        "movie": 1, 
+        "theater": 1, 
+        "starts_at": timezone.now() + timedelta(days=4, hours=1)
+    })
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -156,7 +162,7 @@ def test_showtime_create_as_normal_user(normal_user, movie_f1, theater_london):
     response = client.post(url, data={
         "movie": movie_f1, 
         "theater": theater_london.id, 
-        "starts_at": "2025-07-23T20:00:00Z"
+        "starts_at": timezone.now() + timedelta(hours=1)
         })
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -170,7 +176,7 @@ def test_showtime_create_as_manager(manager_user, movie_f1, theater_london):
     response = client.post(url, data={
         "movie": movie_f1.id,
         "theater": theater_london.id,
-        "starts_at": "2025-07-23T19:00:00Z",
+        "starts_at": timezone.now() + timedelta(days=1, hours=1),
         "format": "IMAX",
         "presentation": "dub"
     })
@@ -187,7 +193,7 @@ def test_showtime_create_as_employee(employee_user, movie_f1, theater_london):
         "movie": movie_f1.id,
         "theater": theater_london.id,
         "price": 45.50,
-        "starts_at": "2025-07-24T18:00:00Z",
+        "starts_at": timezone.now() + timedelta(days=2, hours=1),
         "format": "3D",
     })
 
@@ -203,7 +209,7 @@ def test_showtime_create_as_staff(staff_user, movie_f1, theater_london):
         "movie": movie_f1.id,
         "theater": theater_london.id,
         "price": 50,
-        "starts_at": "2025-07-25T17:00:00Z",
+        "starts_at": timezone.now() + timedelta(days=3, hours=1),
         "presentation": "sub"
     })
 
@@ -251,7 +257,8 @@ def test_showtime_retrieve(showtime_f1_london):
     # Expected: RetrieveSerializer
     assert "id" in response.data
     assert "movie_title" in response.data
-    assert "theater_name" in response.data
+    assert "theater" in response.data
+    assert response.data["theater"]["name"] == "Room 1"
     assert "starts_at" in response.data
     assert "created_at" not in response.data
 
@@ -324,16 +331,16 @@ def test_showtime_delete_as_staff(staff_user, showtime_f1_london):
 def test_showtime_seats_list_as_visitor(showtime_f1_london):
     client = APIClient()
     url = reverse("read-showtimes-seats", kwargs={"id": showtime_f1_london.id})
-    response = client.delete(url)
+    response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
     # Expected: SeatStatusSerializer
-    assert "id" in response.data
-    assert "movie_title" not in response.data
-    assert "starts_at" not in response.data
-    assert "row" in response.data
-    assert "columns" in response.data
-    assert "status" in response.data
+    assert "id" in response.data[0]
+    assert "movie_title" not in response.data[0]
+    assert "starts_at" not in response.data[0]
+    assert "row" in response.data[1]
+    assert "column" in response.data[1]
+    assert "status" in response.data[1]
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -344,8 +351,8 @@ def test_showtime_seats_list_as_visitor(showtime_f1_london):
 def test_showtime_report_retrieve_as_manager(manager_user, showtime_f1_london):
     client = APIClient()
     client.force_authenticate(user=manager_user)
-    url = reverse("retrieve-showtimes-", kwargs={"id": showtime_f1_london.id})
-    response = client.patch(url)
+    url = reverse("retrieve-showtimes-report", kwargs={"id": showtime_f1_london.id})
+    response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
     # Expected: ReportSerializer
@@ -361,7 +368,7 @@ def test_showtime_report_retrieve_as_manager(manager_user, showtime_f1_london):
 def test_showtime_report_retrieve_as_employee(employee_user, showtime_f1_london):
     client = APIClient()
     client.force_authenticate(user=employee_user)
-    url = reverse("retrieve-update-delete-showtimes", kwargs={"id": showtime_f1_london.id})
-    response = client.patch(url)
+    url = reverse("retrieve-showtimes-report", kwargs={"id": showtime_f1_london.id})
+    response = client.get(url)
 
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.status_code == status.HTTP_403_FORBIDDEN

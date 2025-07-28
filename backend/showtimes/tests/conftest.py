@@ -52,13 +52,13 @@ def showtime_f1_london(movie_f1, theater_london):
     return Showtime.objects.create(
         movie=movie_f1,
         theater=theater_london,
-        starts_at=timezone.now() + timedelta(days=1, hours=1)
+        starts_at=timezone.now() + timedelta(days=1, hours=1),
     )
 
 @pytest.fixture
 def showtimes_list(movie_f1, theater_london):
     return Showtime.objects.bulk_create([
-        Showtime.objects.create(
+        Showtime(
             movie=movie_f1,
             theater=theater_london,
             price=50,
@@ -66,7 +66,7 @@ def showtimes_list(movie_f1, theater_london):
             format="IMAX",
             presentation="dub"
         ),
-        Showtime.objects.create(
+        Showtime(
             movie=movie_f1,
             theater=theater_london,
             price=55,
