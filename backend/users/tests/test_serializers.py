@@ -1,8 +1,3 @@
-
-from django.contrib.auth.models import User, Group
-from locations.models import City
-from ..models import UserProfile
-
 # Pytest
 import pytest
 
@@ -11,7 +6,7 @@ from ..serializers import (
     # User
     UserSerializer,
     UserUpdateSerializer,
-    UserPassworderializer
+    UserPassworderializer,
 )
 
 # Create your tests here.
@@ -19,6 +14,7 @@ from ..serializers import (
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # User
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 @pytest.mark.django_db
 def test_user_serializer(users_list):
@@ -40,18 +36,24 @@ def test_user_serializer(users_list):
 
 @pytest.mark.django_db
 class TestUserUpdateSerializer:
-
     def test_update_groups(self, normal_user2, manager_group, employee_group):
         data = {"groups": ["Manager", "Employee"]}
-        serializer = UserUpdateSerializer(instance=normal_user2, data=data, partial=True)
+        serializer = UserUpdateSerializer(
+            instance=normal_user2, data=data, partial=True
+        )
         assert serializer.is_valid(), serializer.errors
         serializer.save()
 
-        assert set(normal_user2.groups.values_list("name", flat=True)) == {"Manager", "Employee"}
+        assert set(normal_user2.groups.values_list("name", flat=True)) == {
+            "Manager",
+            "Employee",
+        }
 
     def test_update_city_successfully(self, normal_user2, city_london):
         data = {"city": city_london.name}
-        serializer = UserUpdateSerializer(instance=normal_user2, data=data, partial=True)
+        serializer = UserUpdateSerializer(
+            instance=normal_user2, data=data, partial=True
+        )
         assert serializer.is_valid(), serializer.errors
         serializer.save()
 
@@ -60,14 +62,18 @@ class TestUserUpdateSerializer:
 
     def test_update_city_not_found(self, normal_user2, city_london):
         data = {"city": "City"}
-        serializer = UserUpdateSerializer(instance=normal_user2, data=data, partial=True)
+        serializer = UserUpdateSerializer(
+            instance=normal_user2, data=data, partial=True
+        )
         assert not serializer.is_valid()
         assert "city" in serializer.errors
         assert serializer.errors["city"][0] == "City name 'City' not found!"
 
     def test_update_other_user_fields(self, normal_user2):
         data = {"username": "NewUsername"}
-        serializer = UserUpdateSerializer(instance=normal_user2, data=data, partial=True)
+        serializer = UserUpdateSerializer(
+            instance=normal_user2, data=data, partial=True
+        )
         assert serializer.is_valid(), serializer.errors
         serializer.save()
 
@@ -76,7 +82,6 @@ class TestUserUpdateSerializer:
 
 
 class TestUserPasswordSerializer:
-
     def test_valid_password(self):
         data = {"password": "test1234"}
         serializer = UserPassworderializer(data=data)
@@ -93,4 +98,7 @@ class TestUserPasswordSerializer:
         serializer = UserPassworderializer(data=data)
         assert not serializer.is_valid()
         assert "password" in serializer.errors
-        assert "Ensure this field has at least 8 characters." in serializer.errors["password"][0]
+        assert (
+            "Ensure this field has at least 8 characters."
+            in serializer.errors["password"][0]
+        )

@@ -17,10 +17,12 @@ class ShowtimeFormat(models.TextChoices):
     SCREENX = "ScreenX", "ScreenX"
     DOLBY = "Dolby", "Dolby Cinema"
 
+
 class ShowtimePresentation(models.TextChoices):
     NATIVE = "native", "Native language"
     DUB = "dub", "Dubbing"
     SUB = "sub", "Subtitling"
+
 
 class Showtime(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
@@ -31,7 +33,9 @@ class Showtime(models.Model):
         max_length=55, choices=ShowtimeFormat.choices, default=ShowtimeFormat.TwoD
     )
     presentation = models.CharField(
-        max_length=55, choices=ShowtimePresentation.choices, default=ShowtimePresentation.NATIVE
+        max_length=55,
+        choices=ShowtimePresentation.choices,
+        default=ShowtimePresentation.NATIVE,
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

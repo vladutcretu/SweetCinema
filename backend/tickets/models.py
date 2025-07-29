@@ -40,10 +40,12 @@ class Booking(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Method fills the expires_at field for the instances created with 
+        Method fills the expires_at field for the instances created with
         status=reserved or status=pending_payment.
         """
-        print(f"[DEBUG] status={self.status}, expires_at={self.expires_at}, starts_at={self.showtime.starts_at if self.showtime else None}")
+        print(
+            f"[DEBUG] status={self.status}, expires_at={self.expires_at}, starts_at={self.showtime.starts_at if self.showtime else None}"
+        )
         if (
             not self.expires_at
             and self.showtime

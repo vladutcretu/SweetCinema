@@ -3,18 +3,17 @@ from django.urls import reverse
 
 # DRF
 from rest_framework.test import APIClient
-from rest_framework import status
 
-# Pytest 
+# Pytest
 import pytest
-
 
 # Write your tests here.
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # UserDataView - Retrieve
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 @pytest.mark.django_db
 def test_user_data_as_visitor():
@@ -23,6 +22,7 @@ def test_user_data_as_visitor():
     response = client.get(url)
 
     assert response.status_code == 401
+
 
 @pytest.mark.django_db
 def test_user_data_as_user(normal_user2):
@@ -36,9 +36,10 @@ def test_user_data_as_user(normal_user2):
     assert response.data["username"] == normal_user2.username
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Users - LIST
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 @pytest.mark.django_db
 def test_user_list_as_user(normal_user2):
@@ -49,6 +50,7 @@ def test_user_list_as_user(normal_user2):
     response = client.get(url)
 
     assert response.status_code == 403
+
 
 @pytest.mark.django_db
 def test_user_list_as_staff(users_list, staff_user):
@@ -64,9 +66,10 @@ def test_user_list_as_staff(users_list, staff_user):
     assert "groups" not in response.data
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # User - PATCH
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 @pytest.mark.django_db
 def test_user_update_as_user(normal_user2):
@@ -83,7 +86,7 @@ def test_user_update_as_staff(staff_user, cashier_group, normal_user2, city_lond
     data = {
         "groups": [cashier_group.name],
         "city": city_london.name,
-        "username": "Updated"
+        "username": "Updated",
     }
 
     client = APIClient()
@@ -98,9 +101,10 @@ def test_user_update_as_staff(staff_user, cashier_group, normal_user2, city_lond
     assert normal_user2.userprofile.city == city_london
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # UserSetPassword – POST
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 @pytest.mark.django_db
 def test_user_set_password_as_user(normal_user2):
@@ -140,9 +144,10 @@ def test_user_set_password_invalid_too_short(cashier_user):
     assert "password" in response.data
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # UserVerifyPassword – POST
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 @pytest.mark.django_db
 def test_user_verify_password_as_user(normal_user2):
@@ -152,6 +157,7 @@ def test_user_verify_password_as_user(normal_user2):
     response = client.post(url, {"password": "test1234"})
 
     assert response.status_code == 403
+
 
 @pytest.mark.django_db
 def test_user_verify_password_success(manager_user):

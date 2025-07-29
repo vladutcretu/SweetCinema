@@ -15,21 +15,22 @@ from .serializers import (
     # Theater
     TheaterCompleteSerializer,
     TheaterCreateSerializer,
-    TheaterUpdateSerializer
+    TheaterUpdateSerializer,
 )
 from users.permissions import IsManager, IsManagerOrEmployee
 
 # Create your views here.
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # City
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 @extend_schema(tags=["v1 - Cities"])
 class CityListCreateView(generics.ListCreateAPIView):
     """
-    GET: list all City objects, but the response is different for 
+    GET: list all City objects, but the response is different for
     visitor / user and staff / 'Manager' group.\n
     POST: create City object, but only for staff / 'Manager' group.\n
     """
@@ -44,18 +45,15 @@ class CityListCreateView(generics.ListCreateAPIView):
     def get_serializer_class(self):
         user = self.request.user
         if user.is_authenticated and (
-            user.is_staff or 
-            user.groups.filter(name="Manager").exists()
+            user.is_staff or user.groups.filter(name="Manager").exists()
         ):
             return CityCompleteSerializer
         return CityPartialSerializer
-    
+
 
 @extend_schema(tags=["v1 - Cities"])
 class CityUpdateDestroyView(
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin,
-    generics.GenericAPIView
+    mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView
 ):
     """
     Only available to staff or 'Manager' group.\n
@@ -75,9 +73,10 @@ class CityUpdateDestroyView(
         return super().destroy(request, *args, **kwargs)
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Theater
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 @extend_schema(tags=["v1 - Theaters"])
 class TheaterListCreateView(generics.ListCreateAPIView):
@@ -89,7 +88,7 @@ class TheaterListCreateView(generics.ListCreateAPIView):
 
     queryset = Theater.objects.select_related("city")
     serializer_class = TheaterCompleteSerializer
-    
+
     def get_permissions(self):
         if self.request.method == "GET":
             return [IsManagerOrEmployee()]
@@ -103,9 +102,7 @@ class TheaterListCreateView(generics.ListCreateAPIView):
 
 @extend_schema(tags=["v1 - Theaters"])
 class TheaterUpdateDestroyView(
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin,
-    generics.GenericAPIView
+    mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView
 ):
     """
     Only available to staff or 'Manager' group.\n
@@ -120,6 +117,6 @@ class TheaterUpdateDestroyView(
 
     def patch(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
-    
+
     def delete(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)

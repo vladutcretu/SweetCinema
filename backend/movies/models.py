@@ -23,12 +23,14 @@ class MoviePG(models.TextChoices):
     RESTRICTED = "restricted", "R - Restricted"
     ADULTS = "adults", "NC-17 - Adults Only"
 
+
 class MovieLanguage(models.TextChoices):
     EN = "english", "English"
     FR = "french", "French"
     ES = "spanish", "Spanish"
     GE = "german", "German"
     IT = "italian", "Italian"
+
 
 class Movie(models.Model):
     title = models.CharField(max_length=55, unique=True)
@@ -44,7 +46,7 @@ class Movie(models.Model):
     )
     language = models.CharField(
         max_length=55, choices=MovieLanguage.choices, default=MovieLanguage.EN
-    )   
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -53,4 +55,6 @@ class Movie(models.Model):
         ordering = ["-id"]
 
     def __str__(self):
-        return f"{self.title}, created on: {self.created_at.strftime('%d %b %Y %H:%M:%S')}"
+        return (
+            f"{self.title}, created on: {self.created_at.strftime('%d %b %Y %H:%M:%S')}"
+        )

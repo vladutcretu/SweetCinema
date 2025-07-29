@@ -21,7 +21,7 @@ from .serializers import (
     # User
     UserSerializer,
     UserUpdateSerializer,
-    UserPassworderializer
+    UserPassworderializer,
 )
 from .permissions import IsManagerOrEmployeeOrCashier
 
@@ -31,9 +31,10 @@ from .permissions import IsManagerOrEmployeeOrCashier
 User = get_user_model()
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Auth
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 class AuthGoogle(APIView):
     """
@@ -155,14 +156,15 @@ class AuthGoogle(APIView):
         }
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # User
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 @extend_schema(tags=["v1 - Users"])
 class UserDataView(APIView):
     """
-    GET: retrieve data about user, providing context about it's 
+    GET: retrieve data about user, providing context about it's
     account, groups, permissions; available to any authenticated user.\n
     """
 
@@ -178,6 +180,7 @@ class UserListView(ListAPIView):
     """
     GET:  list all User objects; available to staff only.\n
     """
+
     permission_classes = [IsAdminUser]
     serializer_class = UserSerializer
     queryset = User.objects.select_related("userprofile")
@@ -215,8 +218,7 @@ class UserSetPasswordView(APIView):
             user.set_password(new_password)
             user.save()
             return Response(
-                {"success": "Password set successfully."}, 
-                status=status.HTTP_200_OK
+                {"success": "Password set successfully."}, status=status.HTTP_200_OK
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -237,8 +239,7 @@ class UserVerifyPasswordView(APIView):
             user.check_password(password)
             if user.check_password(password):
                 return Response(
-                    {"success": "Password matches."}, 
-                    status=status.HTTP_200_OK
+                    {"success": "Password matches."}, status=status.HTTP_200_OK
                 )
             else:
                 return Response(

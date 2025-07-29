@@ -13,7 +13,7 @@ from ..serializers import (
     ShowtimeCreateUpdateSerializer,
     ShowtimeRetrieveSerializer,
     ShowtimeSeatStatusSerializer,
-    ShowtimeReportSerializer
+    ShowtimeReportSerializer,
 )
 
 # Create your tests here.
@@ -112,12 +112,9 @@ def test_showtime_retrieve_serializer(showtime_f1_london):
 
 @pytest.mark.django_db
 def test_showtime_seat_status_serializer():
-    serializer = ShowtimeSeatStatusSerializer({
-        "id": 1,
-        "row": 3,
-        "column": 5,
-        "status": "available"
-    })
+    serializer = ShowtimeSeatStatusSerializer(
+        {"id": 1, "row": 3, "column": 5, "status": "available"}
+    )
     data = serializer.data
 
     assert len(data) == 4
@@ -135,16 +132,18 @@ def test_showtime_seat_status_serializer():
 
 @pytest.mark.django_db
 def test_showtime_report_serializer():
-    serializer = ShowtimeReportSerializer({
-        "id": 1,
-        "movie_title": "F1",
-        "city_name": "London",
-        "theater_name": "Room 1",
-        "starts_at": timezone.now() + timedelta(days=1, hours=1),
-        "tickets_sold": 4,
-        "total_revenue": 120,
-        "occupancy_percentage": 44
-    })
+    serializer = ShowtimeReportSerializer(
+        {
+            "id": 1,
+            "movie_title": "F1",
+            "city_name": "London",
+            "theater_name": "Room 1",
+            "starts_at": timezone.now() + timedelta(days=1, hours=1),
+            "tickets_sold": 4,
+            "total_revenue": 120,
+            "occupancy_percentage": 44,
+        }
+    )
     data = serializer.data
 
     assert len(data) == 8

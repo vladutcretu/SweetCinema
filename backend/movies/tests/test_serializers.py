@@ -16,9 +16,10 @@ from ..serializers import (
 # Create your tests here.
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Genre
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 @pytest.mark.django_db
 def test_genre_partial_serializer(genres_list):
@@ -50,9 +51,10 @@ def test_genre_complete_serializer(genres_list):
     assert data[2]["name"] == "Drama"
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Movie
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 @pytest.mark.django_db
 def test_movie_partial_serializer(movies_list):
@@ -60,7 +62,7 @@ def test_movie_partial_serializer(movies_list):
     data = serializer.data
 
     assert len(data) == 2
-    
+
     assert "id" in data[0]
     assert data[0]["title"] == "Superman"
     assert "genres" in data[0]
@@ -77,7 +79,7 @@ def test_movie_complete_serializer(movies_list):
     data = serializer.data
 
     assert len(data) == 2
-    
+
     assert "id" in data[0]
     assert data[0]["title"] == "Superman"
     assert data[0]["description"] == "Superman desc"
@@ -114,7 +116,6 @@ def test_movie_create_update_serializer(movie_f1):
     assert "language" in data
     assert "created_at" not in data
     assert "updated" not in data
-
 
 
 @pytest.mark.django_db

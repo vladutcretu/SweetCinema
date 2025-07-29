@@ -24,6 +24,7 @@ from ..models import Booking, BookingStatus
 # Booking
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+
 @pytest.mark.django_db
 def test_booking_partial_serializer(bookings_list):
     serializer = BookingPartialSerializer(bookings_list, many=True)
@@ -61,11 +62,13 @@ def test_booking_complete_serializer(bookings_list):
 
 
 @pytest.mark.django_db
-def test_booking_create_serializer(booking_user, showtime_f1_london, seats_theater_london):
+def test_booking_create_serializer(
+    booking_user, showtime_f1_london, seats_theater_london
+):
     data = {
         "showtime_id": showtime_f1_london.id,
         "seat_ids": [seat.id for seat in seats_theater_london[3:]],
-        "status": BookingStatus.RESERVED
+        "status": BookingStatus.RESERVED,
     }
 
     serializer = BookingCreateSerializer(data=data, context={"request": booking_user})
@@ -98,8 +101,7 @@ def test_booking_update_serializer(booking_user):
 @pytest.mark.django_db
 def test_booking_payment_timeout_serializer(booking_user):
     serializer = BookingPaymentTimeoutSerializer(
-        data={"booking_ids": [booking_user.id]},
-        context={"request": booking_user}
+        data={"booking_ids": [booking_user.id]}, context={"request": booking_user}
     )
 
     booking_user.status = "pending_payment"
@@ -117,13 +119,11 @@ def test_booking_payment_timeout_serializer(booking_user):
 @pytest.mark.django_db
 def test_booking_payment_display_serializer(booking_user):
     serializer = BookingPaymentDisplaySerializer(
-        data={"booking_ids": [booking_user.id]},
-        context={"request": booking_user}
+        data={"booking_ids": [booking_user.id]}, context={"request": booking_user}
     )
 
     booking_user.status = "pending_payment"
     booking_user.save()
-
 
     assert serializer.is_valid(), serializer.errors
     validated_data = serializer.validated_data
@@ -156,6 +156,7 @@ def test_booking_payment_serializer(booking_user):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Payment
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 @pytest.mark.django_db
 def test_payment_complete_serializer(payment_user):

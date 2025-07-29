@@ -19,16 +19,17 @@ from .serializers import (
     MoviePartialSerializer,
     MovieCompleteSerializer,
     MovieCreateUpdateSerializer,
-    MovieRetrieveSerializer
+    MovieRetrieveSerializer,
 )
 from users.permissions import IsManagerOrEmployee
 
 # Create your views here.
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Genre
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 @extend_schema(tags=["v1 - Genres"])
 class GenreListCreateView(generics.ListCreateAPIView):
@@ -49,9 +50,7 @@ class GenreListCreateView(generics.ListCreateAPIView):
 
 @extend_schema(tags=["v1 - Genres"])
 class GenreUpdateDestroyView(
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin,
-    generics.GenericAPIView
+    mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView
 ):
     """
     Only available to staff or 'Manager', 'Employee' group.\n
@@ -66,14 +65,15 @@ class GenreUpdateDestroyView(
 
     def patch(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
-    
+
     def delete(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Movie
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 @extend_schema(tags=["v1 - Movies"])
 class MovieListView(generics.ListAPIView):
@@ -89,18 +89,21 @@ class MovieListView(generics.ListAPIView):
         city_id_raw = self.request.query_params.get("city")
 
         if not city_id_raw:
-            raise ValidationError({"detail": "Missing param city on query string."}) # Status: 400
-        
+            raise ValidationError(
+                {"detail": "Missing param city on query string."}
+            )  # Status: 400
+
         try:
             city_id = int(city_id_raw)
         except ValueError:
-            raise ValidationError({"detail": "Param city must be a valid integer."}) # Status: 400
+            raise ValidationError(
+                {"detail": "Param city must be a valid integer."}
+            )  # Status: 400
 
         return (
-            Movie.objects
-            .filter(
+            Movie.objects.filter(
                 showtime__theater__city_id=city_id,
-                showtime__starts_at__gte=timezone.now()
+                showtime__starts_at__gte=timezone.now(),
             )
             .distinct()
             .only("id", "title", "poster")
@@ -115,7 +118,7 @@ class MovieStaffListCreateView(generics.ListCreateAPIView):
     GET: list all Movie objects (all fields).\n
     POST: create Movie object (all editable fields).\n
     """
-    
+
     queryset = Movie.objects.prefetch_related("genres")
     permission_classes = [IsManagerOrEmployee]
 
@@ -141,7 +144,7 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ["PATCH", "DELETE"]:
             return [IsManagerOrEmployee()]
         return [AllowAny()]
-    
+
     def get_serializer_class(self):
         if self.request.method == "GET":
             return MovieRetrieveSerializer
