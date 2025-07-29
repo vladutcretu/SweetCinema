@@ -6,7 +6,7 @@ import api from "../Api"
 
 export const showtimeService = {
     readShowtimesByCity: (cityId) => api.get(`/v1/showtimes/?city=${cityId}`),
-    readShowtimesByCityMovie: (movieId, cityId) => api.get(`/v1/showtimes/?city=${cityId}&movie=${movieId}`),
+    readShowtimesByCityMovie: (cityId, movieId) => api.get(`/v1/showtimes/?city=${cityId}&movie=${movieId}`),
     readShowtime: (showtimeId) => api.get(`/v1/showtimes/${showtimeId}`),
     readShowtimeSeats: (showtimeId) => api.get(`/v1/showtimes/${showtimeId}/seats/`),
 

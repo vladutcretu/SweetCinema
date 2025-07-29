@@ -12,13 +12,8 @@ import { formatDate, formatTime } from "@/utils/DateTimeFormat"
 const MovieShowtimes = ({ cityId, movieId }) => {
   const { showtimes, loading: showtimesLoading, error: showtimesError } = useReadShowtimesByCityMovie(cityId, movieId)
 
-  if (showtimesLoading) {
-    return <Spinner />
-  }
-    
-  if (showtimesError) {
-    return <Text color="red.400">{showtimesError}</Text>
-  } 
+  if (showtimesLoading) return <Spinner />
+  if (showtimesError) return <Text color="red.400">{showtimesError}</Text>
 
   return (
     <Box mt={10}>

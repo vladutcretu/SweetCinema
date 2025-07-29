@@ -43,17 +43,20 @@ class Booking(models.Model):
         Method fills the expires_at field for the instances created with 
         status=reserved or status=pending_payment.
         """
+        print(f"[DEBUG] status={self.status}, expires_at={self.expires_at}, starts_at={self.showtime.starts_at if self.showtime else None}")
         if (
             not self.expires_at
             and self.showtime
-            and self.status == BookingStatus.RESERVED
+            and self.status == BookingStatus.RESERVED.value
         ):
+            print("Setting expires_at for RESERVED")
             self.expires_at = self.showtime.starts_at - timedelta(minutes=30)
         elif (
             not self.expires_at
             and self.showtime
-            and self.status == BookingStatus.PENDING_PAYMENT
+            and self.status == BookingStatus.PENDING_PAYMENT.value
         ):
+            print("Setting expires_at for PENDING_PAYMENT")
             self.expires_at = timezone.now() + timedelta(minutes=1)
 
         super().save(*args, **kwargs)
@@ -63,7 +66,7 @@ class Booking(models.Model):
             f"{self.seat}, "
             f"{self.showtime.starts_at.strftime('%d %b %Y %H:%M:%S')}, "
             f"{self.status}, "
-            f"booked on: {self.booked_at.strftime('%d %b %Y %H:%M:%S')}, "
+            f"booked on: {self.booked_at.strftime('%d %b %Y %H:%M:%S')}"
         )
 
 

@@ -133,14 +133,22 @@ class ShowtimeSeatsListView(generics.ListAPIView):
         except Showtime.DoesNotExist:
             raise NotFound(detail=f"Showtime with ID {showtime_id} not found.")
         
-        self.bookings_map = {
-            booking.seat_id: booking 
-            for booking in (
-                Booking.objects
-                .filter(showtime=self.showtime)
-                .only("seat_id", "status")
-            )
-        }
+        bookings = (
+            Booking.objects
+            .filter(showtime=self.showtime)
+            .exclude(status__in=[
+                BookingStatus.CANCELED,
+                BookingStatus.EXPIRED,
+                BookingStatus.FAILED_PAYMENT
+            ])
+            .only("seat_id", "status", "booked_at", "id")
+            .order_by("seat_id", "-booked_at")
+        )
+
+        self.bookings_map = {}
+        for booking in bookings: 
+            if booking.seat_id not in self.bookings_map:
+                self.bookings_map[booking.seat_id] = booking
 
         return self.showtime.theater.seats.all()
     

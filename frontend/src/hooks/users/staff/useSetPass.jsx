@@ -23,10 +23,14 @@ export const useSetPass = () => {
       setData(response.data)
       setTwoFactorAuth(true)
       console.log("Staff - Set Password successful:", response.data)
+      alert(`✅ You set your account password (2FA) successful!`)
+      location.reload()
       return response.data
     } catch (error) {
       setError("Something went wrong while setting password. Please try again.")
       console.error("Staff - Set Password unsuccessful:", error)
+      alert(`❌ You do not set your account password (2FA). Try again please!`)
+      location.reload()
       return null
     } finally {
       setLoading(false)

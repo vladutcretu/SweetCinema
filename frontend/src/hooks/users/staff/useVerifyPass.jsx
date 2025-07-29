@@ -23,10 +23,14 @@ export const useVerifyPass = () => {
       setData(response.data)
       setTwoFactorAuth(true)
       console.log("Staff - Verify Password successful:", response.data)
+      alert(`✅ You entered the correct pass and activate 2FA successful!`)
+      location.reload()
       return response.data
     } catch (error) {
       setError("Something went wrong while verifying password. Please try again.")
       console.error("Staff - Verify Password unsuccessful:", error)
+      alert(`❌ You entered a wrong pass. Try again please!`)
+      location.reload()
       return null
     } finally {
       setLoading(false)

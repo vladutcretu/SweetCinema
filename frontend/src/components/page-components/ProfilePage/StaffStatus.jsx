@@ -32,7 +32,7 @@ const StaffStatus = () => {
       )}
       {(user?.is_staff || user?.is_superuser) && (
         <SimpleGrid columns={3} spacing={2}>
-          <Text><b>City ID:</b> {user?.city}</Text>
+          <Text><b>City ID:</b> {user?.city_id}</Text>
           <Text><b>Staff: </b> {user?.is_staff.toString() === "true" ? "✅" : "❌"}</Text>
           <Text><b>Superuser: </b> {user?.is_superuser.toString() === "true" ? "✅" : "❌"}</Text>
         </SimpleGrid>

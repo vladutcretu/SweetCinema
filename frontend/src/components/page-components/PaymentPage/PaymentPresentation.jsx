@@ -60,7 +60,7 @@ const PaymentPresentation = () => {
             <SimpleGrid columns={bookings.length} spacing={2}>
               {bookings.map((booking) => (
                 <Box
-                  key={booking.id}
+                  key={booking.seat.id}
                   bg="#4B4E6D"
                   p={2}
                   minW="20px"
@@ -69,7 +69,7 @@ const PaymentPresentation = () => {
                   borderRadius="md"
                   textAlign="center"
                 >
-                  <Text fontWeight="bold">R{bookings.seat_row} C{bookings.seat_column}</Text>
+                  <Text fontWeight="bold">R{booking.seat.row}-C{booking.seat.column}</Text>
                   <Text><b>Price:</b> ${bookings[0].showtime_price}</Text>
                 </Box>
               ))}

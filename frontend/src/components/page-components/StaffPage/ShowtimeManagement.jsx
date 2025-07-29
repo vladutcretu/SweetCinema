@@ -236,12 +236,14 @@ const ShowtimeManagement = () => {
             <input type="datetime-local" name="starts_at" value={showtimeCreateForm.starts_at} onChange={handleChangeCreate} required />
           <Field.Label>Format:</Field.Label>
           <select value={showtimeCreateForm.format} onChange={handleFormatChange} required>
+            <option key="default" value="">---</option>
             {formats.map(format => (
               <option key={format.value} value={format.value}>{format.name}</option>
             ))}
           </select>
           <Field.Label>Presentation:</Field.Label>
           <select value={showtimeCreateForm.presentation} onChange={handlePresentationChange} required>
+            <option key="default" value="">---</option>
             {presentations.map(pres => (
               <option key={pres.value} value={pres.value}>{pres.name}</option>
             ))}
@@ -272,12 +274,14 @@ const ShowtimeManagement = () => {
             <input type="datetime-local" name="starts_at" value={updatedForm.starts_at} onChange={handleChangeUpdate} required />
           <Field.Label>Update format from {showtimeToUpdate.format} to:</Field.Label>
           <select value={updatedForm.format} onChange={handleFormatChangeUpdate} required>
+            <option key="default" value="">---</option>
             {formats.map(format => (
               <option key={format.value} value={format.value}>{format.name}</option>
             ))}
           </select>
           <Field.Label>Update presentation from {showtimeToUpdate.presentation} to:</Field.Label>
           <select value={updatedForm.presentation} onChange={handlePresentationChangeUpdate} required>
+            <option key="default" value="">---</option>
             {presentations.map(pres => (
               <option key={pres.value} value={pres.value}>{pres.name}</option>
             ))}

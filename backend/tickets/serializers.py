@@ -32,11 +32,12 @@ class ShowtimeBookingSerializer(serializers.ModelSerializer):
 
 class SeatBookingSerializer(serializers.ModelSerializer):
     """
-    Include row, column fields.
+    Include id, row, column fields.
     """
     class Meta:
         model = Seat
         fields = [
+            "id",
             "row",
             "column"
         ]
@@ -161,9 +162,11 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         seats = validated_data["seats"]
         status = validated_data["status"]
 
-        bookings = Booking.objects.bulk_create([
-            Booking(user=user, showtime=showtime, seat=seat, status=status) for seat in seats
-        ])
+        bookings = []
+        for seat in seats:
+            booking = Booking(user=user, showtime=showtime, seat=seat, status=status)
+            booking.save() # call save method from Model to set expores_at
+            bookings.append(booking)
 
         return bookings
 
