@@ -9,8 +9,71 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ## Release Notes
 
-### 🔜 v0.8.0-beta (completed on <i>TBA</i>)
+### ✅ v1.0.0-beta (completed on 29 July 2025, include Sprint #11)
+⚙️♻️ **Backend Refactors:**
+- Add new fields to models to enhance user's realism, and audit fields (created_at, updated_at) for models that interact with POST / PATCH methods
+- Rework API endpoints by refactor, redesign, reorganize, merge or separate serializers, views, and urls to reach a stable version that now have:
+    - v1 - Cities
+        - GET /api/v1/locations/cities/ - (200) 13ms on queries, 3 queries
+        - POST /api/v1/locations/cities/ - (201) 19ms on queries, 4 queries
+        - PATCH /api/v1/locations/cities/{id}/ - (200) 19ms on queries, 5 queries
+        - DELETE /api/v1/locations/cities/{id}/ - (204) 22ms on queries, 6 queries
+    - v1 - Theaters
+        - GET /api/v1/locations/theaters/ - (200) 14ms on queries, 3 queries
+        - POST /api/v1/locations/theaters/ - (201) 21ms on queries, 5 queries
+        - PATCH /api/v1/locations/theaters/{id}/ - (200) 27ms on queries, 7 queries
+        - DELETE /api/v1/locations/theaters/{id}/ - (204) 25ms on queries, 8 queries
+    - v1 - Movies
+        - GET /api/v1/movies/ - (200) 8ms on queries, 3 queries with param city
+        - GET /api/v1/movies/{id}/ - (200) 11ms on queries, 3 queries
+        - PATCH /api/v1/movies/{id}/ - (200) 28ms on queries, 11 queries
+        - DELETE /api/v1/movies/{id}/ - (204) 16ms on querie, 7 queries
+        - GET /api/v1/movies/staff/ - (200) 14ms on queries, 4 queries
+        - POST /api/v1/movies/staff/ - (201) 16ms on queries, 7 queries 
 
+    - v1 - Genres 
+        - GET /api/v1/movies/genres/ - (200) 10ms on queries, 3 queries
+        - POST /api/v1/movies/genres/ - (201) 11ms on queries, 3 queries
+        - PATCH /api/v1/movies/genres/{id}/ - (200) 22ms on queries, 5 queries
+        - DELETE /api/v1/movies/genres/{id}/ - (204) 21ms on queries, 5 queries
+    - v1 - Showtimes
+        - GET /api/v1/showtimes/ - (200) 13ms on queries, 3 queries with params city, movie; 16ms on queries, 2 queries with param city 
+        - GET /api/v1/showtimes/{id}/ - (200) 6ms on queries, 2 queries
+        - PATCH /api/v1/showtimes/{id}/ - (200) 26ms on queries, 7 queries
+        - DELETE /api/v1/showtimes/{id}/ - (204) 15ms on queries, 5 queries
+        - GET /api/v1/showtimes/{id}/report/ - (200) 26ms on queries, 7 queries
+        - GET /api/v1/showtimes/{id}/seats/ - (200) 18ms on queries, 4 queries
+        - GET /api/v1/showtimes/staff/ - (200) 14ms on queries, 3 queries
+        - POST /api/v1/showtimes/staff/ - (201) 24ms on queries, 8 queries
+    - v1 - Bookings
+        - GET /api/v1/tickets/bookings/ - (200) 33ms on queries, 4 queries with params staff, city; 15ms on queries 3 queries with param staff; 23ms on queries 2 queries without params
+        - POST /api/v1/tickets/bookings/ - (201) 27ms on queries, 6 queries
+        - PATCH /api/v1/tickets/bookings/{id}/- (200) 35ms on queries, 9 queries
+        - PATCH /api/v1/tickets/bookings/mark-failed/ - (200) 20ms on queries, 3 queries
+        - POST /api/v1/tickets/bookings/payments/ - (200) 18ms on queries, 3 queries
+    - v1 - Payments
+        - GET /api/v1/tickets/payments/ - (200) 34ms on queries, 12 queries
+        - POST /api/v1/tickets/payments/ - (201) 17ms on queries, 5 queries
+    - v1 - Users
+        - GET /api/v1/users/ - (200) 13ms on queries, 4 queries
+        - PATCH /api/v1/users/{id}/ = (200) 33ms on queries, 8 queries
+        - GET /api/v1/users/me/ - (200) 20ms on queries, 4 queries
+        - POST /api/v1/users/set-password/ - (200) 11ms on queries, 2 queries
+        - POST /api/v1/users/verify-password/ - (200) 9ms on queries, 2 queries
+    - v1
+        - POST /api/v1/users/auth-google/ - (200) 21ms on queries, 4 queries
+        - POST /api/v1/users/token/refresh/
+        - POST /api/v1/users/token/verify/
+- For every endpoint were written the request with the biggest number of queries. Details about endpoint authorization, query params, and fields can be found in API documentation
+- Write tests to achieve a 95% coverage (Statements: 3254, Miss: 165)
+
+🖼️ **Frontend:**
+- Update variables inside components to integrate endpoints and fix issues appeared after endpoints refactors
+- Add auto-refresh for access token in authContext
+
+🐛 **Fixes:**
+- A seat that had been reserved/pending_payment, got status expired/canceled/failed_payment and then re-reserved appears now correctly.
+---
 ### ✅ v0.7.0-beta (completed on 15 July 2025; include Sprint #10)
 🖼️♻️ **Frontend Refactors:**
 - Create reusable components `Submit`, `Forward` & `Back` buttons, `SearchBar`, `ReusableTable`, `FormWrapper`, `Page404`, `DateTimeFormat`
@@ -153,12 +216,12 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ## Development Notes
 
-### 🔜 Sprint #11 (started on 18 July 2025; ended on <i>TBA</i>): "Backend: Refactor & design"
-- After completing the frontend refactor and design phase, the next step is to fill business logic gaps by enhancing the existing models with relevant fields, by evaluating endpoints design (refactoring / updating serializers, view logic & URL naming), optimizing database queries, and increasing test coverage
+### ✅ Sprint #11 (started on 18 July 2025; ended on 29 July 2025): "Backend: Refactor & design"
+- After completing the frontend refactor and design phase, the next step is to fill business logic gaps by enhancing the existing models with relevant fields, evaluating endpoints design (refactoring / updating serializers, view logic & URL naming), optimizing database queries, and increasing test coverage
 - The methodology cheatsheet for this stage includes:
-    1. Get every feature (e.g. retrieve movie) and identify all the components involved: url -> views -> serializers -> models.
-    2. Evaluate, including using Django Debug Toolbar, all components and perform the required updates & optimizations (e.g. avoiding over-fetching responses, using select_related & prefetch_related queries, adding Model indexes, new validators & rate limiting)
-    3. Write tests with Pytest Django to obtain a good coverage by pytest-cov library
+    1. Get every family of endpoints (e.g. movie endpoints) and identify all the components involved: url -> views -> serializers -> models.
+    2. Evaluate all components, include using Django-silk & Django Debug Toolbar, and perform the required updates & optimizations (e.g. avoiding over-fetching responses, using select_related & prefetch_related queries, adding new validators)
+    3. Write tests with Pytest Django to obtain a good coverage by pytest-cov
 - During this phase there won't be interactions with the `main` branch and the Pull Request (PR) workflow will be used to merge every refactored feature to `beta`
 ---
 ### ✅ Sprint #10 (started on 9 July 2025; ended on 15 July 2025): "Frontend: Refactor & design"
