@@ -197,6 +197,7 @@ export function AuthProvider({ children }) {
       sessionStorage.setItem("refresh_token", refresh)
 
       setAccessToken(access)
+      setAuthToken(access)
       await getUserData()
       setIsAuthenticated(true)
 
@@ -216,6 +217,7 @@ export function AuthProvider({ children }) {
     sessionStorage.removeItem("refresh_token")
 
     setAccessToken(null)
+    setAuthToken(null)
 
     setUser(null)
     setIsAuthenticated(false)
