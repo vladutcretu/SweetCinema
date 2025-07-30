@@ -1,6 +1,7 @@
 # Django
 from django.utils import timezone
 from django.db.models import Prefetch
+
 # DRF
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
@@ -21,7 +22,7 @@ from .serializers import (
     ShowtimeCreateUpdateSerializer,
     ShowtimeRetrieveSerializer,
     ShowtimeSeatStatusSerializer,
-    ShowtimeReportSerializer
+    ShowtimeReportSerializer,
 )
 from users.permissions import IsManagerOrEmployee, IsManager
 from tickets.models import Booking, BookingStatus
@@ -50,8 +51,7 @@ class ShowtimeListView(generics.ListAPIView):
     filterset_class = ShowtimeFilter
     permission_classes = [AllowAny]
     queryset = (
-        Showtime.objects
-        .filter(starts_at__gte=timezone.now())
+        Showtime.objects.filter(starts_at__gte=timezone.now())
         .select_related("movie", "theater", "theater__city")
         .prefetch_related(
             Prefetch("movie__genres", queryset=Genre.objects.only("id", "name"))
@@ -78,10 +78,7 @@ class ShowtimeStaffListCreateView(generics.ListCreateAPIView):
     """
 
     permission_classes = [IsManagerOrEmployee]
-    queryset = (
-        Showtime.objects
-        .select_related("movie", "theater", "theater__city")
-    )
+    queryset = Showtime.objects.select_related("movie", "theater", "theater__city")
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -105,7 +102,7 @@ class ShowtimeRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ["PATCH", "DELETE"]:
             return [IsManagerOrEmployee()]
         return [AllowAny()]
-    
+
     def get_serializer_class(self):
         if self.request.method == "GET":
             return ShowtimeRetrieveSerializer
@@ -123,27 +120,35 @@ class ShowtimeSeatsListView(generics.ListAPIView):
     def get_queryset(self):
         showtime_id = self.kwargs.get("id")
 
-        try: 
+        try:
             self.showtime = (
-                Showtime.objects
-                .select_related("theater")
+                Showtime.objects.select_related("theater")
                 .prefetch_related("theater__seats")
                 .get(id=showtime_id)
             )
         except Showtime.DoesNotExist:
             raise NotFound(detail=f"Showtime with ID {showtime_id} not found.")
-        
-        self.bookings_map = {
-            booking.seat_id: booking 
-            for booking in (
-                Booking.objects
-                .filter(showtime=self.showtime)
-                .only("seat_id", "status")
+
+        bookings = (
+            Booking.objects.filter(showtime=self.showtime)
+            .exclude(
+                status__in=[
+                    BookingStatus.CANCELED,
+                    BookingStatus.EXPIRED,
+                    BookingStatus.FAILED_PAYMENT,
+                ]
             )
-        }
+            .only("seat_id", "status", "booked_at", "id")
+            .order_by("seat_id", "-booked_at")
+        )
+
+        self.bookings_map = {}
+        for booking in bookings:
+            if booking.seat_id not in self.bookings_map:
+                self.bookings_map[booking.seat_id] = booking
 
         return self.showtime.theater.seats.all()
-    
+
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
 
@@ -151,9 +156,12 @@ class ShowtimeSeatsListView(generics.ListAPIView):
             booking = self.bookings_map.get(seat_id)
             if booking and booking.status == BookingStatus.PURCHASED:
                 return "purchased"
-            elif booking and booking.status in (BookingStatus.RESERVED, BookingStatus.PENDING_PAYMENT):
+            elif booking and booking.status in (
+                BookingStatus.RESERVED,
+                BookingStatus.PENDING_PAYMENT,
+            ):
                 return "reserved"
-            else: # no booking, or status = canceled, expired, failed_payment
+            else:  # no booking, or status = canceled, expired, failed_payment
                 return "available"
 
         seat_status_data = [
@@ -173,7 +181,7 @@ class ShowtimeSeatsListView(generics.ListAPIView):
 class ShowtimeReportRetrieveView(generics.RetrieveAPIView):
     """
     Available to Staff or 'Manager' group.\n
-    GET: retrieve statistics of a specific Showtime.\n 
+    GET: retrieve statistics of a specific Showtime.\n
     """
 
     permission_classes = [IsManager]
@@ -183,39 +191,30 @@ class ShowtimeReportRetrieveView(generics.RetrieveAPIView):
         showtime_id = self.kwargs.get("id")
 
         try:
-            self.showtime = (
-                Showtime.objects
-                .select_related("movie", "theater", "theater__city")
-                .get(id=showtime_id)
-            )
+            self.showtime = Showtime.objects.select_related(
+                "movie", "theater", "theater__city"
+            ).get(id=showtime_id)
         except Showtime.DoesNotExist:
             raise NotFound(detail=f"Showtime with ID {showtime_id} not found.")
 
         return self.showtime
 
-
     def retrieve(self, request, *args, **kwargs):
         queryset = self.get_queryset()
 
         def tickets_sold(showtime):
-            return (
-                Booking.objects
-                .filter(
-                    showtime=showtime, 
-                    status=BookingStatus.PURCHASED
-                ).count()
-            )
-        
+            return Booking.objects.filter(
+                showtime=showtime, status=BookingStatus.PURCHASED
+            ).count()
+
         def total_revenue(showtime):
             return tickets_sold(showtime) * showtime.price
-        
+
         def occupancy_percentage(showtime):
-            total_seats = (
-                Seat.objects
-                .filter(theater=showtime.theater)
-                .count()
+            total_seats = Seat.objects.filter(theater=showtime.theater).count()
+            return round(
+                (tickets_sold(showtime) / total_seats * 100) if total_seats else 0, 2
             )
-            return round((tickets_sold(showtime) / total_seats * 100) if total_seats else 0, 2)
 
         return Response(
             {

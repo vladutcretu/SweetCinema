@@ -12,6 +12,6 @@ export const authService = {
   getUserData: () => api.get(`v1/users/me/`),
 
   // Staff
-  setPassword: (password) => api.post(`/v1/users/uset-password/`, { password: password }),
+  setPassword: (password) => api.post(`/v1/users/set-password/`, { password: password }),
   verifyPassword: (password) => api.post(`/v1/users/verify-password/`, { password: password }),
 }

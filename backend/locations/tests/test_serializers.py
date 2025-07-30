@@ -16,9 +16,10 @@ from ..serializers import (
 # Create your tests here.
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # City
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 @pytest.mark.django_db
 def test_city_partial_serializer(cities_list):
@@ -73,9 +74,10 @@ def test_city_update_serializer(cities_list):
     assert data[3]["address"] == "Street Belgrade"
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Theater
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 @pytest.mark.django_db
 def test_theater_complete_serializer(theaters_list):
@@ -101,7 +103,7 @@ def test_theater_complete_serializer(theaters_list):
 @pytest.mark.django_db
 def test_theater_create_serializer(theater_room_berlin):
     serializer = TheaterCreateSerializer(theater_room_berlin)
-    data = serializer.data 
+    data = serializer.data
 
     assert "id" not in data
     assert "created_at" not in data
@@ -109,6 +111,7 @@ def test_theater_create_serializer(theater_room_berlin):
     assert data["city"] == "Berlin"
     assert data["rows"] == 2
     assert data["columns"] == 4
+
 
 @pytest.mark.django_db
 def test_theater_update_serializer(theater_room_berlin):

@@ -17,9 +17,17 @@ from .views import (
 urlpatterns = [
     # Genre
     path("genres/", GenreListCreateView.as_view(), name="create-read-genres"),
-    path("genres/<int:id>/", GenreUpdateDestroyView.as_view(), name="update-delete-genres"),
+    path(
+        "genres/<int:id>/",
+        GenreUpdateDestroyView.as_view(),
+        name="update-delete-genres",
+    ),
     # Movie
     path("", MovieListView.as_view(), name="read-movies"),
     path("staff/", MovieStaffListCreateView.as_view(), name="create-read-movies"),
-    path("<int:id>/", MovieRetrieveUpdateDestroyView.as_view(), name="retrieve-update-delete-movies"),
+    path(
+        "<int:id>/",
+        MovieRetrieveUpdateDestroyView.as_view(),
+        name="retrieve-update-delete-movies",
+    ),
 ]

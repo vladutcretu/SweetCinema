@@ -202,7 +202,7 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 if DEBUG:
     INSTALLED_APPS += ["debug_toolbar"]
     MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
-    INTERNAL_IPS = ['127.0.0.1', 'localhost', '172.20.0.1']
+    INTERNAL_IPS = ["127.0.0.1", "localhost", "172.20.0.1"]
 
 
 # Django-silk settings

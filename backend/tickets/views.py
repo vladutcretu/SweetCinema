@@ -32,9 +32,10 @@ from users.permissions import IsManager
 # Create your views here.
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Booking
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 @extend_schema(tags=["v1 - Bookings"])
 class BookingListCreateView(generics.ListCreateAPIView):
@@ -45,7 +46,7 @@ class BookingListCreateView(generics.ListCreateAPIView):
     Booking objects created by users.\n
     GET with params staff=true, city=city_id and 'Cashier' group: list all
     Booking objects created by users for showtimes in that city.\n
-    Response contains expires_at for user instead of updated_at for staff, beside id, 
+    Response contains expires_at for user instead of updated_at for staff, beside id,
     showtime (movie title, city and theater names, starts_at), status, booked_at.\n
     POST: create one or more Booking objects for Seats in a Showtime with specified
     status; only reserved and pending_payment allowed.
@@ -56,12 +57,12 @@ class BookingListCreateView(generics.ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == "POST":
             return BookingCreateSerializer
-        
+
         staff = self.request.query_params.get("staff", "false").lower()
         if staff == "true":
             return BookingCompleteSerializer
         return BookingPartialSerializer
-    
+
     def get_queryset(self):
         user = self.request.user
         staff_param = self.request.query_params.get("staff", "false").lower()
@@ -73,7 +74,7 @@ class BookingListCreateView(generics.ListCreateAPIView):
             "showtime__movie",
             "showtime__theater",
             "showtime__theater__city",
-            "seat"
+            "seat",
         )
 
         if is_allowed:
@@ -82,7 +83,9 @@ class BookingListCreateView(generics.ListCreateAPIView):
             elif user.is_staff or user.groups.filter(name="Cashier").exists():
                 city_id = self.request.query_params.get("city")
                 if not city_id:
-                    raise ValidationError({"detail": "City param required for Cashier."})
+                    raise ValidationError(
+                        {"detail": "City param required for Cashier."}
+                    )
                 return queryset.filter(
                     showtime__theater__city_id=city_id, status=BookingStatus.RESERVED
                 )
@@ -90,7 +93,7 @@ class BookingListCreateView(generics.ListCreateAPIView):
                 raise ValidationError({"detail": "You are not allowed to access."})
         else:
             return queryset.filter(user=user)
-    
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -124,17 +127,20 @@ class BookingUpdateView(generics.UpdateAPIView):
             "showtime__movie",
             "showtime__theater",
             "showtime__theater__city",
-            "seat"
+            "seat",
         )
         staff = self.request.query_params.get("staff", "false").lower()
 
         if staff == "true":
-            if self.request.user.is_staff or self.request.user.groups.filter(name="Cashier").exists():
+            if (
+                self.request.user.is_staff
+                or self.request.user.groups.filter(name="Cashier").exists()
+            ):
                 return queryset
             else:
                 return queryset.none()
         return queryset.filter(user=self.request.user)
-    
+
     def perform_update(self, serializer):
         booking = self.get_object()
         user = self.request.user
@@ -142,21 +148,19 @@ class BookingUpdateView(generics.UpdateAPIView):
 
         if booking.status != BookingStatus.RESERVED or booking.expires_at is None:
             raise ValidationError(
-                {"detail": "Can only update bookings with status reserved and a non-null expires_at."}
-                )
+                {
+                    "detail": "Can only update bookings with status reserved and a non-null expires_at."
+                }
+            )
 
         is_allowed = user.is_staff or user.groups.filter(name="Cashier").exists()
         is_owner = booking.user == user
 
         if not is_allowed:
             if not is_owner:
-                raise ValidationError(
-                    {"detail": "You can only update your booking."}
-                    )
+                raise ValidationError({"detail": "You can only update your booking."})
             elif new_status != BookingStatus.CANCELED:
-                raise ValidationError(
-                    {"detail": "You can only cancel your booking."}
-                )
+                raise ValidationError({"detail": "You can only cancel your booking."})
         else:
             if new_status == BookingStatus.CANCELED:
                 if not is_owner:
@@ -166,11 +170,15 @@ class BookingUpdateView(generics.UpdateAPIView):
             elif new_status == BookingStatus.PURCHASED:
                 if is_owner:
                     raise ValidationError(
-                        {"detail": "You can only cancel your own booking, not purchase."}
-                    ) 
+                        {
+                            "detail": "You can only cancel your own booking, not purchase."
+                        }
+                    )
             else:
                 raise ValidationError(
-                    {"detail": "You can only cancel your booking or purchase others user booking."}
+                    {
+                        "detail": "You can only cancel your booking or purchase others user booking."
+                    }
                 )
 
         serializer.save(expires_at=None)
@@ -179,7 +187,7 @@ class BookingUpdateView(generics.UpdateAPIView):
 @extend_schema(tags=["v1 - Bookings"])
 class BookingPaymentTimeoutView(APIView):
     """
-    Available to authenticated users to update Booking objects status to 
+    Available to authenticated users to update Booking objects status to
     'failed_payment' for objects that current status is 'pending_payment'.\n
     `Info:` while /bookings/:id/ is build to be interactive for user/staff,
     this endpoint's scope is fallback when the user do not complete
@@ -190,12 +198,11 @@ class BookingPaymentTimeoutView(APIView):
 
     def patch(self, request):
         serializer = BookingPaymentTimeoutSerializer(
-            data=request.data, 
-            context={"request": request}
+            data=request.data, context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
+        serializer.save()
 
-        bookings = serializer.save()
         return Response(
             {"success": "Bookings status got updated to failed_payment!"},
             status=status.HTTP_200_OK,
@@ -213,12 +220,13 @@ class BookingListPaymentView(APIView):
 
     def post(self, request):
         serializer = BookingPaymentDisplaySerializer(
-            data=request.data,
-            context={"request": request}
+            data=request.data, context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
 
-        bookings, total_price = serializer.create(validated_data=serializer.validated_data)
+        bookings, total_price = serializer.create(
+            validated_data=serializer.validated_data
+        )
         return Response(
             {
                 "bookings": BookingListPaymentSerializer(bookings, many=True).data,
@@ -228,9 +236,10 @@ class BookingListPaymentView(APIView):
         )
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Payments
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 @extend_schema(tags=["v1 - Payments"])
 class PaymentListCreateView(generics.ListCreateAPIView):
@@ -242,10 +251,8 @@ class PaymentListCreateView(generics.ListCreateAPIView):
     Payment status to accepted / declined, then for the Bookings as well.\n
     """
 
-    queryset = (
-        Payment.objects
-        .select_related("user")
-        .prefetch_related("bookings", "bookings__showtime", "bookings__seat")
+    queryset = Payment.objects.select_related("user").prefetch_related(
+        "bookings", "bookings__showtime", "bookings__seat"
     )
 
     def get_permissions(self):
@@ -257,7 +264,7 @@ class PaymentListCreateView(generics.ListCreateAPIView):
         if self.request.method == "POST":
             return PaymentCreateSerializer
         return PaymentCompleteSerializer
-    
+
     @transaction.atomic
     def create(self, request):
         serializer = self.get_serializer(data=request.data)
@@ -271,7 +278,7 @@ class PaymentListCreateView(generics.ListCreateAPIView):
         bookings = self.get_bookings(booking_ids, user)
         if bookings is None:
             return self.build_reponse_invalid()
-        
+
         total_price = self.get_total_price(bookings)
         payment_status = self.get_payment_status(amount, total_price)
         payment = self.create_payment(user, amount, method, payment_status, bookings)
@@ -279,25 +286,24 @@ class PaymentListCreateView(generics.ListCreateAPIView):
         return self.build_reponse_success(payment, bookings)
 
     def get_bookings(self, booking_ids, user):
-        bookings = Booking.objects.filter(
-                id__in=booking_ids, 
-                user=user, 
-                status=BookingStatus.PENDING_PAYMENT
-            )
-        if bookings.count() == len(booking_ids):
+        bookings = Booking.objects.select_related("showtime").filter(
+            id__in=booking_ids, user=user, status=BookingStatus.PENDING_PAYMENT
+        )
+        bookings_length = list(bookings)
+        if len(bookings_length) == len(booking_ids):
             return bookings
         return None
-        
+
     def get_total_price(self, bookings):
         return sum(booking.showtime.price for booking in bookings)
 
     def get_payment_status(self, amount, expected_total):
         return (
-            PaymentStatus.ACCEPTED 
+            PaymentStatus.ACCEPTED
             if amount == expected_total
-            else PaymentStatus.DECLINED 
+            else PaymentStatus.DECLINED
         )
-    
+
     def create_payment(self, user, amount, method, status, bookings):
         payment = Payment.objects.create(
             user=user,
@@ -307,16 +313,14 @@ class PaymentListCreateView(generics.ListCreateAPIView):
         )
         payment.bookings.set(bookings)
         return payment
-    
+
     def update_booking_status(self, bookings, payment_status):
         new_status = (
             BookingStatus.PURCHASED
             if payment_status == PaymentStatus.ACCEPTED
             else BookingStatus.FAILED_PAYMENT
         )
-        for booking in bookings:
-            booking.status = new_status
-            booking.save()
+        bookings.update(status=new_status)
 
     def build_reponse_success(self, payment, bookings):
         is_success = payment.status == PaymentStatus.ACCEPTED
@@ -330,15 +334,13 @@ class PaymentListCreateView(generics.ListCreateAPIView):
                     for booking in bookings
                 ],
             },
-            status=status.HTTP_201_CREATED 
+            status=status.HTTP_201_CREATED
             if is_success
             else status.HTTP_402_PAYMENT_REQUIRED,
         )
-    
+
     def build_reponse_invalid(self):
         return Response(
-            {
-                "error": "One or more bookings not found or not eligible for payment."
-            },
+            {"error": "One or more bookings not found or not eligible for payment."},
             status=status.HTTP_400_BAD_REQUEST,
         )

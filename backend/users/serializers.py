@@ -17,8 +17,9 @@ User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     """
-    Contains id, email, username, groups, is_staff, is_superuser, password(bool), city_id.
+    Contains fields: id, email, username, groups, is_staff, is_superuser, password(bool), city_id.
     """
+
     groups = serializers.SlugRelatedField(many=True, read_only=True, slug_field="name")
     password = serializers.BooleanField()
     city_id = serializers.SerializerMethodField()
@@ -52,11 +53,9 @@ class UserUpdateSerializer(serializers.Serializer):
     """
     Include user account groups and user profile city (both fields expects names, not ids).
     """
+
     groups = serializers.SlugRelatedField(
-        many=True, 
-        slug_field="name", 
-        queryset=Group.objects.all(),
-        required=False
+        many=True, slug_field="name", queryset=Group.objects.all(), required=False
     )
     city = serializers.CharField(write_only=True, required=False)
 
@@ -85,7 +84,7 @@ class UserUpdateSerializer(serializers.Serializer):
             except UserProfile.DoesNotExist:
                 # Create profile if it doesn't exist
                 user_profile = UserProfile.objects.create(user=instance)
-            
+
             city = City.objects.get(name=city_name)
             user_profile.city = city
             user_profile.save()
@@ -93,7 +92,7 @@ class UserUpdateSerializer(serializers.Serializer):
         # Save any remaining User model fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        
+
         instance.save()
         return instance
 
@@ -102,4 +101,5 @@ class UserPassworderializer(serializers.Serializer):
     """
     Contains password field.
     """
+
     password = serializers.CharField(required=True, write_only=True, min_length=8)

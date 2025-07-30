@@ -182,6 +182,8 @@ const MovieManagement = () => {
       director: movie.director,
       cast: movie.cast,
       release: movie.release,
+      durationHours: 0,
+      durationMinutes: 0,
       parental_guide: movie.parental_guide.value,
       language: movie.language.value
     })
@@ -354,12 +356,14 @@ const MovieManagement = () => {
           </Flex>
           <Field.Label>Parental Guide:</Field.Label>
           <select value={movieCreateForm.parental_guide} onChange={handlePGChange} required>
+            <option key="default" value="">---</option>
             {parental_guides.map(pg => (
               <option key={pg.value} value={pg.value}>{pg.name}</option>
             ))}
           </select>
           <Field.Label>Language</Field.Label>
           <select value={movieCreateForm.language} onChange={handleLangChange} required>
+            <option key="default" value="">---</option>
             {languages.map(lang => (
               <option key={lang.value} value={lang.value}>{lang.name}</option>
             ))}
@@ -475,12 +479,14 @@ const MovieManagement = () => {
           </Flex>
           <Field.Label>Parental Guide:</Field.Label>
           <select value={updatedForm.parental_guide} onChange={handlePGChangeUpdate} required>
+              <option key="default" value="">---</option>
             {parental_guides.map(pg => (
               <option key={pg.value} value={pg.value}>{pg.name}</option>
             ))}
           </select>
           <Field.Label>Language</Field.Label>
           <select value={updatedForm.language} onChange={handleLangChangeUpdate} required>
+            <option key="default" value="">---</option>
             {languages.map(lang => (
               <option key={lang.value} value={lang.value}>{lang.name}</option>
             ))}
