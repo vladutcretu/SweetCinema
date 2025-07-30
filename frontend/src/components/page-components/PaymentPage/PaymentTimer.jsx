@@ -2,13 +2,13 @@
 import { Box, Text, Progress } from "@chakra-ui/react"
 
 // App
-import { usePaymentTimeout } from "@/hooks/tickets/usePaymentTimeout"
+import { updateBookingTimeout } from "@/hooks/tickets/useUpdateBookingTimeout"
 
 // Components here
 
 
 const PaymentTimer = ({ bookingIds }) => {
-  const { secondsLeft, formattedTime } = usePaymentTimeout(bookingIds, 10)
+  const { secondsLeft, formattedTime } = updateBookingTimeout(bookingIds)
 
   return (
     <Box mt={4} bg="84DCC6">

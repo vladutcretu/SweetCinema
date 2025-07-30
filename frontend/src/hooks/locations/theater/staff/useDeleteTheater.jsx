@@ -19,12 +19,12 @@ export const useDeleteTheater = () => {
       const response = await theaterService.deleteTheater(theaterId)
       setData(response.data)
       alert(`✅ Theater deleted!`)
-      console.log("Delete Theater successful:", response.data)
+      console.log("Staff - Delete Theater successful:", response.data)
       return true
     } catch (error) {
       setError("Something went wrong while deleting theater. Please try again.")
-      alert(`❌ Theater do not deleted!`)
-      console.error("Delete Theater unsuccessful:", error)
+      alert(`❌ Theater not deleted!`)
+      console.error("Staff - Delete Theater unsuccessful:", error)
       return false
     } finally {
       setLoading(false)

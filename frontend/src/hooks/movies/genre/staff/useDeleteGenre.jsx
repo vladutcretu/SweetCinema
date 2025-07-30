@@ -19,12 +19,12 @@ export const useDeleteGenre = () => {
       const response = await genreService.deleteGenre(genreId)
       setData(response.data)
       alert(`✅ Genre deleted!`)
-      console.log("Delete Genre successful:", response.data)
+      console.log("Staff - Delete Genre successful:", response.data)
       return true
     } catch (error) {
       setError("Something went wrong while deleting genre. Please try again.")
-      alert(`❌ Genre do not deleted!`)
-      console.error("Delete Genre unsuccessful:", error)
+      alert(`❌ Genre not deleted!`)
+      console.error("Staff - Delete Genre unsuccessful:", error)
       return false
     } finally {
       setLoading(false)

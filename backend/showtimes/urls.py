@@ -3,28 +3,29 @@ from django.urls import path
 # App
 from .views import (
     ShowtimeListView,
-    ShowtimeRetrieveView,
-    ShowtimeListStaffView,
-    ShowtimeCreateStaffView,
-    ShowtimeUpdateDeleteView,
+    ShowtimeStaffListCreateView,
+    ShowtimeRetrieveUpdateDestroyView,
     ShowtimeSeatsListView,
-    ShowtimeReportView,
+    ShowtimeReportRetrieveView,
 )
+
 # Create your urls here.
 
 
 urlpatterns = [
-    path("", ShowtimeListView.as_view(), name="showtime-list"),
-    path("<int:pk>/", ShowtimeRetrieveView.as_view(), name="showtime-retrieve"),
-    path("staff/", ShowtimeListStaffView.as_view(), name="showtime-list-staff"),
+    path("", ShowtimeListView.as_view(), name="read-showtimes"),
+    path("staff/", ShowtimeStaffListCreateView.as_view(), name="create-read-showtimes"),
     path(
-        "staff/create/", ShowtimeCreateStaffView.as_view(), name="showtime-create-staff"
+        "<int:id>/",
+        ShowtimeRetrieveUpdateDestroyView.as_view(),
+        name="retrieve-update-delete-showtimes",
     ),
     path(
-        "staff/<int:pk>/",
-        ShowtimeUpdateDeleteView.as_view(),
-        name="showtime-update-delete-staff",
+        "<int:id>/seats/", ShowtimeSeatsListView.as_view(), name="read-showtimes-seats"
     ),
-    path("<int:pk>/seats/", ShowtimeSeatsListView.as_view(), name="showtime-seats"),
-    path("<int:pk>/report/", ShowtimeReportView.as_view(), name="showtime-report"),
+    path(
+        "<int:id>/report/",
+        ShowtimeReportRetrieveView.as_view(),
+        name="retrieve-showtimes-report",
+    ),
 ]

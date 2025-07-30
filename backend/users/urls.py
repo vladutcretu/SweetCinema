@@ -1,39 +1,35 @@
 # Django
 from django.urls import path
 
-# 3rd party
-from rest_framework_simplejwt.views import TokenVerifyView, TokenRefreshView
-
 # App
+from rest_framework_simplejwt.views import TokenVerifyView, TokenRefreshView
 from .views import (
+    # Auth
     AuthGoogle,
+    # User
     UserDataView,
     UserListView,
     UserUpdateView,
-    UserUpdateCityView,
-    UserPasswordSetView,
-    UserPasswordVerifyView,
+    UserSetPasswordView,
+    UserVerifyPasswordView,
 )
 
 # Create your urls here.
 
 
 urlpatterns = [
+    # Auth
     path("auth-google/", AuthGoogle.as_view(), name="auth-google"),
     path("token/verify/", TokenVerifyView.as_view(), name="token-verify"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
-    path("", UserListView.as_view(), name="user-list"),
-    path("user/", UserDataView.as_view(), name="user-data"),
-    path("user/update/<int:pk>/", UserUpdateView.as_view(), name="user-update"),
+    # User
+    path("me/", UserDataView.as_view(), name="read-own-user"),
+    path("", UserListView.as_view(), name="read-users"),
+    path("<int:id>/", UserUpdateView.as_view(), name="update-users"),
+    path("set-password/", UserSetPasswordView.as_view(), name="user-set-password"),
     path(
-        "user/update-city/<int:user_id>/",
-        UserUpdateCityView.as_view(),
-        name="user-update-city",
-    ),
-    path("user/set-password/", UserPasswordSetView.as_view(), name="user-set-password"),
-    path(
-        "user/verify-password/",
-        UserPasswordVerifyView.as_view(),
+        "verify-password/",
+        UserVerifyPasswordView.as_view(),
         name="user-verify-password",
     ),
 ]

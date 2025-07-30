@@ -20,10 +20,10 @@ export const useReadShowtimesCashier = (userCity) => {
       setError(null)
       const response = await showtimeService.readShowtimesCashier(userCity)
       setShowtimes(response.data)
-      console.log("Read Showtimes Cashier successful:", response.data)
+      console.log("Staff - Read Showtimes for Cashier successful:", response.data)
     } catch (error) {
       setError('Showtimes for Cashier cannot be loaded. Please try again!')
-      console.error('Read Showtimes Cashier unsuccessful:', error)
+      console.error('Staff - Read Showtimes for Cashier unsuccessful:', error)
     } finally {
       setLoading(false)
     }

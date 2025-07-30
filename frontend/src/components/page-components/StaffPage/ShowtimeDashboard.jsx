@@ -13,7 +13,7 @@ import ShowtimeSeats from "../ShowtimePage/ShowtimeSeats"
 
 const ShowtimeDashboard = () => {
   const { user } = useAuthContext()
-  const { showtimes, loading: loadingShowtimes, error: errorShowtimes, } = useReadShowtimesCashier(user?.city)
+  const { showtimes, loading: loadingShowtimes, error: errorShowtimes, } = useReadShowtimesCashier(user?.city_id)
   const [selectedShowtime, setSelectedShowtime] = useState({ id: "", columns: "", starts_at: "" })
 
   const handleShowtimeSelect = (event) => {
@@ -48,7 +48,7 @@ const ShowtimeDashboard = () => {
         <NativeSelect.Field placeholder="Choose showtime">
         {showtimes?.map((s) => (
           <option key={s.id} value={s.id}>
-            {s.movie.title}, {s.theater.city.name}, {s.theater.name}, {formatDate(s.starts_at)}, {formatTime(s.starts_at)}
+            {s.movie.title}, {s.theater_name}, {formatDate(s.starts_at)}, {formatTime(s.starts_at)}
           </option>
         ))}
         </NativeSelect.Field>

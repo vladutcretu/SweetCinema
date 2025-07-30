@@ -20,10 +20,10 @@ export const useReadPayments = () => {
       setError(null)
       const response = await paymentService.readPayments()
       setPayments(response.data)
-      console.log("Read Payments successful:", response.data)
+      console.log("Staff - Read Payments successful:", response.data)
     } catch (error) {
       setError('Payments cannot be loaded. Please try again!')
-      console.error('Read Payments unsuccessful:', error)
+      console.error('Staff - Read Payments unsuccessful:', error)
     } finally {
       setLoading(false)
     }

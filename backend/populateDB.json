@@ -1,0 +1,938 @@
+[
+    {
+        "model": "auth.group",
+        "pk": 1,
+        "fields": {
+            "name": "Manager"
+        }
+    },
+    {
+        "model": "auth.group",
+        "pk": 2,
+        "fields": {
+            "name": "Employee"
+        }
+    },
+
+    {
+        "model": "auth.group",
+        "pk": 3,
+        "fields": {
+            "name": "Cashier"
+        }
+    },
+
+
+
+
+
+    {
+        "model": "locations.city",
+        "pk": 1,
+        "fields": {
+            "name": "Bucharest North",
+            "address": "Street Bucharest, Nr. 1, 103050",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "locations.city",
+        "pk": 2,
+        "fields": {
+            "name": "Cluj-Napoca",
+            "address": "Street Cluj-Napoca, Nr. 1, 204060",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "locations.city",
+        "pk": 3,
+        "fields": {
+            "name": "Iasi",
+            "address": "Street Iasi, Nr. 1, 103050",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "locations.city",
+        "pk": 4,
+        "fields": {
+            "name": "Bucharest South",
+            "address": "Street Bucharest, Nr. 2, 204060",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+
+
+
+
+
+    {
+        "model": "locations.theater",
+        "pk": 1,
+        "fields": {
+            "name": "Room 1",
+            "city": 1,
+            "rows": 4,
+            "columns": 6,
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "locations.theater",
+        "pk": 2,
+        "fields": {
+            "name": "Room 2",
+            "city": 1,
+            "rows": 3,
+            "columns": 5,
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "locations.theater",
+        "pk": 3,
+        "fields": {
+            "name": "Room #1",
+            "city": 2,
+            "rows": 2,
+            "columns": 5,
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "locations.theater",
+        "pk": 4,
+        "fields": {
+            "name": "Room #2",
+            "city": 2,
+            "rows": 3,
+            "columns": 4,
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "locations.theater",
+        "pk": 5,
+        "fields": {
+            "name": "Room 1",
+            "city": 3,
+            "rows": 2,
+            "columns": 5,
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "locations.theater",
+        "pk": 6,
+        "fields": {
+            "name": "Room 2",
+            "city": 3,
+            "rows": 3,
+            "columns": 6,
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },    
+    {
+        "model": "locations.theater",
+        "pk": 7,
+        "fields": {
+            "name": "Room A",
+            "city": 4,
+            "rows": 3,
+            "columns": 6,
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "locations.theater",
+        "pk": 8,
+        "fields": {
+            "name": "Room B",
+            "city": 4,
+            "rows": 4,
+            "columns": 8,
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+
+
+
+
+
+    {
+        "model": "locations.seat",
+        "pk": 1,
+        "fields": {
+            "theater": 1,
+            "row": 1,
+            "column": 1
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 2,
+        "fields": {
+            "theater": 1,
+            "row": 1,
+            "column": 2
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 3,
+        "fields": {
+            "theater": 1,
+            "row": 2,
+            "column": 1
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 4,
+        "fields": {
+            "theater": 1,
+            "row": 2,
+            "column": 2
+        }
+    },
+        {
+        "model": "locations.seat",
+        "pk": 5,
+        "fields": {
+            "theater": 2,
+            "row": 1,
+            "column": 1
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 6,
+        "fields": {
+            "theater": 2,
+            "row": 1,
+            "column": 2
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 7,
+        "fields": {
+            "theater": 2,
+            "row": 2,
+            "column": 1
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 8,
+        "fields": {
+            "theater": 2,
+            "row": 2,
+            "column": 2
+        }
+    },
+        {
+        "model": "locations.seat",
+        "pk": 9,
+        "fields": {
+            "theater": 3,
+            "row": 1,
+            "column": 1
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 10,
+        "fields": {
+            "theater": 3,
+            "row": 1,
+            "column": 2
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 11,
+        "fields": {
+            "theater": 3,
+            "row": 2,
+            "column": 1
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 12,
+        "fields": {
+            "theater": 3,
+            "row": 2,
+            "column": 2
+        }
+    },
+        {
+        "model": "locations.seat",
+        "pk": 13,
+        "fields": {
+            "theater": 4,
+            "row": 1,
+            "column": 1
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 14,
+        "fields": {
+            "theater": 4,
+            "row": 1,
+            "column": 2
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 15,
+        "fields": {
+            "theater": 4,
+            "row": 2,
+            "column": 1
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 16,
+        "fields": {
+            "theater": 4,
+            "row": 2,
+            "column": 2
+        }
+    },
+        {
+        "model": "locations.seat",
+        "pk": 17,
+        "fields": {
+            "theater": 5,
+            "row": 1,
+            "column": 1
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 18,
+        "fields": {
+            "theater": 5,
+            "row": 1,
+            "column": 2
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 19,
+        "fields": {
+            "theater": 5,
+            "row": 2,
+            "column": 1
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 20,
+        "fields": {
+            "theater": 5,
+            "row": 2,
+            "column": 2
+        }
+    },
+        {
+        "model": "locations.seat",
+        "pk": 21,
+        "fields": {
+            "theater": 6,
+            "row": 1,
+            "column": 1
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 22,
+        "fields": {
+            "theater": 6,
+            "row": 1,
+            "column": 2
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 23,
+        "fields": {
+            "theater": 6,
+            "row": 2,
+            "column": 1
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 24,
+        "fields": {
+            "theater": 6,
+            "row": 2,
+            "column": 2
+        }
+    },
+        {
+        "model": "locations.seat",
+        "pk": 25,
+        "fields": {
+            "theater": 7,
+            "row": 1,
+            "column": 1
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 26,
+        "fields": {
+            "theater": 7,
+            "row": 1,
+            "column": 2
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 27,
+        "fields": {
+            "theater": 7,
+            "row": 2,
+            "column": 1
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 28,
+        "fields": {
+            "theater": 7,
+            "row": 2,
+            "column": 2
+        }
+    },
+        {
+        "model": "locations.seat",
+        "pk": 29,
+        "fields": {
+            "theater": 8,
+            "row": 1,
+            "column": 1
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 30,
+        "fields": {
+            "theater": 8,
+            "row": 1,
+            "column": 2
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 31,
+        "fields": {
+            "theater": 8,
+            "row": 2,
+            "column": 1
+        }
+    },
+    {
+        "model": "locations.seat",
+        "pk": 32,
+        "fields": {
+            "theater": 8,
+            "row": 2,
+            "column": 2
+        }
+    },
+
+
+
+
+
+    {
+        "model": "movies.genre",
+        "pk": 1,
+        "fields": {
+            "name": "Action",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "movies.genre",
+        "pk": 2,
+        "fields": {
+            "name": "Comedy",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "movies.genre",
+        "pk": 3,
+        "fields": {
+            "name": "Drama",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "movies.genre",
+        "pk": 4,
+        "fields": {
+            "name": "Thriller",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "movies.genre",
+        "pk": 5,
+        "fields": {
+            "name": "Horror",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "movies.genre",
+        "pk": 6,
+        "fields": {
+            "name": "Western",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "movies.genre",
+        "pk": 7,
+        "fields": {
+            "name": "Sport",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "movies.genre",
+        "pk": 8,
+        "fields": {
+            "name": "Romance",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "movies.genre",
+        "pk": 9,
+        "fields": {
+            "name": "Sci-Fi",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "movies.genre",
+        "pk": 10,
+        "fields": {
+            "name": "Adventure",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "movies.genre",
+        "pk": 11,
+        "fields": {
+            "name": "Superhero",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+
+
+
+
+
+    {
+        "model": "movies.movie",
+        "pk": 1,
+        "fields": {
+            "title": "Superman",
+            "description": "Superman must reconcile his alien Kryptonian heritage with his human upbringing as reporter Clark Kent. As the embodiment of truth, justice and the human way he soon finds himself in a world that views these as old-fashioned.",
+            "genres": [11, 1, 10, 9],
+            "poster": "https://m.media-amazon.com/images/M/MV5BOGMwZGJiM2EtMzEwZC00YTYzLWIxNzYtMmJmZWNlZjgxZTMwXkEyXkFqcGc@._V1_.jpg",
+            "director": "James Gunn",
+            "cast": "David Corenswet, Rachel Brosnahan, Nicholas Hoult",
+            "release": "2025-07-11",
+            "duration": "02:09:00",
+            "parental_guide": "restricted",
+            "language": "english",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "movies.movie",
+        "pk": 2,
+        "fields": {
+            "title": "Jurassic World: Rebirth",
+            "description": "Five years post-Jurassic World: Dominion (2022), an expedition braves isolated equatorial regions to extract DNA from three massive prehistoric creatures for a groundbreaking medical breakthrough.",
+            "genres": [1, 10, 9, 4],
+            "poster": "https://m.media-amazon.com/images/M/MV5BMDE1N2EzMjAtMDY1My00YWE5LWEyYjYtYmE3YjZjNzQwNDhmXkEyXkFqcGc@._V1_.jpg",
+            "director": "Gareth Edwards",
+            "cast": "Scarlett Johansson, Mahershala Ali, Jonathan Bailey",
+            "release": "2025-07-02",
+            "duration": "02:13:00",
+            "parental_guide": "parental strongly",
+            "language": "french",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "movies.movie",
+        "pk": 3,
+        "fields": {
+            "title": "F1: The Movie",
+            "description": "A Formula One driver comes out of retirement to mentor and team up with a younger driver.",
+            "genres": [1, 7, 3],
+            "poster": "https://s3.amazonaws.com/nightjarprod/content/uploads/sites/261/2025/05/16140845/cxq7ZfwV4BFhdvBLfN3VBJh03go-scaled.jpg",
+            "director": "Joseph Kosinski",
+            "cast": "Brad Pitt, Damson Idris, Javier Bardem",
+            "release": "2025-06-25",
+            "duration": "02:35:00",
+            "parental_guide": "parental guidance",
+            "language": "italian",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "movies.movie",
+        "pk": 4,
+        "fields": {
+            "title": "The Fantastic Four: First Steps",
+            "description": "Forced to balance their roles as heroes with the strength of their family bond, the Fantastic Four must defend Earth from a ravenous space god called Galactus and his enigmatic Herald, Silver Surfer.",
+            "genres": [1, 11, 10, 9],
+            "poster": "https://m.media-amazon.com/images/M/MV5BOGM5MzA3MDAtYmEwMi00ZDNiLTg4MDgtMTZjOTc0ZGMyNTIwXkEyXkFqcGc@._V1_.jpg",
+            "director": "Matt Shakman",
+            "cast": "Pedro Pascal, Vanessa Kirby, Ebon Moss-Bachrach",
+            "release": "2025-07-22",
+            "duration": "01:55:00",
+            "parental_guide": "general",
+            "language": "german",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "movies.movie",
+        "pk": 5,
+        "fields": {
+            "title": "How to Train Your Dragon",
+            "description": "As an ancient threat endangers both Vikings and dragons alike on the isle of Berk, the friendship between Hiccup, an inventive Viking, and Toothless, a Night Fury dragon, becomes the key to both species forging a new future together.",
+            "genres": [1, 2, 3],
+            "poster": "https://m.media-amazon.com/images/M/MV5BODA5Y2M0NjctNWQzMy00ODRhLWE0MzUtYmE1YTAzZjYyYmQyXkEyXkFqcGc@._V1_.jpg",
+            "director": "Dean DeBlois",
+            "cast": "Mason Thames, Nico Parker, Gerard Butler",
+            "release": "2025-06-07",
+            "duration": "02:05:00",
+            "parental_guide": "adults",
+            "language": "spanish",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "movies.movie",
+        "pk": 6,
+        "fields": {
+            "title": "Ballerina",
+            "description": "An assassin trained in the traditions of the Ruska Roma organization sets out to seek revenge after her father's death.",
+            "genres": [1, 4],
+            "poster": "https://m.media-amazon.com/images/M/MV5BNzdhZmY2OTQtYWI4OC00ZThkLTlhZjAtNzE2YzRjM2Q5YjJlXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+            "director": "Len Wiseman",
+            "cast": "Ana de Armas, Keanu Reeves, Ian McShane",
+            "release": "2025-06-03",
+            "duration": "02:04:00",
+            "parental_guide": "restricted",
+            "language": "english",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+
+
+
+
+
+    {
+        "model": "showtimes.showtime",
+        "pk": 1,
+        "fields": {
+            "movie": 1,
+            "theater": 1,
+            "starts_at": "2026-01-01T12:00:00Z",
+            "format": "2D",
+            "presentation": "native",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "showtimes.showtime",
+        "pk": 2,
+        "fields": {
+            "movie": 2,
+            "theater": 1,
+            "starts_at": "2026-01-01T15:00:00Z",
+            "format": "3D",
+            "presentation": "dub",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "showtimes.showtime",
+        "pk": 3,
+        "fields": {
+            "movie": 3,
+            "theater": 1,
+            "starts_at": "2026-01-01T21:00:00Z",
+            "price": "40",
+            "format": "IMAX",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "showtimes.showtime",
+        "pk": 4,
+        "fields": {
+            "movie": 3,
+            "theater": 2,
+            "starts_at": "2026-01-01T15:00:00Z",
+            "format": "Dolby",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "showtimes.showtime",
+        "pk": 5,
+        "fields": {
+            "movie": 4,
+            "theater": 2,
+            "starts_at": "2026-01-01T18:00:00Z",
+            "presentation": "sub",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "showtimes.showtime",
+        "pk": 6,
+        "fields": {
+            "movie": 2,
+            "theater": 3,
+            "starts_at": "2026-01-01T14:00:00Z",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "showtimes.showtime",
+        "pk": 7,
+        "fields": {
+            "movie": 3,
+            "theater": 3,
+            "starts_at": "2026-01-01T17:00:00Z",
+            "format": "4DX",
+            "presentation": "sub",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "showtimes.showtime",
+        "pk": 8,
+        "fields": {
+            "movie": 4,
+            "theater": 3,
+            "starts_at": "2026-01-01T22:00:00Z",
+            "price": "50",
+            "presentation": "sub",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "showtimes.showtime",
+        "pk": 9,
+        "fields": {
+            "movie": 5,
+            "theater": 4,
+            "starts_at": "2026-01-01T20:00:00Z",
+            "price": "55",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "showtimes.showtime",
+        "pk": 10,
+        "fields": {
+            "movie": 6,
+            "theater": 4,
+            "starts_at": "2026-01-01T14:00:00Z",
+            "format": "ScreenX",
+            "presentation": "sub",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "showtimes.showtime",
+        "pk": 11,
+        "fields": {
+            "movie": 1,
+            "theater": 5,
+            "starts_at": "2026-01-01T15:00:00Z",
+            "price": "45",
+            "format": "Dolby",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "showtimes.showtime",
+        "pk": 12,
+        "fields": {
+            "movie": 3,
+            "theater": 5,
+            "starts_at": "2026-01-01T22:00:00Z",
+            "format": "2D",
+            "presentation": "dub",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "showtimes.showtime",
+        "pk": 13,
+        "fields": {
+            "movie": 3,
+            "theater": 6,
+            "starts_at": "2026-01-01T16:00:00Z",
+            "format": "IMAX",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "showtimes.showtime",
+        "pk": 14,
+        "fields": {
+            "movie": 5,
+            "theater": 6,
+            "starts_at": "2026-01-01T22:00:00Z",
+            "price": "40",
+            "presentation": "dub",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "showtimes.showtime",
+        "pk": 15,
+        "fields": {
+            "movie": 2,
+            "theater": 7,
+            "starts_at": "2026-01-01T12:00:00Z",
+            "price": "40",
+            "presentation": "dub",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "showtimes.showtime",
+        "pk": 16,
+        "fields": {
+            "movie": 4,
+            "theater": 7,
+            "starts_at": "2026-01-01T16:00:00Z",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "showtimes.showtime",
+        "pk": 17,
+        "fields": {
+            "movie": 6,
+            "theater": 7,
+            "starts_at": "2026-01-01T21:00:00Z",
+            "price": "60",
+            "format": "Dolby",
+            "presentation": "native",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "showtimes.showtime",
+        "pk": 18,
+        "fields": {
+            "movie": 6,
+            "theater": 8,
+            "starts_at": "2026-01-01T12:00:00Z",
+            "price": "55",
+            "format":"ScreenX",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "showtimes.showtime",
+        "pk": 19,
+        "fields": {
+            "movie": 4,
+            "theater": 8,
+            "starts_at": "2026-01-01T16:00:00Z",
+            "format":"4DX",
+            "presentation": "native",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    },
+    {
+        "model": "showtimes.showtime",
+        "pk": 20,
+        "fields": {
+            "movie": 2,
+            "theater": 8,
+            "starts_at": "2026-01-01T20:00:00Z",
+            "format":"3D",
+            "presentation": "sub",
+            "created_at": "2025-07-18T18:30:00Z",
+            "updated_at": "2025-07-18T18:30:00Z"
+        }
+    }
+]

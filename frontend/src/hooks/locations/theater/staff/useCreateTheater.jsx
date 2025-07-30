@@ -18,13 +18,13 @@ export const useCreateTheater = () => {
     try {
       const response = await theaterService.createTheater(name, city, rows, columns)
       setData(response.data)
-      alert(`✅ Theater ${name} created!`)
-      console.log("Create Theater successful:", response.data)
+      alert(`✅ Theater ${name}, ${city} created!`)
+      console.log("Staff - Create Theater successful:", response.data)
       return response.data
     } catch (error) {
       setError("Something went wrong while creating theater. Please try again.")
-      alert(`❌ Theater ${name} do not created!`)
-      console.error("Create Theater unsuccessful:", error)
+      alert(`❌ Theater ${name}, ${city} not created!`)
+      console.error("Staff - Create Theater unsuccessful:", error)
       return null
     } finally {
       setLoading(false)

@@ -31,7 +31,7 @@ const UserProfile = () => {
             {/* User Detail - potentially */}
 
             {/* Staff Detail */}
-            <StaffStatus />
+            {(user?.is_superuser || user?.is_staff || user?.groups.length > 0) && <StaffStatus />}
 
             {/* Bookings Detail */}
             <BookingHistory />

@@ -10,7 +10,7 @@ export function CityProvider({ children }) {
   // On component mount: use localStored values if exists, else set default values
   const [selectedCityId, setSelectedCityIdRaw] = useState(() => {
     const storedId = localStorage.getItem("selectedCityId")
-    return storedId ? parseInt(localStorage.getItem("selectedCityId")) : null
+    return storedId ? parseInt(localStorage.getItem("selectedCityId")) : 1
   })
 
   const [selectedCityName, setSelectedCityNameRaw] = useState(() => {

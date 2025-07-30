@@ -6,8 +6,7 @@ import { Center, Field, Heading, Input } from '@chakra-ui/react'
 
 // App
 import { useReadUsers } from '@/hooks/users/staff/useReadUsers'
-import { useUpdateStaffGroup } from '@/hooks/users/staff/useUpdateStaffGroup'
-import { useUpdateStaffCity } from '@/hooks/users/staff/useUpdateStaffCity'
+import { useUpdateUser } from '@/hooks/users/staff/useUpdateUser'
 import useFormState from '@/hooks/useFormState'
 import useSearchBar from '@/hooks/useSearchBar'
 import SearchBar from '@/components/common/SearchBar'
@@ -19,24 +18,23 @@ import FormWrapper from '@/components/common/FormWrapper'
 
 
 const UserManagement = () => {
-  const { users, loading: loadingUsers, error: errorUsers, refetch: getUsers } = useReadUsers()
-  const { updateStaffGroup, loading: loadingUpdateUser, error: errorUpdateUser } = useUpdateStaffGroup()
-  const { updateStaffCity, loading: loadingSetCashierCity, error: errorSetCashierCity } = useUpdateStaffCity()
+  const { users, loading: loadingUsers, error: errorUsers, refetch: readUsers } = useReadUsers()
+  const { updateUser, loading: loadingUpdateUser, error: errorUpdateUser } = useUpdateUser()
   const { searchTerm, handleChangeSearch, filteredData: filteredUsers } = useSearchBar(users, "username")
 
   // Build table
   const columns = [
     { key: 'id', title: 'ID' },
-    { key: 'user', title: 'Username / Email' },
+    { key: 'user', title: 'Email' },
     { key: 'groups', title: 'Groups' },
-    { key: 'setGroup', title: 'Set Group' }
+    { key: 'city', title: 'City' }
   ]
   const renderCell = (user, column) => {
     switch (column.key) {
       case 'id': return user.id
       case 'user': return `${user.username} / ${user.email}`
       case 'groups': return user.groups.join(", ")
-      default: return user[column.key]
+      case 'city': return user.city_id
     }
   }
   const renderActions = (user) => (
@@ -66,27 +64,30 @@ const UserManagement = () => {
 
   // Update user Group
   const [userId, setUserId] = useState("")
-  const [action, setAction] = useState([])
-  const handleButtonActions = (userId, action) => {
+  const [group, setGroup] = useState([])
+  const handleButtonActions = (userId, group) => {
     setUserId(userId)
-    if (action === "User") {
-        setAction([])
+    if (group === "User") {
+        setGroup([])
     } else {
-        setAction([action])
+        setGroup([group])
     }
   }
   const handleSubmitActions = async (event) => {
     event.preventDefault()
-    const result = await updateStaffGroup(userId, action)
-    if (result) await getUsers()
+    const result = await updateUser(userId, group)
+    if (result) await readUsers()
   }
 
-  // Update city for Cashier
-  const { formData: updatedForm, handleChange: handleChangeUpdate, resetForm } = useFormState({ id: "", city: "" })
-  const handleSubmitUpdate = (event) => {
+  // Update user City
+  const { formData: updatedForm, handleChange: handleChangeUpdate, resetForm } = useFormState({ id: "", group: "", city: "" })
+  const handleSubmitUpdate = async (event) => {
     event.preventDefault()
-    updateStaffCity(updatedForm.id, updatedForm.city)
-    resetForm()
+    const result = await updateUser(updatedForm.id, group, updatedForm.city)
+    if (result) {
+      resetForm()
+      await readUsers()
+    }
   }
 
   return (
@@ -108,13 +109,13 @@ const UserManagement = () => {
         noDataMessage="No users found!"
       />
 
-      {/* Update city for Cashier */}
+      {/* Update city */}
       <FormWrapper
-        title={"Update city for Cashier"}
+        title={"Update city"}
         onSubmit={handleSubmitUpdate}
         submitText={"Set city"}
-        loading={loadingSetCashierCity}
-        error={errorSetCashierCity}
+        loading={loadingUpdateUser}
+        error={errorUpdateUser}
       >
         <Field.Label>User ID:</Field.Label>
           <Input

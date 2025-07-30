@@ -14,22 +14,26 @@ import requests
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from rest_framework_simplejwt.tokens import RefreshToken
+from drf_spectacular.utils import extend_schema
 
 # App
 from .serializers import (
+    # User
     UserSerializer,
     UserUpdateSerializer,
-    UserUpdateCitySerializer,
-    UserPasswordCreateSerializer,
-    UserPasswordVerifySerializer,
+    UserPassworderializer,
 )
 from .permissions import IsManagerOrEmployeeOrCashier
-from .models import UserProfile
 
 # Create your views here.
 
 
 User = get_user_model()
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Auth
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
 class AuthGoogle(APIView):
@@ -152,75 +156,64 @@ class AuthGoogle(APIView):
         }
 
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# User
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+@extend_schema(tags=["v1 - Users"])
 class UserDataView(APIView):
     """
-    View to get details about requested user, providing information about
-    him and his groups, permissions.
-    Available to any role; required token authentication.
+    GET: retrieve data about user, providing context about it's
+    account, groups, permissions; available to any authenticated user.\n
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
 
     def get(self, request):
         return Response(UserSerializer(request.user).data)
 
 
+@extend_schema(tags=["v1 - Users"])
 class UserListView(ListAPIView):
     """
-    View to list all User objects.
-    Available to `Admins` only; required token authentication.
+    GET:  list all User objects; available to staff only.\n
     """
 
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
     permission_classes = [IsAdminUser]
+    serializer_class = UserSerializer
+    queryset = User.objects.select_related("userprofile")
 
 
+@extend_schema(tags=["v1 - Users"])
 class UserUpdateView(UpdateAPIView):
     """
-    View to update only `groups` attribute of a User.
-    Available to `Admins` only; required token authentication.
+    PATCH: update both (independently or together) user account (groups) and
+    profile (city) attributes;available to staff only.\n
+    `Note:` this endpoint can serve as an independent endpoint for user to update
+    his personal information: name, age, city etc when userprofile will be enhanced.\n
     """
 
-    queryset = User.objects.all()
+    permission_classes = [IsAdminUser]
     serializer_class = UserUpdateSerializer
-    permission_classes = [IsAdminUser]
-    http_method_names = ["patch"]  # to not show both methods on OpenAPI schema
-
-
-class UserUpdateCityView(UpdateAPIView):
-    """
-    View to update only `city` attribute of a UserProfile.
-    Available to `Admins` only; required token authentication.
-    """
-
-    queryset = UserProfile.objects.all()
-    serializer_class = UserUpdateCitySerializer
-    permission_classes = [IsAdminUser]
+    queryset = User.objects.select_related("userprofile")
+    lookup_field = "id"
     http_method_names = ["patch"]
 
-    def get_object(self):
-        """
-        Override get_object to find UserProfile by user_id instead of pk.
-        """
-        user_id = self.kwargs.get("user_id")
-        user = User.objects.get(id=user_id)
-        user_profile = UserProfile.objects.get(user=user)
-        return user_profile
 
-
-class UserPasswordSetView(APIView):
+@extend_schema(tags=["v1 - Users"])
+class UserSetPasswordView(APIView):
     """
-    View to let User set an account password.
-    Available to `Manager`, `Employee`, `Cashier` only; required token authentication.
+    POST: staff / 'Manager', 'Employee', 'Cashier' group set an account password.\n
     """
 
     permission_classes = [IsManagerOrEmployeeOrCashier]
 
     def post(self, request):
-        serializer = UserPasswordCreateSerializer(data=request.data)
+        serializer = UserPassworderializer(data=request.data)
         if serializer.is_valid():
-            new_password = serializer.validated_data["new_password"]
+            new_password = serializer.validated_data["password"]
             user = request.user
             user.set_password(new_password)
             user.save()
@@ -230,27 +223,27 @@ class UserPasswordSetView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserPasswordVerifyView(APIView):
+@extend_schema(tags=["v1 - Users"])
+class UserVerifyPasswordView(APIView):
     """
-    View to verify User password as second-factor auth for sensible data.
-    Available to `Manager`, `Employee`, `Cashier` only; required token authentication.
+    POST: staff / 'Manager', 'Employee', 'Cashier' group verify an account password.\n
     """
 
     permission_classes = [IsManagerOrEmployeeOrCashier]
 
     def post(self, request):
-        serializer = UserPasswordVerifySerializer(data=request.data)
+        serializer = UserPassworderializer(data=request.data)
         if serializer.is_valid():
             password = serializer.validated_data["password"]
             user = request.user
             user.check_password(password)
             if user.check_password(password):
                 return Response(
-                    {"success": "Password matches"}, status=status.HTTP_200_OK
+                    {"success": "Password matches."}, status=status.HTTP_200_OK
                 )
             else:
                 return Response(
-                    {"failure": "Password do not match"},
+                    {"failure": "Password do not match."},
                     status=status.HTTP_401_UNAUTHORIZED,
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

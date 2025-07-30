@@ -2,30 +2,32 @@ from django.urls import path
 
 # App
 from .views import (
-    GenreListView,
-    GenreCreateView,
+    # Genre
+    GenreListCreateView,
     GenreUpdateDestroyView,
+    # Movie
     MovieListView,
-    MovieRetrieveView,
-    MovieCreateView,
-    MovieUpdateDestroyView,
+    MovieStaffListCreateView,
+    MovieRetrieveUpdateDestroyView,
 )
 
 # Create your urls here.
 
 
 urlpatterns = [
-    path("genres/", GenreListView.as_view(), name="genre-list"),
-    path("genres/create/", GenreCreateView.as_view(), name="genre-create"),
+    # Genre
+    path("genres/", GenreListCreateView.as_view(), name="create-read-genres"),
     path(
-        "genres/<int:pk>/",
+        "genres/<int:id>/",
         GenreUpdateDestroyView.as_view(),
-        name="genre-update-destroy",
+        name="update-delete-genres",
     ),
-    path("", MovieListView.as_view(), name="movie-list"),
-    path("<int:pk>/", MovieRetrieveView.as_view(), name="movie-retrieve"),
-    path("create/", MovieCreateView.as_view(), name="movie-create"),
+    # Movie
+    path("", MovieListView.as_view(), name="read-movies"),
+    path("staff/", MovieStaffListCreateView.as_view(), name="create-read-movies"),
     path(
-        "movie/<int:pk>/", MovieUpdateDestroyView.as_view(), name="movie-update-destroy"
+        "<int:id>/",
+        MovieRetrieveUpdateDestroyView.as_view(),
+        name="retrieve-update-delete-movies",
     ),
 ]

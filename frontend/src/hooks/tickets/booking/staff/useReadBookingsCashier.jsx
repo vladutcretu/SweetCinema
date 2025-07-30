@@ -20,10 +20,10 @@ export const useReadBookingsCashier = (cashierCity) => {
       setError(null)
       const response = await bookingService.readBookingsCashier(cashierCity)
       setBookings(response.data)
-      console.log("Read Bookings Cashier successful:", response.data)
+      console.log("Staff / Cashier - Read Bookings Cashier successful:", response.data)
     } catch (error) {
       setError('Bookings for Cashier cannot be loaded. Please try again!')
-      console.error('Read Bookings Cashier unsuccessful:', error)
+      console.error('Staff / Cashier - Read Bookings Cashier unsuccessful:', error)
     } finally {
       setLoading(false)
     }

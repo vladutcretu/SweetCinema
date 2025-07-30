@@ -2,48 +2,32 @@ from django.urls import path
 
 # App
 from .views import (
-    BookingCreateReserveView,
-    BookingCreatePaymentView,
-    BookingRetrieveView,
-    PaymentCreateView,
-    BookingUpdateStatusView,
+    # Booking
+    BookingListCreateView,
+    BookingUpdateView,
+    BookingPaymentTimeoutView,
     BookingListPaymentView,
-    BoookingListView,
-    BookingCashierUpdateView,
-    BookingCashierListView,
-    BookingUserListView,
-    BookingUserUpdateView,
-    PaymentListView,
+    # Payment
+    PaymentListCreateView,
 )
 
 # Create your urls here.
 
 
 urlpatterns = [
-    path("reserve/", BookingCreateReserveView.as_view(), name="reserve-create"),
-    path("purchase/", BookingCreatePaymentView.as_view(), name="pay-create"),
-    path("booking/<int:pk>/", BookingRetrieveView.as_view(), name="booking-detail"),
-    path("pay/", PaymentCreateView.as_view(), name="payment-create"),
-    path("pay/timeout/", BookingUpdateStatusView.as_view(), name="payment-timeout"),
+    # Booking
+    path("bookings/", BookingListCreateView.as_view(), name="create-read-bookings"),
+    path("bookings/<int:id>/", BookingUpdateView.as_view(), name="update-bookings"),
     path(
-        "pay/bookings/", BookingListPaymentView.as_view(), name="payment-bookings-list"
-    ),
-    path("bookings/", BoookingListView.as_view(), name="bookings-list"),
-    path(
-        "booking/cashier/",
-        BookingCashierListView.as_view(),
-        name="bookings-cashier-list",
+        "bookings/mark-failed/",
+        BookingPaymentTimeoutView.as_view(),
+        name="mark-failed-bookings",
     ),
     path(
-        "bookings/cashier/<int:pk>/",
-        BookingCashierUpdateView.as_view(),
-        name="bookings-cashier-update",
+        "bookings/payments/",
+        BookingListPaymentView.as_view(),
+        name="read-payment-bookings",
     ),
-    path("bookings/history/", BookingUserListView.as_view(), name="bookings-history"),
-    path(
-        "booking/<int:pk>/cancel/",
-        BookingUserUpdateView.as_view(),
-        name="booking-update",
-    ),
-    path("payments/", PaymentListView.as_view(), name="payments-list"),
+    # Payment
+    path("payments/", PaymentListCreateView.as_view(), name="create-read-payments"),
 ]

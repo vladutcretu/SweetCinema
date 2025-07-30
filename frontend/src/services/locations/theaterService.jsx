@@ -5,18 +5,17 @@ import api from "../Api"
 
 
 export const theaterService = {
-  // Staff: CRUD
-  createTheater: (name, city, rows, columns) => api.post(`/locations/theaters/create/`, { 
+  readTheaters: () => api.get(`/v1/locations/theaters/`),
+  createTheater: (name, city, rows, columns) => api.post(`/v1/locations/theaters/`, { 
     name: name, 
     city: city, 
     rows: rows,
     columns: columns 
   }),
-  readTheaters: () => api.get(`/locations/theaters/`),
-  updateTheater: (theaterId, name, rows, columns) => api.patch(`/locations/theaters/staff/${theaterId}/`, { 
+  updateTheater: (theaterId, name, rows, columns) => api.patch(`/v1/locations/theaters/${theaterId}/`, { 
     name: name, 
     rows: rows, 
     columns: columns
    }),
-  deleteTheater: (theaterId) => api.delete(`/locations/theaters/staff/${theaterId}/`),
+  deleteTheater: (theaterId) => api.delete(`/v1/locations/theaters/${theaterId}/`),
 }

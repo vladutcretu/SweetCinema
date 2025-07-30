@@ -18,12 +18,12 @@ export const useReadMovies = () => {
     try {
       setLoading(true)
       setError(null)
-      const response = await movieService.getMovies()
+      const response = await movieService.readMoviesStaff()
       setMovies(response.data)
-      console.log("Get Movies successful:", response.data)
+      console.log("Staff - Read Movies successful:", response.data)
     } catch (error) {
-      setError('Movies cannot be loaded. Please try again!')
-      console.error('Get Movies unsuccessful:', error)
+      setError("Something went wrong while reading movies. Please try again.")
+      console.error('Staff - Read Movies unsuccessful:', error)
     } finally {
       setLoading(false)
     }

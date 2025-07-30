@@ -3,11 +3,11 @@ import { useState } from "react"
 import { useLocation } from "react-router-dom"
 
 // UI
-import { Box, Stack, Heading, Badge, Text, Spinner, SimpleGrid } from "@chakra-ui/react"
+import { Box, Stack, Heading, Text, Spinner, SimpleGrid } from "@chakra-ui/react"
 
 // App
 import { useAuthContext } from "@/contexts/AuthContext"
-import { useGetPaymentBookings } from "@/hooks/tickets/useGetPaymentBookings"
+import { useReadPaymentBookings } from "@/hooks/tickets/useReadPaymentBookings"
 import Page404 from "@/components/common/Page404"
 import { formatDate, formatTime } from "@/utils/DateTimeFormat"
 import PaymentMethod from "./PaymentMethod"
@@ -28,7 +28,7 @@ const PaymentPresentation = () => {
   const { bookingIds, seatsNumber } = location.state || {}
   if (!bookingIds || !seatsNumber) return <Text color="red.500">Missing booking information. Please reserve seats first!</Text>
 
-  const { bookings, totalPrice, loadingBookings, errorBookings } = useGetPaymentBookings(bookingIds)
+  const { bookings, totalPrice, loadingBookings, errorBookings } = useReadPaymentBookings(bookingIds)
   if (loadingBookings) return <Spinner />
   if (errorBookings) return <Text color="red.400">An error occurred: {errorBookings}</Text>
   if (!bookings?.length) return <Text color="red.400">No bookings found!</Text>
@@ -47,16 +47,11 @@ const PaymentPresentation = () => {
         >
           {/* Showtime Detail */}
           <Stack spacing={3}>
-            <Heading size="xl">{bookings[0].showtime.movie.title}</Heading> {/* {booking.showtime.movie.release.year} */}
-            <Stack direction="row" wrap="wrap">
-              {bookings[0].showtime.movie.genres.map((genre) => (
-                <Badge key={genre.id} colorScheme="teal" variant="subtle">{genre.name}</Badge>
-              ))}
-            </Stack>
-            <Text><b>Format:</b></Text> {/* {booking.showtime.theater.format}, {booking.showtime.theater.lang} */}
-            <Text><b>Date/Time:</b> {formatDate(bookings[0].showtime.starts_at)}, {formatTime(bookings[0].showtime.starts_at)}</Text>
-            <Text><b>Location:</b> {bookings[0].showtime.theater.city.name}, {bookings[0].showtime.theater.name}</Text>
-            <Text><b>Location address:</b></Text> {/* {booking.showtime.theater.city.address} */}
+            <Heading size="xl">{bookings[0].movie_title} ({bookings[0].movie_release})</Heading>
+            <Text><b>Format:</b> {bookings[0].showtime_format}</Text> 
+            <Text><b>Date/Time:</b> {formatDate(bookings[0].showtime_starts)}, {formatTime(bookings[0].showtime_starts)}</Text>
+            <Text><b>Location:</b> {bookings[0].city_name}, {bookings[0].theater_name}</Text>
+            <Text><b>Location address:</b> {bookings[0].city_address}</Text>
           </Stack>
 
           {/* Bookings Detail */}
@@ -65,7 +60,7 @@ const PaymentPresentation = () => {
             <SimpleGrid columns={bookings.length} spacing={2}>
               {bookings.map((booking) => (
                 <Box
-                  key={booking.id}
+                  key={booking.seat.id}
                   bg="#4B4E6D"
                   p={2}
                   minW="20px"
@@ -74,8 +69,8 @@ const PaymentPresentation = () => {
                   borderRadius="md"
                   textAlign="center"
                 >
-                  <Text fontWeight="bold">R{booking.seat.row} C{booking.seat.column}</Text>
-                  <Text><b>Price:</b> ${booking.showtime.price}</Text>
+                  <Text fontWeight="bold">R{booking.seat.row}-C{booking.seat.column}</Text>
+                  <Text><b>Price:</b> ${bookings[0].showtime_price}</Text>
                 </Box>
               ))}
             </SimpleGrid>

@@ -8,7 +8,7 @@ import { Box, Heading, SimpleGrid, Spinner, Tabs, Text } from "@chakra-ui/react"
 
 // App
 import { useCityContext } from "@/contexts/CityContext"
-import { useGetShowtimesByCity } from "@/hooks/showtimes/useGetShowtimesByCity"
+import { useReadShowtimesByCity } from "@/hooks/showtimes/useReadShowtimesByCity"
 import ShowtimesByDay from "@/components/page-components/ShowtimesPage/ShowtimesByDay"
 import ShowtimeCard from "@/components/page-components/ShowtimesPage/ShowtimeCard"
 
@@ -17,7 +17,7 @@ import ShowtimeCard from "@/components/page-components/ShowtimesPage/ShowtimeCar
 
 const Showtimes = () => {
   const { selectedCityId, selectedCityName } = useCityContext()
-  const { showtimes, loading, error } = useGetShowtimesByCity(selectedCityId)
+  const { showtimes, loading, error } = useReadShowtimesByCity(selectedCityId)
   const groupedShowtimes = ShowtimesByDay(showtimes)
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
   // Get current day, format it and set as default state 

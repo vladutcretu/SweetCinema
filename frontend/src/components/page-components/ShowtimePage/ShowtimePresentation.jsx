@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom"
 import { Box, Stack, Heading, Text, Spinner } from "@chakra-ui/react"
 
 // App
-import { useGetShowtime } from "@/hooks/showtimes/useGetShowtime"
+import { useReadShowtime } from "@/hooks/showtimes/useReadShowtime"
 import { formatDate, formatTime } from "@/utils/DateTimeFormat"
 import BackButton from "@/components/common/BackButton"
 import ShowtimeSeats from "./ShowtimeSeats"
@@ -15,14 +15,14 @@ import ShowtimeSeats from "./ShowtimeSeats"
 
 const ShowtimePresentation = () => {
   const { showtimeId } = useParams()
-  const { showtime, loading: showtimeLoading, error: showtimeError } = useGetShowtime(showtimeId)
+  const { showtime, loading: showtimeLoading, error: showtimeError } = useReadShowtime(showtimeId)
 
   if (showtimeLoading) {
     return <Spinner />
   }
     
   if (showtimeError) {
-    return <Text color="red.400">An error occurred: {showtimeError}</Text>
+    return <Text color="red.400">{showtimeError}</Text>
   }  
 
   return (
@@ -38,10 +38,10 @@ const ShowtimePresentation = () => {
           >
             {/* Showtime Detail */}
             <Stack spacing={3}>
-                <Heading size="xl">{showtime.movie.title}</Heading>
+                <Heading size="xl">{showtime.movie_title}</Heading>
                 <Text><b>Theater:</b> {showtime.theater.name}</Text>
                 <Text><b>Date & Time:</b> {formatTime(showtime.starts_at)}, {formatDate(showtime.starts_at)}</Text>
-                <Text><b>Format:</b> {showtime.format}</Text>
+                <Text><b>Details:</b> {showtime.format}, {showtime.presentation}</Text>
                 <Text><b>Ticket Price:</b> ${showtime.price}</Text>
             </Stack> 
 
@@ -49,10 +49,7 @@ const ShowtimePresentation = () => {
             <ShowtimeSeats showtimeId={showtimeId} theaterColumns={showtime.theater.columns} showtimeStart={showtime.starts_at}/>
 
             {/* Back to movie list button */}
-            <BackButton 
-                to={"/"} 
-                text={"home"} 
-            />
+            <BackButton to={"/"} text={"home"} />
           </Box>
         </Stack>
     </Box>

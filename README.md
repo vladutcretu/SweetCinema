@@ -7,20 +7,25 @@ SweetCinema is an open-source educational project inspired by an idea from [road
 2. [Technology stack](#technology-stack)
 3. [Technical achitecture](#technical-architecture)
     - [Features](#features)
-    - [User workflow](#user-workflow)
+    - [Users workflow](#users-workflow)
     - [DB schema design](#db-schema-design)
-4. [Local installation](#local-installation)
+    - [API endpoints design](#api-endpoints-design)
+4. [Demo](#demo)
+    - [Visual presentation](#visual-presentation)
+    - [Local installation](#local-installation)
 
 
 ## Notes
 Check the file [NOTES.md](NOTES.md) to see Release Notes or Development Notes. It's best way to find the app features, steps taken during development and more important, the behind thinking-process. If there's too much information for your time, below is a concise description of the technical aspects.
 
+
 ## Technology stack
 - ⚙️ Backend: [Django REST Framework](https://www.django-rest-framework.org) with
     - 🧰 [Django ORM](https://docs.djangoproject.com/en/5.2/topics/db/queries/) for interactions with database.
-    - 🐛 [Django unittest](https://docs.djangoproject.com/en/5.1/topics/testing/overview/), [DRF Testing](https://www.django-rest-framework.org/api-guide/testing/) and [Postman](https://www.postman.com) for tests.
-    - 🧶 [Ruff](https://docs.astral.sh/ruff/) for linting and code formatting.
+    - 🐛 [Postman](https://www.postman.com), [DRF Testing](https://www.django-rest-framework.org/api-guide/testing/), [pytest-django](https://pytest-django.readthedocs.io/en/latest/) and [pytest-cov](https://pytest-cov.readthedocs.io/en/latest) for tests.
+    - 🔍 [Silk](https://silk.readthedocs.io/en/latest/index.html) and [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/latest/index.html) for inspecting requests and queries.
     - 📄 [DRF-spectacular](https://drf-spectacular.readthedocs.io/en/latest/) for OpenAPI documentation.
+    - 🧶 [Ruff](https://docs.astral.sh/ruff/) for linting and code formatting.
 - 💾 Database: [PostgresQL](https://www.postgresql.org/).
 - 🖼️ Frontend: [ReactJS](https://react.dev/) and [Vite](https://vite.dev) with
     - ⚡ [Chakra UI](https://chakra-ui.com) for designing components.
@@ -32,33 +37,42 @@ Check the file [NOTES.md](NOTES.md) to see Release Notes or Development Notes. I
     - 🥬[Celery](https://docs.celeryq.dev/en/stable/index.html), with [Redis](https://pypi.org/project/redis/) as broker/backend, and [django-celery-beat](https://django-celery-beat.readthedocs.io/en/latest/) for scheduling tasks.
     
 
-
 ## Technical architecture
 
 ### Features 
-1. User authentication & roles: 
-    - Signup & Login: using personal Google account
-    - JWT-based authentication: secure access to the API endpoints using JSON Web Tokens
-    - User Roles: `regular user`, `admin`, `Manager`, `Employee`, `Cashier`
-2. City, Theater, Seat management: 
-    - `Manager` can create, read, update, and delete locations
-    - Other roles can interact with these entities depending on their permissions
-3. Movie, Genre, Showtime management:
-    - `Manager` & `Employee` can create, read, update, and delete entries
-    - All users can view these entries.
-4. Tickets Reservation / Purchasing management: 
-    - `regular user` can view all seats for a specific showtime, reserve / purchase seats, view their upcoming / past tickets and cancel active reservations
-    - `Cashier` can view all reservations within their assigned city, complete reservations and sell tickets to walk-in customers
-5. Reporting: `Manager` can generate reports for a showtime, including total tickets sold & revenue
+1. **User authentication & roles**
+   - Google OAuth2 login
+   - JWT-based API authentication
+   - Role-based access: regular user, Manager, Employee, Cashier, admin
+2. **Cinema location management**
+   - City & Theater CRUD by Manager
+   - Auto seat generation per Theater capacity
+3. **Cinema content management**
+    - Movies, Genres, and Showtimes CRUD by Manager / Employee
+4. **Tickets management**
+   - Seat reservation (limited up to 5 seats and 30 minutes until showtime starts)
+   - Seat purchase (with simulated payment)
+   - History and cancelation for active reservation
+   - Staff-assisted sales and completed reservation (Cashier)
+5. **Reporting**
+   - Report with showtime metrics for Manager: revenue, tickets sold, and occupancy rate
 
 ### Users workflow
 ![Users workflow](https://i.imgur.com/TqFAPnF.jpeg)
 
 ### DB schema design
-![DB schema design](https://i.imgur.com/yLJjfqx.png)
+![DB schema design](https://i.imgur.com/cywmtcE.png)
+
+### API endpoints design
+![API endpoints design](https://i.imgur.com/iYHytlL.png)
 
 
-## Local installation
+## Demo
+
+### Visual presentation
+Images for presentation of the application are present in the [demo directory](.demo).
+
+### Local installation
 1. Clone the repository and navigate into the project folder:
    ```sh
    git clone https://github.com/vladutcretu/SweetCinema.git
@@ -81,10 +95,18 @@ Check the file [NOTES.md](NOTES.md) to see Release Notes or Development Notes. I
 
 3. Build and run the containers:
    ```sh
-   docker-compose up --build
+   docker-compose up --build -d
    ```
 
-4. Open your web browser and navigate to:
-- [http://127.0.0.1:8000](http://127.0.0.1:8000) for backend
+4. Prepare database:
+    ```sh
+    docker-compose exec backend python manage.py makemigrations
+    docker-compose exec backend python manage.py migrate
+    docker-compose exec backend python manage.py createsuperuser
+    docker-compose exec backend python manage.py loaddata populateDB.json
+    ```
+
+5. Open your web browser and navigate to:
 - [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/) for admin panel
+- [http://127.0.0.1:8000/api/schema/swagger/](http://127.0.0.1:8000/api/schema/swagger/) for OpenAPI documentation
 - [http://127.0.0.1:5173](http://127.0.0.1:5173) for frontend

@@ -17,6 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
 
 # 3rd party apps
 from drf_spectacular.views import (
@@ -24,6 +25,16 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+
+# Write your urls here.
+
+v1_patterns = [
+    path("api/v1/locations/", include("locations.urls")),
+    path("api/v1/movies/", include("movies.urls")),
+    path("api/v1/showtimes/", include("showtimes.urls")),
+    path("api/v1/tickets/", include("tickets.urls")),
+    path("api/v1/users/", include("users.urls")),
+]
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -39,14 +50,13 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc",
     ),
-    # Locations app
-    path("api/locations/", include("locations.urls")),
-    # Movies app
-    path("api/movies/", include("movies.urls")),
-    # Showtimes app
-    path("api/showtimes/", include("showtimes.urls")),
-    # Tickets app
-    path("api/tickets/", include("tickets.urls")),
-    # Users app
-    path("api/users/", include("users.urls")),
+    *v1_patterns,
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+
+    urlpatterns += [
+        path("__debug__/", include(debug_toolbar.urls)),
+    ]
+    urlpatterns += [path("silk/", include("silk.urls", namespace="silk"))]

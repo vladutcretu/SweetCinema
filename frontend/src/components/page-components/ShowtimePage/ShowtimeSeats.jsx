@@ -3,7 +3,7 @@ import { Box, Text, SimpleGrid, Badge, Spinner, Heading, Checkbox } from "@chakr
 
 // App
 import { useAuthContext } from "@/contexts/AuthContext"
-import { useGetShowtimeSeats } from "@/hooks/showtimes/useGetShowtimeSeats"
+import { useReadShowtimeSeats } from "@/hooks/showtimes/useReadShowtimeSeats"
 import { useShowtimeSeatSelect } from "@/hooks/showtimes/useShowtimeSeatSelect"
 import ShowtimeTicket from "./ShowtimeTicket"
 
@@ -18,7 +18,7 @@ const ShowtimeSeats = ({ showtimeId, theaterColumns, showtimeStart }) => {
     loading: showtimeSeatsLoading, 
     error: showtimeSeatsError, 
     refetch: updateShowtimeSeats 
-  } = useGetShowtimeSeats(showtimeId)
+  } = useReadShowtimeSeats(showtimeId)
   const { selectedSeats, toggleSeat, selectedSeatIds, setSelectedSeats } = useShowtimeSeatSelect()
   // Get current datetime + 30 mintes to compare with showtime starts_at datetime
   const now = new Date()
@@ -32,13 +32,8 @@ const ShowtimeSeats = ({ showtimeId, theaterColumns, showtimeStart }) => {
     purchased: "red.500",
 }
 
-  if (showtimeSeatsLoading) {
-    return <Spinner />
-  }
-
-  if (showtimeSeatsError) {
-    return <Text color="red.400">An error occurred: {showtimeSeatsError}</Text>
-  }
+  if (showtimeSeatsLoading) return <Spinner />
+  if (showtimeSeatsError) return <Text color="red.400">{showtimeSeatsError}</Text>
 
   return (
     <Box mt={10}>
@@ -62,7 +57,7 @@ const ShowtimeSeats = ({ showtimeId, theaterColumns, showtimeStart }) => {
             >
               {/* <Text fontSize="sm" fontWeight="bold">#{seat.id}</Text> */}
               <Text fontSize="sm" fontWeight="bold">R{seat.row} C{seat.column}</Text>
-              <Badge mt={1} fontSize="0.7em">{seat.status}</Badge>
+              <Badge mt={1} fontSize="0.7em">{seat.status}</Badge><br />
               {/* Seat select */}
               {seat.status === "available" && (
                 <Checkbox.Root 

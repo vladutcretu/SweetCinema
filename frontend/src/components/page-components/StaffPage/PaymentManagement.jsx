@@ -15,7 +15,7 @@ const PaymentManagement = () => {
   const { payments, loading: loadingPayments, error: errorPayments } = useReadPayments()
   const { searchTerm, handleChangeSearch, filteredData: filteredPayments } = useSearchBar(
     payments, 
-    (payment) => payment.bookings[0].showtime.movie.title
+    (payment) => payment.bookings[0].showtime.movie_title
   )
   
   // Read payments
@@ -35,9 +35,9 @@ const PaymentManagement = () => {
       case "id": return payment.id
       case "user": return payment.user
       case "booking": return (`
-        ${payment.bookings[0].showtime.movie.title}: 
-        ${payment.bookings[0].showtime.theater.city.name}, 
-        ${payment.bookings[0].showtime.theater.name}, 
+        ${payment.bookings[0].showtime.movie_title}: 
+        ${payment.bookings[0].showtime.city_name}, 
+        ${payment.bookings[0].showtime.theater_name}, 
         ${formatDate(payment.bookings[0].showtime.starts_at)}, 
         ${formatTime(payment.bookings[0].showtime.starts_at)}
       `)

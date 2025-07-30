@@ -6,12 +6,12 @@ import api from "../Api"
 
 export const authService = {
   // User
-  authGoogle: (code) => api.post(`/users/auth-google/`, { code }),
-  verifyToken: (accessToken) => api.post(`/users/token/verify/`, { token: accessToken }),
-  refreshToken: (refreshToken) => api.post(`/users/token/refresh/`, { refresh: refreshToken }),
-  getUserData: () => api.get(`/users/user/`),
+  authGoogle: (code) => api.post(`/v1/users/auth-google/`, { code }),
+  verifyToken: (accessToken) => api.post(`/v1/users/token/verify/`, { token: accessToken }),
+  refreshToken: (refreshToken) => api.post(`/v1/users/token/refresh/`, { refresh: refreshToken }),
+  getUserData: () => api.get(`v1/users/me/`),
 
   // Staff
-  setPasswordStaff: (password) => api.post(`/users/user/set-password/`, { new_password: password }),
-  verifyPasswordStaff: (password) => api.post(`/users/user/verify-password/`, { password: password }),
+  setPassword: (password) => api.post(`/v1/users/set-password/`, { password: password }),
+  verifyPassword: (password) => api.post(`/v1/users/verify-password/`, { password: password }),
 }

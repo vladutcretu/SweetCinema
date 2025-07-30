@@ -19,12 +19,12 @@ export const useUpdateTheater = () => {
       const response = await theaterService.updateTheater(theaterId, name, rows, columns)
       setData(response.data)
       alert(`✅ Theater updated!`)
-      console.log("Update Theater successful:", response.data)
+      console.log("Staff - Update Theater successful:", response.data)
       return response.data
     } catch (error) {
       setError("Something went wrong while updating theater. Please try again.")
-      alert(`❌ Theater ${name} do not updated!`)
-      console.error("Update Theater unsuccessful:", error)
+      alert(`❌ Theater ${name} not updated!`)
+      console.error("Staff - Update Theater unsuccessful:", error)
       return null
     } finally {
       setLoading(false)

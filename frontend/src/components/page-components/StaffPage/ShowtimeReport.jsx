@@ -36,7 +36,7 @@ const ShowtimeReport = () => {
         <NativeSelect.Field placeholder="Choose showtime to generate report">
           {showtimes?.map((s) => (
             <option key={s.id} value={s.id}>
-              {s.movie.title}, {s.theater.city.name}, {s.theater.name}, {formatDate(s.starts_at)}, {formatTime(s.starts_at)}
+              {s.movie_title}, {s.city_name}, {s.theater_name}, {formatDate(s.starts_at)}, {formatTime(s.starts_at)}
             </option>
           ))}
         </NativeSelect.Field>
@@ -47,11 +47,11 @@ const ShowtimeReport = () => {
       {showtimeReport && (
         <Box bg="#84DCC6" borderRadius="md" p={6} mt={4}>
           <SimpleGrid columns={3} spacingY={2} spacingX={6}>
-            <Text><strong>Movie:</strong> {showtimeReport.movie}</Text>
-            <Text><strong>Location:</strong> {showtimeReport.city}, {showtimeReport.theater}</Text>
+            <Text><strong>Movie:</strong> {showtimeReport.movie_title}</Text>
+            <Text><strong>Location:</strong> {showtimeReport.city_name}, {showtimeReport.theater_name}</Text>
             <Text><strong>Date/Time:</strong> {formatDate(showtimeReport.starts_at)}, {formatTime(showtimeReport.starts_at)}</Text>
             <Text><strong>Tickets Sold:</strong> {showtimeReport.tickets_sold}</Text>
-            <Text><strong>Total Revenue:</strong> {showtimeReport.total_revenue}</Text>
+            <Text><strong>Total Revenue:</strong> ${showtimeReport.total_revenue}</Text>
             <Text><strong>Occupancy:</strong> {showtimeReport.occupancy_percentage}%</Text>
           </SimpleGrid>
         </Box>

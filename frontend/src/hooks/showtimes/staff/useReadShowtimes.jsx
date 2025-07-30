@@ -20,10 +20,10 @@ export const useReadShowtimes = () => {
       setError(null)
       const response = await showtimeService.readShowtimes()
       setShowtimes(response.data)
-      console.log("Read Showtimes successful:", response.data)
+      console.log("Staff - Read Showtimes successful:", response.data)
     } catch (error) {
       setError('Showtimes cannot be loaded. Please try again!')
-      console.error('Read Showtimes unsuccessful:', error)
+      console.error('Staff - Read Showtimes unsuccessful:', error)
     } finally {
       setLoading(false)
     }

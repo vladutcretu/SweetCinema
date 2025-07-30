@@ -5,6 +5,9 @@ from django.db import models
 
 class City(models.Model):
     name = models.CharField(max_length=55, unique=True)
+    address = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name_plural = "Cities"
@@ -19,10 +22,13 @@ class Theater(models.Model):
     city = models.ForeignKey(City, on_delete=models.CASCADE, related_name="theaters")
     rows = models.PositiveSmallIntegerField()
     columns = models.PositiveSmallIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name_plural = "Theaters"
         ordering = ["city__name", "name"]
+        unique_together = ("name", "city")
 
     def save(self, *args, **kwargs):
         """
@@ -40,7 +46,7 @@ class Theater(models.Model):
         Seat.objects.bulk_create(seats)
 
     def __str__(self):
-        return f"{self.city.name}, {self.name}"
+        return f"{self.city.name}, {self.name}, R{self.rows}-C{self.columns}"
 
 
 class Seat(models.Model):
@@ -54,4 +60,4 @@ class Seat(models.Model):
         unique_together = ("theater", "row", "column")
 
     def __str__(self):
-        return f"{self.theater.city.name}, {self.theater.name}: R{self.row} - C{self.column}"
+        return f"{self.theater.city}, {self.theater.name}, R{self.row}-C{self.column}"

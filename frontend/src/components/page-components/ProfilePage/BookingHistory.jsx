@@ -1,11 +1,12 @@
 // UI
-import { Box, Heading } from "@chakra-ui/react"
+import { Box, Heading, Text } from "@chakra-ui/react"
 
 // App
-import { useGetBookingHistory } from "@/hooks/tickets/booking/useGetBookingHistory"
+import { useReadBookings } from "@/hooks/tickets/booking/useReadBookings"
+import { useUpdateBooking } from "@/hooks/tickets/booking/useUpdateBooking"
 import { formatDate, formatTime } from "@/utils/DateTimeFormat"
 import ReusableTable from "@/components/common/ReusableTable"
-import BookingCancelButton from "./BookingCancelButton"
+import SubmitButton from "@/components/common/SubmitButton"
 
 // Components here
 
@@ -15,34 +16,56 @@ const BookingHistory = () => {
     bookings, 
     loading: loadingBookings, 
     error: errorBookings, 
-    refetch: getBookingHistory
-  } = useGetBookingHistory()
+    refetch: readBookings
+  } = useReadBookings()
+  const { 
+    updateBooking, 
+    loading: loadingUpdateBooking, 
+    error: errorUpdateBooking
+  } = useUpdateBooking()
+
+  if (errorUpdateBooking) return <Text color="red.400">{errorUpdateBooking}</Text>
+
+  const handleUpdate = async (bookingId) => {
+    const result = await updateBooking(bookingId)
+    if (result) return await readBookings()
+  }
 
   // Build table
   const columns = [
     { key: "booking-time", title: "Booking Time" },
-    { key: "movie", title: "Movie" },
-    { key: "location", title: "Location" },
+    { key: "showtime", title: "Showtime" },
     { key: "date-time", title: "Date/Time" },
     { key: "seat", title: "Seat" },
     { key: "status", title: "Status" },
-    { key: "reservation-expire", title: "Reservation expire on" }
+    { key: "reservation-expire", title: "Reservation expires on" }
   ]
   const renderCell = (booking, column) => {
     switch (column.key) {
       case "booking-time": return `${formatDate(booking.booked_at)}, ${formatTime(booking.booked_at)}`
-      case "movie": return booking.showtime.movie.title
-      case "location": return `${booking.showtime.theater.city.name}, ${booking.showtime.theater.name}`
+      case "showtime": return (`
+        ${booking.showtime.movie_title}
+        ${booking.showtime.city_name}, 
+        ${booking.showtime.theater_name}
+      `)
       case "date-time": return `${formatDate(booking.showtime.starts_at)}, ${formatTime(booking.showtime.starts_at)}`
       case "seat": return `R${booking.seat.row}-C${booking.seat.column}`
       case "status": return booking.status
-      case "reservation-expire": return `${formatDate(booking.expires_at)}, ${formatTime(booking.expires_at)}`
-      default: return booking[column.key]
+      case "reservation-expire": {
+        if (booking.status !== "Reserved") return null
+        return `${formatDate(booking.expires_at)}, ${formatTime(booking.expires_at)}`
+      }
     }
   }
-  const renderActions = (booking) => [
-    <BookingCancelButton key="cancel-button" bookingStatus={booking.status} bookingId={booking.id} onSuccess={getBookingHistory} />
-  ]
+  const renderActions = (booking) => {
+    if (booking.status !== "Reserved") return null
+    return (<SubmitButton
+      onClick={() => handleUpdate(booking.id)}
+      loading={loadingUpdateBooking}
+      text={"Cancel"}
+    />
+    )
+  }
 
   return (
     <Box

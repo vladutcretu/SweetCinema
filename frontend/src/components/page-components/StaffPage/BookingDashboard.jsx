@@ -21,7 +21,7 @@ const BookingDashboard = () => {
     loading: loadingBookings, 
     error: errorBookings, 
     refetch: readBookingsCashier 
-  } = useReadBookingsCashier(user?.city)
+  } = useReadBookingsCashier(user?.city_id)
   const { 
     updateBookingCashier, 
     loading: loadingUpdateBooking, 
@@ -29,7 +29,7 @@ const BookingDashboard = () => {
   } = useUpdateBookingCashier()
   const { searchTerm, handleChangeSearch, filteredData: filteredBookings } = useSearchBar(
     bookings, 
-    (booking) => booking.showtime.movie.title
+    (booking) => booking.showtime.movie_title
   )
 
   if (loadingBookings || loadingUpdateBooking) return <Spinner />
@@ -38,7 +38,7 @@ const BookingDashboard = () => {
 
   const handleUpdate = async (bookingId) => {
     const result = await updateBookingCashier(bookingId)
-    if (result) return await readBookingsCashier(user?.city)
+    if (result) return await readBookingsCashier(user?.city_id)
   }
 
   // Read bookings
@@ -55,9 +55,9 @@ const BookingDashboard = () => {
       case "id": return booking.id
       case "user": return booking.user
       case "showtime": return (`
-        ${booking.showtime.movie.title}: 
-        ${booking.showtime.theater.city.name}, 
-        ${booking.showtime.theater.name}, 
+        ${booking.showtime.movie_title}: 
+        ${booking.showtime.city_name}, 
+        ${booking.showtime.theater_name}, 
         ${formatDate(booking.showtime.starts_at)}, 
         ${formatTime(booking.showtime.starts_at)}
       `)
@@ -69,13 +69,15 @@ const BookingDashboard = () => {
       `)
     }
   }
-  const renderActions = (booking) => (
-    <SubmitButton
+  const renderActions = (booking) => {
+    if (booking.status !== "Reserved") return null
+    return (<SubmitButton
       onClick={() => handleUpdate(booking.id)}
       loading={loadingUpdateBooking}
       text={"Set as purchased"}
     />
-  )
+    )
+  }
 
   return (
     <>

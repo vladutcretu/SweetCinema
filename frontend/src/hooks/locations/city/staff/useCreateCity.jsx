@@ -12,19 +12,19 @@ export const useCreateCity = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const createCity = async (name) => {
+  const createCity = async (name, address) => {
     setLoading(true)
     setError(null)
     try {
-      const response = await cityService.createCity(name)
+      const response = await cityService.createCity(name, address)
       setData(response.data)
       alert(`✅ City ${name} created!`)
-      console.log("Create City successful:", response.data)
+      console.log("Staff - Create City successful:", response.data)
       return response.data
     } catch (error) {
       setError("Something went wrong while creating city. Please try again.")
-      alert(`❌ City ${name} do not created!`)
-      console.error("Create City unsuccessful:", error)
+      alert(`❌ City ${name} not created!`)
+      console.error("Staff - Create City unsuccessful:", error)
       return null
     } finally {
       setLoading(false)

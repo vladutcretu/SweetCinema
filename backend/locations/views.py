@@ -1,117 +1,122 @@
 # DRF
-from rest_framework.generics import (
-    ListAPIView,
-    CreateAPIView,
-    RetrieveUpdateDestroyAPIView,
-    RetrieveAPIView,
-)
+from rest_framework import generics, mixins
 from rest_framework.permissions import AllowAny
 
 # 3rd party apps
-from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema
 
 # App
-from .models import City, Theater, Seat
+from .models import City, Theater
 from .serializers import (
-    CitySerializer,
-    TheaterSerializer,
+    # City
+    CityPartialSerializer,
+    CityCompleteSerializer,
+    CityUpdateSerializer,
+    # Theater
+    TheaterCompleteSerializer,
     TheaterCreateSerializer,
-    SeatSerializer,
+    TheaterUpdateSerializer,
 )
-from users.permissions import IsManager
+from users.permissions import IsManager, IsManagerOrEmployee
 
 # Create your views here.
 
 
-class CityListView(ListAPIView):
-    """
-    View to list all City objects.
-    Available to any role; not required token authentication.
-    """
-
-    queryset = City.objects.all()
-    serializer_class = CitySerializer
-    permission_classes = [AllowAny]
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# City
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
-class CityCreateView(CreateAPIView):
+@extend_schema(tags=["v1 - Cities"])
+class CityListCreateView(generics.ListCreateAPIView):
     """
-    View to create a City object.
-    Avalaible to `Manager` role; required token authentication.
+    GET: list all City objects, but the response is different for
+    visitor / user and staff / 'Manager' group.\n
+    POST: create City object, but only for staff / 'Manager' group.\n
     """
 
     queryset = City.objects.all()
-    serializer_class = CitySerializer
-    permission_classes = [IsManager]
+
+    def get_permissions(self):
+        if self.request.method == "POST":
+            return [IsManager()]
+        return [AllowAny()]
+
+    def get_serializer_class(self):
+        user = self.request.user
+        if user.is_authenticated and (
+            user.is_staff or user.groups.filter(name="Manager").exists()
+        ):
+            return CityCompleteSerializer
+        return CityPartialSerializer
 
 
-class CityUpdateDestroy(RetrieveUpdateDestroyAPIView):
+@extend_schema(tags=["v1 - Cities"])
+class CityUpdateDestroyView(
+    mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView
+):
     """
-    View to update and destroy a single City object by his ID.
-    Avalaible to `Manager` role; required token authentication.
+    Only available to staff or 'Manager' group.\n
+    PATCH: partial update City object (name, address).\n
+    DELETE: delete City object.\n
     """
 
     queryset = City.objects.all()
-    serializer_class = CitySerializer
+    serializer_class = CityUpdateSerializer
     permission_classes = [IsManager]
-    http_method_names = ["put", "delete"]
+    lookup_field = "id"
+
+    def patch(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
 
-class TheaterListView(ListAPIView):
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Theater
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+@extend_schema(tags=["v1 - Theaters"])
+class TheaterListCreateView(generics.ListCreateAPIView):
     """
-    View to list all Theater objects, with optional filtering by City ID.
-    Available to any role; not required token authentication.
+    Only available to staff or 'Manager' group.\n
+    GET: list all Theater objects, with complete fields on response.\n
+    POST: create Theater object.\n
+    """
+
+    queryset = Theater.objects.select_related("city")
+    serializer_class = TheaterCompleteSerializer
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [IsManagerOrEmployee()]
+        return [IsManager()]
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return TheaterCreateSerializer
+        return TheaterCompleteSerializer
+
+
+@extend_schema(tags=["v1 - Theaters"])
+class TheaterUpdateDestroyView(
+    mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView
+):
+    """
+    Only available to staff or 'Manager' group.\n
+    PATCH: partial update Theater object (name, rows, columns).\n
+    DELETE: delete Theater object.\n
     """
 
     queryset = Theater.objects.all()
-    serializer_class = TheaterSerializer
-    permission_classes = [AllowAny]
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["city"]
-
-
-class TheaterRetrieveView(RetrieveAPIView):
-    """
-    View to retrieve a single Theater object by his ID.
-    Available to any role; not required token authentication.
-    """
-
-    queryset = Theater.objects.all()
-    serializer_class = TheaterSerializer
-    permission_classes = [AllowAny]
-
-
-class TheaterCreateView(CreateAPIView):
-    """
-    View to create a Theater object.
-    Avalaible to `Manager` role; required token authentication.
-    """
-
-    queryset = Theater.objects.all()
-    serializer_class = TheaterCreateSerializer
+    serializer_class = TheaterUpdateSerializer
     permission_classes = [IsManager]
+    lookup_field = "id"
 
+    def patch(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
 
-class TheaterUpdateDestroy(RetrieveUpdateDestroyAPIView):
-    """
-    View to update and destroy a single Theater object by his ID.
-    Avalaible to `Manager` role; required token authentication.
-    """
-
-    queryset = Theater.objects.all()
-    serializer_class = TheaterSerializer
-    permission_classes = [IsManager]
-    http_method_names = ["patch", "delete"]
-
-
-class SeatListView(ListAPIView):
-    """
-    View to list all Seat objects, with optional filtering by Theater ID.
-    Available to any role; not required token authentication.
-    """
-
-    queryset = Seat.objects.all()
-    serializer_class = SeatSerializer
-    permission_classes = [AllowAny]
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["theater"]
+    def delete(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)

@@ -9,11 +9,36 @@ from locations.models import Theater
 # Create your models here.
 
 
+class ShowtimeFormat(models.TextChoices):
+    TwoD = "2D", "2D"
+    ThreeD = "3D", "3D"
+    IMAX = "IMAX", "IMAX"
+    FourDX = "4DX", "4DX"
+    SCREENX = "ScreenX", "ScreenX"
+    DOLBY = "Dolby", "Dolby Cinema"
+
+
+class ShowtimePresentation(models.TextChoices):
+    NATIVE = "native", "Native language"
+    DUB = "dub", "Dubbing"
+    SUB = "sub", "Subtitling"
+
+
 class Showtime(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     theater = models.ForeignKey(Theater, on_delete=models.CASCADE)
-    price = models.FloatField(default=35)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=35)
     starts_at = models.DateTimeField()
+    format = models.CharField(
+        max_length=55, choices=ShowtimeFormat.choices, default=ShowtimeFormat.TwoD
+    )
+    presentation = models.CharField(
+        max_length=55,
+        choices=ShowtimePresentation.choices,
+        default=ShowtimePresentation.NATIVE,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name_plural = "Showtimes"

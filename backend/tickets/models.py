@@ -40,28 +40,35 @@ class Booking(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Method fills, for the created Booking instances with `status=reserverd` or `status=pending_payment`,
-        the `expires_at` field.
+        Method fills the expires_at field for the instances created with
+        status=reserved or status=pending_payment.
         """
+        print(
+            f"[DEBUG] status={self.status}, expires_at={self.expires_at}, starts_at={self.showtime.starts_at if self.showtime else None}"
+        )
         if (
             not self.expires_at
             and self.showtime
-            and self.status == BookingStatus.RESERVED
+            and self.status == BookingStatus.RESERVED.value
         ):
+            print("Setting expires_at for RESERVED")
             self.expires_at = self.showtime.starts_at - timedelta(minutes=30)
         elif (
             not self.expires_at
             and self.showtime
-            and self.status == BookingStatus.PENDING_PAYMENT
+            and self.status == BookingStatus.PENDING_PAYMENT.value
         ):
+            print("Setting expires_at for PENDING_PAYMENT")
             self.expires_at = timezone.now() + timedelta(minutes=1)
 
         super().save(*args, **kwargs)
 
     def __str__(self):
         return (
-            f"{self.showtime.starts_at.strftime('%d %b %Y %H:%M:%S')}, {self.seat} - "
-            f"{self.status}, {self.booked_at.strftime('%d %b %Y %H:%M:%S')}, {self.updated_at.strftime('%d %b %Y %H:%M:%S')}"
+            f"{self.seat}, "
+            f"{self.showtime.starts_at.strftime('%d %b %Y %H:%M:%S')}, "
+            f"{self.status}, "
+            f"booked on: {self.booked_at.strftime('%d %b %Y %H:%M:%S')}"
         )
 
 
@@ -78,7 +85,7 @@ class PaymentStatus(models.TextChoices):
 class Payment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     bookings = models.ManyToManyField(Booking, related_name="payments")
-    amount = models.FloatField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
     method = models.CharField(max_length=55, choices=PaymentMethod.choices)
     status = models.CharField(max_length=55, choices=PaymentStatus.choices)
     paid_at = models.DateTimeField(auto_now_add=True)
@@ -89,5 +96,5 @@ class Payment(models.Model):
 
     def __str__(self):
         return (
-            f"{self.user} - {self.status}, {self.paid_at.strftime('%d %b %Y %H:%M:%S')}"
+            f"{self.user}, {self.status}, {self.paid_at.strftime('%d %b %Y %H:%M:%S')}"
         )
