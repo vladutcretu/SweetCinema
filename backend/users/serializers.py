@@ -13,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
     Contains fields: id, email, username, groups, is_staff, is_superuser, password(bool), city_id.
     """
 
-    groups = serializers.SlugRelatedField(many=True, read_only=True, slug_field="name")
+    role = serializers.CharField(source="get_role_display")
     password = serializers.BooleanField()
     city_id = serializers.SerializerMethodField()
 
@@ -23,7 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
             "id",
             "email",
             "username",
-            "groups",
+            "role",
             "is_staff",
             "is_superuser",
             "password",

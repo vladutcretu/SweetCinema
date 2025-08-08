@@ -5,5 +5,6 @@ import api from "../Api"
 
 export const userService = {
   readUsers: () => api.get(`/v1/users/`),
-  updateUser: (userId, group, city) => api.patch(`/v1/users/${userId}/`, { groups: group, city: city })
+  readUser: (userId) => api.get(`/v1/users/${userId}/`),
+  updateUser: (userId, data) => api.patch(`/v1/users/${userId}/`, data)
 }
