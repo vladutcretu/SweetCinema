@@ -9,7 +9,7 @@ from .views import (
     # User
     UserDataView,
     UserListView,
-    UserUpdateView,
+    UserRetrieveUpdateView,
     UserSetPasswordView,
     UserVerifyPasswordView,
 )
@@ -25,7 +25,7 @@ urlpatterns = [
     # User
     path("me/", UserDataView.as_view(), name="read-own-user"),
     path("", UserListView.as_view(), name="read-users"),
-    path("<int:id>/", UserUpdateView.as_view(), name="update-users"),
+    path("<int:id>/", UserRetrieveUpdateView.as_view(), name="retrieve-update-users"),
     path("set-password/", UserSetPasswordView.as_view(), name="user-set-password"),
     path(
         "verify-password/",

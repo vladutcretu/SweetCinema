@@ -1,10 +1,10 @@
 # Django
 from django.conf import settings
-from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied
 
 # DRF
-from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView, UpdateAPIView
+from rest_framework import views, generics
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -17,9 +17,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from drf_spectacular.utils import extend_schema
 
 # App
+from .models import User
 from .serializers import (
     # User
     UserSerializer,
+    UserRetrieveSerializer,
     UserUpdateSerializer,
     UserPassworderializer,
 )
@@ -28,15 +30,12 @@ from .permissions import IsManagerOrEmployeeOrCashier
 # Create your views here.
 
 
-User = get_user_model()
-
-
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Auth
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
-class AuthGoogle(APIView):
+class AuthGoogle(views.APIView):
     """
     View that receives the `authorization code` from the frontend (after user logs in with Google account),
     exchanges the `id_token` with Google, validates the `id_token` using google-auth,
@@ -164,7 +163,7 @@ class AuthGoogle(APIView):
 
 
 @extend_schema(tags=["v1 - Users"])
-class UserDataView(APIView):
+class UserDataView(views.APIView):
     """
     GET: retrieve data about user, providing context about it's
     account, groups, permissions; available to any authenticated user.\n
@@ -189,23 +188,42 @@ class UserListView(ListAPIView):
 
 
 @extend_schema(tags=["v1 - Users"])
-class UserUpdateView(UpdateAPIView):
+class UserRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     """
-    PATCH: update both (independently or together) user account (groups) and
-    profile (city) attributes;available to staff only.\n
-    `Note:` this endpoint can serve as an independent endpoint for user to update
-    his personal information: name, age, city etc when userprofile will be enhanced.\n
+    GET: retrieve user details: role, city_name, birthday, promotions & newsletter.\n
+    PATCH: by staff member (partial update role, city_name) or by own user (partial update
+    city_name - if not Cashier role, birthday - if null, on/off promotions & newsletter).\n
     """
 
-    permission_classes = [IsAdminUser]
-    serializer_class = UserUpdateSerializer
-    queryset = User.objects.select_related("userprofile")
+    permission_classes = [IsAuthenticated]
+    queryset = User.objects.all()
     lookup_field = "id"
-    http_method_names = ["patch"]
+    http_method_names = ["get", "patch"]
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return UserRetrieveSerializer
+        elif self.request.method == "PATCH":
+            return UserUpdateSerializer
+
+    def get_object(self):
+        """
+        Allow staff to access any user, but restrict regular users to their own instance only.
+        """
+        obj = super().get_object()
+
+        if self.request.user.is_staff:
+            return obj
+
+        # Not staff -> must be accessing their own user instance
+        if obj != self.request.user:
+            raise PermissionDenied("You do not have permission to access this user.")
+
+        return obj
 
 
 @extend_schema(tags=["v1 - Users"])
-class UserSetPasswordView(APIView):
+class UserSetPasswordView(views.APIView):
     """
     POST: staff / 'Manager', 'Employee', 'Cashier' group set an account password.\n
     """
@@ -226,7 +244,7 @@ class UserSetPasswordView(APIView):
 
 
 @extend_schema(tags=["v1 - Users"])
-class UserVerifyPasswordView(APIView):
+class UserVerifyPasswordView(views.APIView):
     """
     POST: staff / 'Manager', 'Employee', 'Cashier' group verify an account password.\n
     """
