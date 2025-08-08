@@ -216,6 +216,14 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ## Development Notes
 
+### 🔜 Sprint #12 (started on 8 August 2025; ended on <i>TBA</i>): "Backend & Frontend: User model, Endpoints filtering & pagination"
+- Create `User` model (extends `AbstractUser`) to merge `UserProfile` model and permissions logic from `Groups` (Manager, Employee, Cashier) to `role` field (Manager, Planner, Cashier) for optimizing database queries; also add `birthday` and boolean `promotions`, `newsletter` fields
+- Update `UserManagement component` and API endpoint to let staff set user's role and city
+- Update `Profile page` and API endpoint to let user set it's own city (except if user is Cashier), birthday (can not be updated) and promotions status (on/off)
+- Create `Newsletter page` and API endpoint to let user choose if wants to receive newsletter
+- Implement filtering and pagination for endpoints that returns a list presented in a table and update frontend accordingly
+- Replace frontend setError text with backend validationError alert to provide more context when something bad happens
+---
 ### ✅ Sprint #11 (started on 18 July 2025; ended on 29 July 2025): "Backend: Refactor & design"
 - After completing the frontend refactor and design phase, the next step is to fill business logic gaps by enhancing the existing models with relevant fields, evaluating endpoints design (refactoring / updating serializers, view logic & URL naming), optimizing database queries, and increasing test coverage
 - The methodology cheatsheet for this stage includes:
