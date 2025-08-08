@@ -1,3 +1,5 @@
+**This branch contains the application MVP (Minimum Viable Product) with user-friendly design, cleaner, optimized, and stable API endpoints, including versions 0.8.0-beta (frontend refactor & design) and 1.0.0-beta (backend refactor & optimizing).**
+
 # SweetCinema
 SweetCinema is an open-source educational project inspired by an idea from [roadmap.sh](https://roadmap.sh/projects/movie-reservation-system) and utilizes [HappyCinema](https://www.happycinema.ro/) as a business model reference for replicating core functionalities and user flow patterns. The primary motivation was to develop a business solution that closely mirrors the selected reference model while maintaining originality in implementation.
 
