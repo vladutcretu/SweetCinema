@@ -78,6 +78,8 @@ class AuthGoogle(APIView):
         user_email = user_info.get("email")
         user_name = user_info.get("name")
         user = self.create_or_retrieve_user(user_email, user_name)
+        user.set_unusable_password()
+        user.save()
 
         # Generate JWT access and refresh
         tokens = self.generate_jwt(user)
