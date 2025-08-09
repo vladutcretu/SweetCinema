@@ -20,7 +20,8 @@ from drf_spectacular.utils import extend_schema
 from .models import User
 from .serializers import (
     # User
-    UserSerializer,
+    UserPartialSerializer,
+    UserCompleteSerializer,
     UserRetrieveSerializer,
     UserUpdateSerializer,
     UserPassworderializer,
@@ -77,14 +78,12 @@ class AuthGoogle(views.APIView):
         user_email = user_info.get("email")
         user_name = user_info.get("name")
         user = self.create_or_retrieve_user(user_email, user_name)
-        user.set_unusable_password()
-        user.save()
 
         # Generate JWT access and refresh
         tokens = self.generate_jwt(user)
 
         return Response(
-            {"user": UserSerializer(user).data, "tokens": tokens},
+            {"user": UserPartialSerializer(user).data, "tokens": tokens},
             status=status.HTTP_200_OK,
         )
 
@@ -144,6 +143,11 @@ class AuthGoogle(views.APIView):
                 "first_name": name.split(" ")[0],
             },
         )
+
+        if created:
+            user.set_unusable_password()
+            user.save()
+
         return user
 
     def generate_jwt(self, user):
@@ -170,10 +174,10 @@ class UserDataView(views.APIView):
     """
 
     permission_classes = [IsAuthenticated]
-    serializer_class = UserSerializer
+    serializer_class = UserPartialSerializer
 
     def get(self, request):
-        return Response(UserSerializer(request.user).data)
+        return Response(UserPartialSerializer(request.user).data)
 
 
 @extend_schema(tags=["v1 - Users"])
@@ -183,8 +187,8 @@ class UserListView(ListAPIView):
     """
 
     permission_classes = [IsAdminUser]
-    serializer_class = UserSerializer
-    queryset = User.objects.select_related("userprofile")
+    serializer_class = UserCompleteSerializer
+    queryset = User.objects.all()
 
 
 @extend_schema(tags=["v1 - Users"])

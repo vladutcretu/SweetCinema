@@ -6,7 +6,7 @@ import { Center, Field, Heading, Input } from '@chakra-ui/react'
 
 // App
 import { useReadUsers } from '@/hooks/users/staff/useReadUsers'
-import { useUpdateUser } from '@/hooks/users/staff/useUpdateUser'
+import { useUpdateUser } from '@/hooks/users/useUpdateUser'
 import useFormState from '@/hooks/useFormState'
 import useSearchBar from '@/hooks/useSearchBar'
 import SearchBar from '@/components/common/SearchBar'
@@ -25,65 +25,63 @@ const UserManagement = () => {
   // Build table
   const columns = [
     { key: 'id', title: 'ID' },
-    { key: 'user', title: 'Email' },
-    { key: 'groups', title: 'Groups' },
-    { key: 'city', title: 'City' }
+    { key: 'user', title: 'User' },
+    { key: 'staff', title: 'Role / Staff / Superuser' },
+    { key: 'city', title: 'City' },
+    { key: 'preferences', title: 'Preferences' }
   ]
   const renderCell = (user, column) => {
     switch (column.key) {
       case 'id': return user.id
       case 'user': return `${user.username} / ${user.email}`
-      case 'groups': return user.groups.join(", ")
-      case 'city': return user.city_id
+      case 'staff' : return `${user.role} / ${user.is_staff} / ${user.is_superuser}`
+      case 'city': return user.city_name
+      case 'preferences': return `Birthday: ${user.birthday}, Promotions: ${user.receive_promotions}, Newsletter: ${user.receive_newsletter}`
     }
   }
   const renderActions = (user) => (
     <form onSubmit={handleSubmitActions}>
       <SubmitButton
-        onClick={() => handleButtonActions(user.id, "Manager")}
+        onClick={() => handleButtonActions(user.id, { role: "manager" })}
         loading={loadingUpdateUser}
         text={"Manager"}
       />
       <SubmitButton
-        onClick={() => handleButtonActions(user.id, "Employee")}
+        onClick={() => handleButtonActions(user.id, { role: "planner" })}
         loading={loadingUpdateUser}
-        text={"Employee"}
+        text={"Planner"}
       />
       <SubmitButton
-        onClick={() => handleButtonActions(user.id, "Cashier")}
+        onClick={() => handleButtonActions(user.id, { role: "cashier" })}
         loading={loadingUpdateUser}
         text={"Cashier"}
       />
       <SubmitButton
-        onClick={() => handleButtonActions(user.id, "User")}
+        onClick={() => handleButtonActions(user.id, { role: "standard" })}
         loading={loadingUpdateUser}
-        text={"User"}
+        text={"Standard"}
       />
     </form>
   )
 
   // Update user Group
   const [userId, setUserId] = useState("")
-  const [group, setGroup] = useState([])
-  const handleButtonActions = (userId, group) => {
+  const [role, setRole] = useState({})
+  const handleButtonActions = (userId, role) => {
     setUserId(userId)
-    if (group === "User") {
-        setGroup([])
-    } else {
-        setGroup([group])
-    }
+    setRole(role)
   }
   const handleSubmitActions = async (event) => {
     event.preventDefault()
-    const result = await updateUser(userId, group)
+    const result = await updateUser(userId, role)
     if (result) await readUsers()
   }
 
   // Update user City
-  const { formData: updatedForm, handleChange: handleChangeUpdate, resetForm } = useFormState({ id: "", group: "", city: "" })
+  const { formData: updatedForm, handleChange: handleChangeUpdate, resetForm } = useFormState({ id: "", role: "", city_name: "" })
   const handleSubmitUpdate = async (event) => {
     event.preventDefault()
-    const result = await updateUser(updatedForm.id, group, updatedForm.city)
+    const result = await updateUser(updatedForm.id, { city_name: updatedForm.city_name })
     if (result) {
       resetForm()
       await readUsers()
@@ -97,7 +95,7 @@ const UserManagement = () => {
       {/* Search Bar */}
       <SearchBar value={searchTerm} onChange={handleChangeSearch} text={"username"} />
 
-      {/* User table & Update user group */}
+      {/* User table & Update user role */}
       <ReusableTable
         loading={loadingUsers}
         error={errorUsers}
@@ -130,10 +128,10 @@ const UserManagement = () => {
         <Field.Label>City name:</Field.Label>
           <Input
             type="text"
-            name="city"
-            value={updatedForm.city}
+            name="city_name"
+            value={updatedForm.city_name}
             onChange={handleChangeUpdate}
-            placeholder="London"
+            placeholder="City name..."
             bg="white"
             color="black"
           />

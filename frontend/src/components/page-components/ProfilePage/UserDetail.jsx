@@ -7,7 +7,7 @@ import { Box, Heading, SimpleGrid, Text, Stack, Field, Input, Button } from '@ch
 // App
 import { useAuthContext } from '@/contexts/AuthContext'
 import { useReadUser } from '@/hooks/users/useReadUser'
-import { useUpdateUser } from '@/hooks/users/staff/useUpdateUser'
+import { useUpdateUser } from '@/hooks/users/useUpdateUser'
 import SubmitButton from '@/components/common/SubmitButton'
 import ForwardButton from '@/components/common/ForwardButton'
 

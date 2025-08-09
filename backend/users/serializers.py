@@ -8,14 +8,14 @@ from locations.models import City
 # Create your serializers here.
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserPartialSerializer(serializers.ModelSerializer):
     """
-    Contains fields: id, email, username, groups, is_staff, is_superuser, password(bool), city_id.
+    Contains fields: id, email, username, role, is_staff, is_superuser, password(bool), city_id.
     """
 
     role = serializers.CharField(source="get_role_display")
-    password = serializers.BooleanField()
-    city_id = serializers.SerializerMethodField()
+    password = serializers.SerializerMethodField()
+    city_id = serializers.CharField(source="city.id", allow_null=True)
 
     class Meta:
         model = User
@@ -30,17 +30,34 @@ class UserSerializer(serializers.ModelSerializer):
             "city_id",
         ]
 
-    def get_city_id(self, obj):
-        """
-        Get city.id from User.UserProfile.City.
-        """
-        try:
-            if hasattr(obj, "userprofile") and obj.userprofile.city:
-                return obj.userprofile.city.id
-            return None
-        except AttributeError:
-            return None
-        
+    def get_password(self, obj):
+        return obj.has_usable_password()
+    
+
+class UserCompleteSerializer(serializers.ModelSerializer):
+    """
+    Contains fields: id, email, username, role, is_staff, is_superuser,
+    city_name, birthday, promotions & newsletter.
+    """
+
+    role = serializers.CharField(source="get_role_display")
+    city_name = serializers.CharField(source="city.name", allow_null=True)
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "email",
+            "username",
+            "role",
+            "is_staff",
+            "is_superuser",
+            "city_name",
+            "birthday",
+            "receive_promotions",
+            "receive_newsletter"
+        ]
+
     
 class UserRetrieveSerializer(serializers.ModelSerializer):
     """
