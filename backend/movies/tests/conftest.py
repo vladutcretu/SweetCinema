@@ -1,5 +1,4 @@
 # Django
-from django.contrib.auth.models import Group, User
 from django.utils import timezone
 from datetime import timedelta
 
@@ -10,6 +9,7 @@ import pytest
 from ..models import Genre, Movie
 from locations.models import City, Theater
 from showtimes.models import Showtime
+from users.models import User
 
 # Write your fixtures here.
 
@@ -98,31 +98,17 @@ def showtime_f1_london(movie_f1, theater_london):
 
 
 @pytest.fixture
-def manager_group():
-    return Group.objects.create(name="Manager")
-
-
-@pytest.fixture
-def employee_group():
-    return Group.objects.create(name="Employee")
-
-
-@pytest.fixture
-def manager_user(manager_group):
-    user = User.objects.create_user(
-        username="manager", password="test123", is_staff=False
+def manager_user():
+    return User.objects.create_user(
+        username="manager", password="test123", is_staff=False, role="manager"
     )
-    user.groups.add(manager_group)
-    return user
 
 
 @pytest.fixture
-def employee_user(employee_group):
-    user = User.objects.create_user(
-        username="employee", password="test123", is_staff=False
+def planner_user():
+    return User.objects.create_user(
+        username="planner", password="test123", is_staff=False, role="planner"
     )
-    user.groups.add(employee_group)
-    return user
 
 
 @pytest.fixture

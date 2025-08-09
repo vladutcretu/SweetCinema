@@ -32,7 +32,7 @@ class UserPartialSerializer(serializers.ModelSerializer):
 
     def get_password(self, obj):
         return obj.has_usable_password()
-    
+
 
 class UserCompleteSerializer(serializers.ModelSerializer):
     """
@@ -55,15 +55,15 @@ class UserCompleteSerializer(serializers.ModelSerializer):
             "city_name",
             "birthday",
             "receive_promotions",
-            "receive_newsletter"
+            "receive_newsletter",
         ]
 
-    
+
 class UserRetrieveSerializer(serializers.ModelSerializer):
     """
     Include fields first_name, city_name, birthday, promotions, newsletter.
     """
-    
+
     city_name = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -87,6 +87,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     """
     Include editable fields role, city_name, birthday, promotions, newsletter.
     """
+
     role = serializers.CharField(write_only=True)
     city_name = serializers.CharField(write_only=True)
 
@@ -107,7 +108,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         if not City.objects.filter(name=value).exists():
             raise serializers.ValidationError(f"City '{value}' not found.")
         return value
-    
+
     def validate_birthday(self, value):
         """
         Validate that birthday is null before update.
@@ -124,7 +125,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
         # Update role (only staff allowed)
         new_role = validated_data.pop("role", None)
-        if new_role: 
+        if new_role:
             if is_staff:
                 if new_role not in UserRole.values:
                     raise serializers.ValidationError(
@@ -132,7 +133,9 @@ class UserUpdateSerializer(serializers.ModelSerializer):
                     )
                 instance.role = new_role
             else:
-                raise serializers.ValidationError("You do not have access to update role!")
+                raise serializers.ValidationError(
+                    "You do not have access to update role!"
+                )
 
         # Update city (cashier not allowed)
         city_name = validated_data.pop("city_name", None)

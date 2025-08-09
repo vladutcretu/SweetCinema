@@ -1,32 +1,5 @@
 [
     {
-        "model": "auth.group",
-        "pk": 1,
-        "fields": {
-            "name": "Manager"
-        }
-    },
-    {
-        "model": "auth.group",
-        "pk": 2,
-        "fields": {
-            "name": "Employee"
-        }
-    },
-
-    {
-        "model": "auth.group",
-        "pk": 3,
-        "fields": {
-            "name": "Cashier"
-        }
-    },
-
-
-
-
-
-    {
         "model": "locations.city",
         "pk": 1,
         "fields": {

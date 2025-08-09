@@ -1,11 +1,9 @@
-# Django
-from django.contrib.auth.models import Group, User
-
 # Pytest
 import pytest
 
 # App
-from locations.models import City, Theater
+from ..models import City, Theater
+from users.models import User
 
 # Write your fixtures here.
 
@@ -28,17 +26,10 @@ def city_london():
 
 
 @pytest.fixture
-def manager_group():
-    return Group.objects.create(name="Manager")
-
-
-@pytest.fixture
-def manager_user(manager_group):
-    user = User.objects.create_user(
-        username="manager", password="test123", is_staff=False
+def manager_user():
+    return User.objects.create_user(
+        username="manager", password="test123", is_staff=False, role="manager"
     )
-    user.groups.add(manager_group)
-    return user
 
 
 @pytest.fixture

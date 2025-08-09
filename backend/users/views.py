@@ -26,7 +26,7 @@ from .serializers import (
     UserUpdateSerializer,
     UserPassworderializer,
 )
-from .permissions import IsManagerOrEmployeeOrCashier
+from .permissions import IsManagerOrPlannerOrCashier
 
 # Create your views here.
 
@@ -170,7 +170,7 @@ class AuthGoogle(views.APIView):
 class UserDataView(views.APIView):
     """
     GET: retrieve data about user, providing context about it's
-    account, groups, permissions; available to any authenticated user.\n
+    account, roles, permissions; available to any authenticated user.\n
     """
 
     permission_classes = [IsAuthenticated]
@@ -229,10 +229,10 @@ class UserRetrieveUpdateView(generics.RetrieveUpdateAPIView):
 @extend_schema(tags=["v1 - Users"])
 class UserSetPasswordView(views.APIView):
     """
-    POST: staff / 'Manager', 'Employee', 'Cashier' group set an account password.\n
+    POST: staff / 'Manager', 'Planner', 'Cashier' role set an account password.\n
     """
 
-    permission_classes = [IsManagerOrEmployeeOrCashier]
+    permission_classes = [IsManagerOrPlannerOrCashier]
 
     def post(self, request):
         serializer = UserPassworderializer(data=request.data)
@@ -250,10 +250,10 @@ class UserSetPasswordView(views.APIView):
 @extend_schema(tags=["v1 - Users"])
 class UserVerifyPasswordView(views.APIView):
     """
-    POST: staff / 'Manager', 'Employee', 'Cashier' group verify an account password.\n
+    POST: staff / 'Manager', 'Planner', 'Cashier' role verify an account password.\n
     """
 
-    permission_classes = [IsManagerOrEmployeeOrCashier]
+    permission_classes = [IsManagerOrPlannerOrCashier]
 
     def post(self, request):
         serializer = UserPassworderializer(data=request.data)
