@@ -13,6 +13,7 @@ import Profile from './pages/Profile'
 import Staff from './pages/Staff'
 
 import Showtimes from './pages/Showtimes'
+import Newsletter from './pages/Newsletter'
 
 // Components here
 
@@ -33,6 +34,7 @@ function App() {
 
           {/* Navbar */}
           <Route path='/showtimes/' element={<Showtimes />} />
+          <Route path='/newsletter/' element={<Newsletter />} />
 
           {/* Footer */}
         </Routes>

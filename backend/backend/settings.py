@@ -216,3 +216,6 @@ if DEBUG:
 # Importing Environment (ENV) variables from .env file from main director
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
+
+# Set Auth User Model -> User = get_user_model()
+AUTH_USER_MODEL = "users.User"

@@ -24,7 +24,7 @@ from .serializers import (
     ShowtimeSeatStatusSerializer,
     ShowtimeReportSerializer,
 )
-from users.permissions import IsManagerOrEmployee, IsManager
+from users.permissions import IsManagerOrPlanner, IsManager
 from tickets.models import Booking, BookingStatus
 from movies.models import Genre
 from locations.models import Seat
@@ -72,12 +72,12 @@ class ShowtimeListView(generics.ListAPIView):
 @extend_schema(tags=["v1 - Showtimes"])
 class ShowtimeStaffListCreateView(generics.ListCreateAPIView):
     """
-    Only available to staff or 'Manager', 'Employee' group.\n
+    Only available to staff or 'Manager', 'Planner' role.\n
     GET: list all Showtime objects (all fields).\n
     POST: create Showtime object (all editable fields).\n
     """
 
-    permission_classes = [IsManagerOrEmployee]
+    permission_classes = [IsManagerOrPlanner]
     queryset = Showtime.objects.select_related("movie", "theater", "theater__city")
 
     def get_serializer_class(self):
@@ -90,8 +90,8 @@ class ShowtimeStaffListCreateView(generics.ListCreateAPIView):
 class ShowtimeRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     """
     GET: retrieve Showtime object (id, movie_name, theater - name, columns, all editable fields).\n
-    PATCH: partial update Showtime object, available to staff or 'Manager', 'Employee' group.\n
-    DELETE: delete Showtime object, available to staff or 'Manager', 'Employee' group.\n
+    PATCH: partial update Showtime object, available to staff or 'Manager', 'Planner' role.\n
+    DELETE: delete Showtime object, available to staff or 'Manager', 'Planner' role.\n
     """
 
     queryset = Showtime.objects.select_related("movie", "theater", "theater__city")
@@ -100,7 +100,7 @@ class ShowtimeRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_permissions(self):
         if self.request.method in ["PATCH", "DELETE"]:
-            return [IsManagerOrEmployee()]
+            return [IsManagerOrPlanner()]
         return [AllowAny()]
 
     def get_serializer_class(self):
@@ -180,7 +180,7 @@ class ShowtimeSeatsListView(generics.ListAPIView):
 @extend_schema(tags=["v1 - Showtimes"])
 class ShowtimeReportRetrieveView(generics.RetrieveAPIView):
     """
-    Available to Staff or 'Manager' group.\n
+    Available to Staff or 'Manager' role.\n
     GET: retrieve statistics of a specific Showtime.\n
     """
 

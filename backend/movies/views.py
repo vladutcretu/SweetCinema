@@ -21,7 +21,7 @@ from .serializers import (
     MovieCreateUpdateSerializer,
     MovieRetrieveSerializer,
 )
-from users.permissions import IsManagerOrEmployee
+from users.permissions import IsManagerOrPlanner
 
 # Create your views here.
 
@@ -34,13 +34,13 @@ from users.permissions import IsManagerOrEmployee
 @extend_schema(tags=["v1 - Genres"])
 class GenreListCreateView(generics.ListCreateAPIView):
     """
-    Only available to staff or 'Manager', 'Employee' group.\n
+    Only available to staff or 'Manager', 'Planner' role.\n
     GET: list all Genre objects, with complete fields on response.\n
     POST: create Genre object.\n
     """
 
     queryset = Genre.objects.all()
-    permission_classes = [IsManagerOrEmployee]
+    permission_classes = [IsManagerOrPlanner]
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -53,14 +53,14 @@ class GenreUpdateDestroyView(
     mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView
 ):
     """
-    Only available to staff or 'Manager', 'Employee' group.\n
+    Only available to staff or 'Manager', 'Planner' role.\n
     PATCH: update name of Genre object.\n
     DELETE: delete Genre object.\n
     """
 
     queryset = Genre.objects.all()
     serializer_class = GenrePartialSerializer
-    permission_classes = [IsManagerOrEmployee]
+    permission_classes = [IsManagerOrPlanner]
     lookup_field = "id"
 
     def patch(self, request, *args, **kwargs):
@@ -114,13 +114,13 @@ class MovieListView(generics.ListAPIView):
 @extend_schema(tags=["v1 - Movies"])
 class MovieStaffListCreateView(generics.ListCreateAPIView):
     """
-    Only available to staff or 'Manager', 'Employee' group.\n
+    Only available to staff or 'Manager', 'Planner' role.\n
     GET: list all Movie objects (all fields).\n
     POST: create Movie object (all editable fields).\n
     """
 
     queryset = Movie.objects.prefetch_related("genres")
-    permission_classes = [IsManagerOrEmployee]
+    permission_classes = [IsManagerOrPlanner]
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -132,8 +132,8 @@ class MovieStaffListCreateView(generics.ListCreateAPIView):
 class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     """
     GET: retrieve Movie object (id, all editable fields), available to anyone.\n
-    PATCH: partial update Movie object, available to staff or 'Manager', 'Employee' group.\n
-    DELETE: delete Movie object, available to staff or 'Manager', 'Employee' group.\n
+    PATCH: partial update Movie object, available to staff or 'Manager', 'Planner' role.\n
+    DELETE: delete Movie object, available to staff or 'Manager', 'Planner' role.\n
     """
 
     queryset = Movie.objects.prefetch_related("genres")
@@ -142,7 +142,7 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_permissions(self):
         if self.request.method in ["PATCH", "DELETE"]:
-            return [IsManagerOrEmployee()]
+            return [IsManagerOrPlanner()]
         return [AllowAny()]
 
     def get_serializer_class(self):

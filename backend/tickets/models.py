@@ -1,17 +1,14 @@
 # Django
 from django.db import models
-from django.contrib.auth import get_user_model
 from datetime import timedelta
 from django.utils import timezone
 
 # App
-from showtimes.models import Showtime
 from locations.models import Seat
+from showtimes.models import Showtime
+from users.models import User
 
 # Create your models here.
-
-
-User = get_user_model()
 
 
 class BookingStatus(models.TextChoices):

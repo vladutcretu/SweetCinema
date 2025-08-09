@@ -112,9 +112,9 @@ def test_showtime_staff_list_as_manager(showtimes_list, manager_user):
 
 
 @pytest.mark.django_db
-def test_showtime_staff_list_as_employee(showtimes_list, employee_user):
+def test_showtime_staff_list_as_planner(showtimes_list, planner_user):
     client = APIClient()
-    client.force_authenticate(user=employee_user)
+    client.force_authenticate(user=planner_user)
     url = reverse("create-read-showtimes")
     response = client.get(url)
 
@@ -199,9 +199,9 @@ def test_showtime_create_as_manager(manager_user, movie_f1, theater_london):
 
 
 @pytest.mark.django_db
-def test_showtime_create_as_employee(employee_user, movie_f1, theater_london):
+def test_showtime_create_as_planner(planner_user, movie_f1, theater_london):
     client = APIClient()
-    client.force_authenticate(user=employee_user)
+    client.force_authenticate(user=planner_user)
     url = reverse("create-read-showtimes")
     response = client.post(
         url,
@@ -321,9 +321,9 @@ def test_showtime_patch_as_manager(manager_user, showtime_f1_london):
 
 
 @pytest.mark.django_db
-def test_showtime_patch_as_employee(employee_user, showtime_f1_london):
+def test_showtime_patch_as_planner(planner_user, showtime_f1_london):
     client = APIClient()
-    client.force_authenticate(user=employee_user)
+    client.force_authenticate(user=planner_user)
     url = reverse(
         "retrieve-update-delete-showtimes", kwargs={"id": showtime_f1_london.id}
     )
@@ -405,9 +405,9 @@ def test_showtime_report_retrieve_as_manager(manager_user, showtime_f1_london):
 
 
 @pytest.mark.django_db
-def test_showtime_report_retrieve_as_employee(employee_user, showtime_f1_london):
+def test_showtime_report_retrieve_as_planner(planner_user, showtime_f1_london):
     client = APIClient()
-    client.force_authenticate(user=employee_user)
+    client.force_authenticate(user=planner_user)
     url = reverse("retrieve-showtimes-report", kwargs={"id": showtime_f1_london.id})
     response = client.get(url)
 

@@ -17,7 +17,7 @@ from .serializers import (
     TheaterCreateSerializer,
     TheaterUpdateSerializer,
 )
-from users.permissions import IsManager, IsManagerOrEmployee
+from users.permissions import IsManager, IsManagerOrPlanner
 
 # Create your views here.
 
@@ -31,8 +31,8 @@ from users.permissions import IsManager, IsManagerOrEmployee
 class CityListCreateView(generics.ListCreateAPIView):
     """
     GET: list all City objects, but the response is different for
-    visitor / user and staff / 'Manager' group.\n
-    POST: create City object, but only for staff / 'Manager' group.\n
+    visitor / user and staff / 'Manager' role.\n
+    POST: create City object, but only for staff / 'Manager' role.\n
     """
 
     queryset = City.objects.all()
@@ -44,9 +44,7 @@ class CityListCreateView(generics.ListCreateAPIView):
 
     def get_serializer_class(self):
         user = self.request.user
-        if user.is_authenticated and (
-            user.is_staff or user.groups.filter(name="Manager").exists()
-        ):
+        if user.is_authenticated and (user.is_staff or user.role == "manager"):
             return CityCompleteSerializer
         return CityPartialSerializer
 
@@ -56,7 +54,7 @@ class CityUpdateDestroyView(
     mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView
 ):
     """
-    Only available to staff or 'Manager' group.\n
+    Only available to staff or 'Manager' role.\n
     PATCH: partial update City object (name, address).\n
     DELETE: delete City object.\n
     """
@@ -81,7 +79,7 @@ class CityUpdateDestroyView(
 @extend_schema(tags=["v1 - Theaters"])
 class TheaterListCreateView(generics.ListCreateAPIView):
     """
-    Only available to staff or 'Manager' group.\n
+    Only available to staff or 'Manager' role.\n
     GET: list all Theater objects, with complete fields on response.\n
     POST: create Theater object.\n
     """
@@ -91,7 +89,7 @@ class TheaterListCreateView(generics.ListCreateAPIView):
 
     def get_permissions(self):
         if self.request.method == "GET":
-            return [IsManagerOrEmployee()]
+            return [IsManagerOrPlanner()]
         return [IsManager()]
 
     def get_serializer_class(self):
@@ -105,7 +103,7 @@ class TheaterUpdateDestroyView(
     mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView
 ):
     """
-    Only available to staff or 'Manager' group.\n
+    Only available to staff or 'Manager' role.\n
     PATCH: partial update Theater object (name, rows, columns).\n
     DELETE: delete Theater object.\n
     """

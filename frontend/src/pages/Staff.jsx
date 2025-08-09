@@ -48,19 +48,19 @@ const Staff = () => {
               {/* Staff tabs */}
               <RequirePermission staff={true}><Tabs.Trigger value="user">Manage User</Tabs.Trigger></RequirePermission>
               {/* Manager tabs */}
-              <RequirePermission groups={["Manager"]}><Tabs.Trigger value="city">Manage City</Tabs.Trigger></RequirePermission>
-              <RequirePermission groups={["Manager"]}><Tabs.Trigger value="theater">Manage Theater </Tabs.Trigger></RequirePermission>
-              {/* Manager & Employee tabs */}
-              <RequirePermission groups={["Manager", "Employee"]}><Tabs.Trigger value="genre">Manage Genre</Tabs.Trigger></RequirePermission>
-              <RequirePermission groups={["Manager", "Employee"]}><Tabs.Trigger value="movie">Manage Movie</Tabs.Trigger></RequirePermission>
-              <RequirePermission groups={["Manager", "Employee"]}><Tabs.Trigger value="showtime">Manage Showtime</Tabs.Trigger></RequirePermission>
+              <RequirePermission roles={["Manager"]}><Tabs.Trigger value="city">Manage City</Tabs.Trigger></RequirePermission>
+              <RequirePermission roles={["Manager"]}><Tabs.Trigger value="theater">Manage Theater </Tabs.Trigger></RequirePermission>
+              {/* Manager & Planner tabs */}
+              <RequirePermission roles={["Manager", "Planner"]}><Tabs.Trigger value="genre">Manage Genre</Tabs.Trigger></RequirePermission>
+              <RequirePermission roles={["Manager", "Planner"]}><Tabs.Trigger value="movie">Manage Movie</Tabs.Trigger></RequirePermission>
+              <RequirePermission roles={["Manager", "Planner"]}><Tabs.Trigger value="showtime">Manage Showtime</Tabs.Trigger></RequirePermission>
               {/* Manager tabs */}
-              <RequirePermission groups={["Manager"]}><Tabs.Trigger value="booking">Show Bookings</Tabs.Trigger></RequirePermission>
-              <RequirePermission groups={["Manager"]}><Tabs.Trigger value="payment">Show Payments</Tabs.Trigger></RequirePermission>
-              <RequirePermission groups={["Manager"]}><Tabs.Trigger value="showtimeR">Report Showtime</Tabs.Trigger></RequirePermission>
+              <RequirePermission roles={["Manager"]}><Tabs.Trigger value="booking">Show Bookings</Tabs.Trigger></RequirePermission>
+              <RequirePermission roles={["Manager"]}><Tabs.Trigger value="payment">Show Payments</Tabs.Trigger></RequirePermission>
+              <RequirePermission roles={["Manager"]}><Tabs.Trigger value="showtimeR">Report Showtime</Tabs.Trigger></RequirePermission>
               {/* Cashier tabs */}
-              <RequirePermission groups={["Cashier"]}><Tabs.Trigger value="bookingD">Dashboard Booking</Tabs.Trigger></RequirePermission>
-              <RequirePermission groups={["Cashier"]}><Tabs.Trigger value="showtimeD">Showtime Dashboard</Tabs.Trigger></RequirePermission>
+              <RequirePermission roles={["Cashier"]}><Tabs.Trigger value="bookingD">Dashboard Booking</Tabs.Trigger></RequirePermission>
+              <RequirePermission roles={["Cashier"]}><Tabs.Trigger value="showtimeD">Showtime Dashboard</Tabs.Trigger></RequirePermission>
             </Tabs.List>
 
             {/* Staff */}
@@ -68,7 +68,7 @@ const Staff = () => {
             {/* Manager */}
             <Tabs.Content value="city"><CityManagement /></Tabs.Content>
             <Tabs.Content value="theater"><TheaterManagement /></Tabs.Content>
-            {/* Manager & Employee */}
+            {/* Manager & Planner */}
             <Tabs.Content value="genre"><GenreManagement /></Tabs.Content>
             <Tabs.Content value="movie"><MovieManagement /></Tabs.Content>
             <Tabs.Content value="showtime"><ShowtimeManagement /></Tabs.Content>

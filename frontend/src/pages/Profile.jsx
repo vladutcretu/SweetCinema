@@ -7,6 +7,7 @@ import { Box, Heading, Stack } from '@chakra-ui/react'
 // App
 import { useAuthContext } from '../contexts/AuthContext'
 import Page404 from '@/components/common/Page404'
+import UserDetail from '@/components/page-components/ProfilePage/UserDetail'
 import StaffStatus from '@/components/page-components/ProfilePage/StaffStatus'
 import BookingHistory from '@/components/page-components/ProfilePage/BookingHistory'
 import BackButton from '@/components/common/BackButton'
@@ -28,10 +29,15 @@ const UserProfile = () => {
             p={6}
             boxShadow="md"
           >
-            {/* User Detail - potentially */}
+            {/* User Detail */}
+            <UserDetail />
 
             {/* Staff Detail */}
-            {(user?.is_superuser || user?.is_staff || user?.groups.length > 0) && <StaffStatus />}
+            {
+              (user?.is_superuser || user?.is_staff || ["Manager", "Planner", "Cashier"].includes(user?.role)) 
+              && 
+              <StaffStatus />
+            }
 
             {/* Bookings Detail */}
             <BookingHistory />
