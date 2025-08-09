@@ -9,7 +9,7 @@ import { userService } from "@/services/users/userService"
 
 
 export const useReadUser = (userId) => {
-  const { accessToken } = useAuthContext()
+  const { accessToken, user: authUser } = useAuthContext()
   const [user, setUser] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -32,8 +32,9 @@ export const useReadUser = (userId) => {
   }
 
   useEffect(() => {
+    if (!authUser?.id) return
     readUser(userId)
-  }, [accessToken])
+  }, [accessToken, authUser?.id])
 
   return { user, loading, error, refetch: readUser }
 }

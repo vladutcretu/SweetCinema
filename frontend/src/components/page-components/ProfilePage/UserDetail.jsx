@@ -18,7 +18,6 @@ const UserDetail = () => {
   const { user: userId } = useAuthContext()
   const { user, loading: loadingUser, error: errorUser, refetch: readUser } = useReadUser(userId?.id)
   const { updateUser, loading: loadingUpdateUser, error: errorUpdateUser } = useUpdateUser()
-  
 
   // Update user details
   const [showUpdateForm, setShowUpdateForm] = useState(false)
@@ -30,10 +29,11 @@ const UserDetail = () => {
 
   const handleUpdateSubmit = async (event) => {
     event.preventDefault()
-    await updateUser(userId?.id, formData)
-    console.log("Updating user with:", formData)
-    setShowUpdateForm(false)
-    await readUser(userId?.id)
+    const result = await updateUser(userId?.id, formData)
+    if (result) {
+      setShowUpdateForm(false)
+      await readUser(userId?.id)
+    }
   }
 
   return (
