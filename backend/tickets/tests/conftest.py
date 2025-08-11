@@ -15,10 +15,10 @@ from users.models import User
 # Write your fixtures here.
 
 
-@pytest.fixture(scope="session")
-def django_db_setup():
-    """Setup database for the entire test session."""
-    pass
+# @pytest.fixture(scope="session")
+# def django_db_setup():
+#     """Setup database for the entire test session."""
+#     pass
 
 
 @pytest.fixture

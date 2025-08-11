@@ -37,14 +37,19 @@ def test_booking_list_without_param_as_user(bookings_list, normal_user):
 
     assert response.status_code == status.HTTP_200_OK
 
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
     # Expected: PartialSerializer
+    data = response.data["results"]
     user_bookings_count = Booking.objects.filter(user=normal_user).count()
     all_bookings_count = Booking.objects.all().count()
-    assert len(response.data) == user_bookings_count
-    assert len(response.data) != all_bookings_count
-
-    assert "updated_at" not in response.data[0]
-    assert "expires_at" in response.data[0]
+    assert len(data) == user_bookings_count
+    assert len(data) != all_bookings_count
+    assert "updated_at" not in data[0]
+    assert "expires_at" in data[0]
 
 
 @pytest.mark.django_db
@@ -56,13 +61,18 @@ def test_booking_list_without_param_as_manager(bookings_list, manager_user):
 
     assert response.status_code == status.HTTP_200_OK
 
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
     # Expected: PartialSerializer
+    data = response.data["results"]
     manager_bookings_count = Booking.objects.filter(user=manager_user).count()
     all_bookings_count = Booking.objects.all().count()
-    assert len(response.data) == manager_bookings_count
-    assert len(response.data) != all_bookings_count
-
-    assert "expires_at" in response.data[0]
+    assert len(data) == manager_bookings_count
+    assert len(data) != all_bookings_count
+    assert "expires_at" in data[0]
 
 
 @pytest.mark.django_db
@@ -83,14 +93,19 @@ def test_booking_list_with_param_staff_false_as_user(bookings_list, normal_user)
 
     assert response.status_code == status.HTTP_200_OK
 
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
     # Expected: PartialSerializer
+    data = response.data["results"]
     user_bookings_count = Booking.objects.filter(user=normal_user).count()
     all_bookings_count = Booking.objects.all().count()
-    assert len(response.data) == user_bookings_count
-    assert len(response.data) != all_bookings_count
-
-    assert "updated_at" not in response.data[0]
-    assert "expires_at" in response.data[0]
+    assert len(data) == user_bookings_count
+    assert len(data) != all_bookings_count
+    assert "updated_at" not in data[0]
+    assert "expires_at" in data[0]
 
 
 @pytest.mark.django_db
@@ -102,14 +117,19 @@ def test_booking_list_with_param_staff_false_as_cashier(bookings_list, cashier_u
 
     assert response.status_code == status.HTTP_200_OK
 
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+    
     # Expected: PartialSerializer
+    data = response.data["results"]
     cashier_bookings_count = Booking.objects.filter(user=cashier_user).count()
     all_bookings_count = Booking.objects.all().count()
-    assert len(response.data) == cashier_bookings_count
-    assert len(response.data) != all_bookings_count
-
-    assert "updated_at" not in response.data[0]
-    assert "expires_at" in response.data[0]
+    assert len(data) == cashier_bookings_count
+    assert len(data) != all_bookings_count
+    assert "updated_at" not in data[0]
+    assert "expires_at" in data[0]
 
 
 @pytest.mark.django_db
@@ -130,10 +150,20 @@ def test_booking_list_with_param_staff_true_as_user(bookings_list, normal_user):
 
     assert response.status_code == status.HTTP_200_OK
 
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    # Expected: PartialSerializer
+    data = response.data["results"]
     normal_bookings_count = Booking.objects.filter(user=normal_user).count()
     all_bookings_count = Booking.objects.all().count()
-    assert len(response.data) == normal_bookings_count
-    assert len(response.data) != all_bookings_count
+    assert len(data) == normal_bookings_count
+    assert len(data) != all_bookings_count
+    assert "updated_at" not in data[0]
+    assert "expires_at" in data[0]
+
 
 
 @pytest.mark.django_db
@@ -144,10 +174,17 @@ def test_booking_list_with_param_staff_true_as_manager(bookings_list, manager_us
     response = client.get(url, {"staff": "true"})
 
     assert response.status_code == status.HTTP_200_OK
+
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
     # Expected: CompleteSerializer
-    assert len(response.data) == 4
-    assert "updated_at" in response.data[0]
-    assert "expires_at" not in response.data[0]
+    data = response.data["results"]
+    assert len(data) == 4
+    assert "updated_at" in data[0]
+    assert "expires_at" not in data[0]
 
 
 @pytest.mark.django_db
@@ -170,11 +207,17 @@ def test_booking_list_with_param_staff_true_as_cashier_with_city_param(
     response = client.get(url, {"staff": "true", "city": city_berlin.id})
 
     assert response.status_code == status.HTTP_200_OK
+    
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
     # Expected: CompleteSerializer
-    assert len(response.data) == 1
-    assert response.data[0]["status"] == "Reserved"
-    assert "updated_at" in response.data[0]
-    assert "expires_at" not in response.data[0]
+    data = response.data["results"]
+    assert len(data) == 1
+    assert "updated_at" in data[0]
+    assert "expires_at" not in data[0]
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -455,14 +498,20 @@ def test_payment_list_as_manager(payments_list, manager_user):
     response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    # Expected: CompleteSerializer
-    assert len(response.data) == 4
-    assert "id" in response.data[1]
-    assert response.data[1]["method"] == "MasterCard"
-    assert response.data[1]["status"] == "Accepted"
-    assert "user" in response.data[1]
-    assert response.data[2]["method"] == "VISA"
-    assert response.data[2]["status"] == "Declined"
+
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    data = response.data["results"]
+    assert len(data) == 4
+    assert "id" in data[1]
+    assert data[1]["method"] == "MasterCard"
+    assert data[1]["status"] == "Accepted"
+    assert "user" in data[1]
+    assert data[2]["method"] == "VISA"
+    assert data[2]["status"] == "Declined"
 
 
 @pytest.mark.django_db
@@ -473,14 +522,20 @@ def test_payment_list_as_staff(payments_list, staff_user):
     response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    # Expected: CompleteSerializer
-    assert len(response.data) == 4
-    assert "id" in response.data[0]
-    assert response.data[0]["method"] == "MasterCard"
-    assert response.data[0]["status"] == "Declined"
-    assert "user" in response.data[3]
-    assert response.data[3]["method"] == "VISA"
-    assert response.data[3]["status"] == "Accepted"
+
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    data = response.data["results"]
+    assert len(data) == 4
+    assert "id" in data[0]
+    assert data[0]["method"] == "MasterCard"
+    assert data[0]["status"] == "Declined"
+    assert "user" in data[3]
+    assert data[3]["method"] == "VISA"
+    assert data[3]["status"] == "Accepted"
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

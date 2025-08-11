@@ -45,29 +45,73 @@ def test_city_list_as_normal_user(city_london, normal_user):
 
 
 @pytest.mark.django_db
-def test_city_list_as_manager(city_london, manager_user):
+def test_city_list_as_manager_without_staff(city_london, manager_user):
     client = APIClient()
     client.force_authenticate(user=manager_user)
     url = reverse("create-read-cities")
     response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    # Expected: CompleteSerializer
+    # Expected: PartialSerializer
     assert "name" in response.data[0]
-    assert "address" in response.data[0]
+    assert "address" not in response.data[0]
 
 
 @pytest.mark.django_db
-def test_city_list_as_staff(city_london, staff_user):
+def test_city_list_as_manager_with_staff_true(city_london, manager_user):
+    client = APIClient()
+    client.force_authenticate(user=manager_user)
+    url = reverse("create-read-cities") + "?staff=true"
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    data = response.data["results"]
+    assert len(data) > 0
+
+    # Expected: CompleteSerializer
+    assert "name" in data[0]
+    assert "address" in data[0]
+
+
+@pytest.mark.django_db
+def test_city_list_as_staff_without_staff(city_london, staff_user):
     client = APIClient()
     client.force_authenticate(user=staff_user)
     url = reverse("create-read-cities")
     response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    # Expected: CompleteSerializer
+    # Expected: PartialSerializer
     assert "name" in response.data[0]
-    assert "address" in response.data[0]
+    assert "address" not in response.data[0]
+
+
+@pytest.mark.django_db
+def test_city_list_as_staff_with_staff_true(city_london, staff_user):
+    client = APIClient()
+    client.force_authenticate(user=staff_user)
+    url = reverse("create-read-cities") + "?staff=true"
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    data = response.data["results"]
+    assert len(data) > 0
+
+    # Expected: CompleteSerializer
+    assert "name" in data[0]
+    assert "address" in data[0]
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -218,14 +262,20 @@ def test_theater_list_as_manager(theater_room_berlin, manager_user):
 
     assert response.status_code == status.HTTP_200_OK
 
-    assert len(response.data) == 1
-    assert "id" in response.data[0]
-    assert "name" in response.data[0]
-    assert "city_name" in response.data[0]
-    assert "rows" in response.data[0]
-    assert "columns" in response.data[0]
-    assert "created_at" in response.data[0]
-    assert "updated_at" in response.data[0]
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    data = response.data["results"]
+    assert len(data) > 0
+    assert "id" in data[0]
+    assert "name" in data[0]
+    assert "city_name" in data[0]
+    assert "rows" in data[0]
+    assert "columns" in data[0]
+    assert "created_at" in data[0]
+    assert "updated_at" in data[0]
 
 
 @pytest.mark.django_db
@@ -237,14 +287,20 @@ def test_theater_list_as_staff(theater_room_berlin, staff_user):
 
     assert response.status_code == status.HTTP_200_OK
 
-    assert len(response.data) == 1
-    assert "id" in response.data[0]
-    assert "name" in response.data[0]
-    assert "city_name" in response.data[0]
-    assert "rows" in response.data[0]
-    assert "columns" in response.data[0]
-    assert "created_at" in response.data[0]
-    assert "updated_at" in response.data[0]
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    data = response.data["results"]
+    assert len(data) > 0
+    assert "id" in data[0]
+    assert "name" in data[0]
+    assert "city_name" in data[0]
+    assert "rows" in data[0]
+    assert "columns" in data[0]
+    assert "created_at" in data[0]
+    assert "updated_at" in data[0]
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

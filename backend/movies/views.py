@@ -5,6 +5,7 @@ from django.utils import timezone
 from rest_framework import generics, mixins
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import ValidationError
+from rest_framework.filters import OrderingFilter
 
 # 3rd party apps
 from drf_spectacular.utils import extend_schema
@@ -22,6 +23,7 @@ from .serializers import (
     MovieRetrieveSerializer,
 )
 from users.permissions import IsManagerOrPlanner
+from backend.helpers import StandardPagination
 
 # Create your views here.
 
@@ -37,15 +39,16 @@ class GenreListCreateView(generics.ListCreateAPIView):
     Only available to staff or 'Manager', 'Planner' role.\n
     GET: list all Genre objects, with complete fields on response.\n
     POST: create Genre object.\n
+    Ordering by id, name - default, created_at, updated_at with standard pagination.\n
     """
 
     queryset = Genre.objects.all()
     permission_classes = [IsManagerOrPlanner]
-
-    def get_serializer_class(self):
-        if self.request.method == "POST":
-            return GenreCompleteSerializer
-        return GenreCompleteSerializer
+    serializer_class = GenreCompleteSerializer
+    filter_backends = [OrderingFilter]
+    ordering_fields = ["id", "name", "created_at", "updated_at"]
+    ordering = ["name"]
+    pagination_class = StandardPagination
 
 
 @extend_schema(tags=["v1 - Genres"])
@@ -117,10 +120,15 @@ class MovieStaffListCreateView(generics.ListCreateAPIView):
     Only available to staff or 'Manager', 'Planner' role.\n
     GET: list all Movie objects (all fields).\n
     POST: create Movie object (all editable fields).\n
+    Ordering by id, title - default, created_at, updated_at with standard pagination.\n
     """
 
     queryset = Movie.objects.prefetch_related("genres")
     permission_classes = [IsManagerOrPlanner]
+    filter_backends = [OrderingFilter]
+    ordering_fields = ["id", "title", "created_at", "updated_at"]
+    ordering = ["title"]
+    pagination_class = StandardPagination
 
     def get_serializer_class(self):
         if self.request.method == "POST":

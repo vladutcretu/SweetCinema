@@ -7,6 +7,7 @@ from rest_framework import generics
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError, NotFound
+from rest_framework.filters import OrderingFilter
 
 # 3rd party apps
 from drf_spectacular.utils import extend_schema
@@ -28,6 +29,7 @@ from users.permissions import IsManagerOrPlanner, IsManager
 from tickets.models import Booking, BookingStatus
 from movies.models import Genre
 from locations.models import Seat
+from backend.helpers import StandardPagination
 
 # Create your views here.
 
@@ -75,10 +77,16 @@ class ShowtimeStaffListCreateView(generics.ListCreateAPIView):
     Only available to staff or 'Manager', 'Planner' role.\n
     GET: list all Showtime objects (all fields).\n
     POST: create Showtime object (all editable fields).\n
+    Ordering by id - default, movie, theater (city name), 
+    created_at, updated_at with standard pagination.\n
     """
 
     permission_classes = [IsManagerOrPlanner]
     queryset = Showtime.objects.select_related("movie", "theater", "theater__city")
+    filter_backends = [OrderingFilter]
+    ordering_fields = ["id", "movie", "theater", "created_at", "updated_at"]
+    ordering = ["-id"]
+    pagination_class = StandardPagination
 
     def get_serializer_class(self):
         if self.request.method == "POST":
