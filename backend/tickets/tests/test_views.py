@@ -121,7 +121,7 @@ def test_booking_list_with_param_staff_false_as_cashier(bookings_list, cashier_u
     assert "next" in response.data
     assert "previous" in response.data
     assert "results" in response.data
-    
+
     # Expected: PartialSerializer
     data = response.data["results"]
     cashier_bookings_count = Booking.objects.filter(user=cashier_user).count()
@@ -165,7 +165,6 @@ def test_booking_list_with_param_staff_true_as_user(bookings_list, normal_user):
     assert "expires_at" in data[0]
 
 
-
 @pytest.mark.django_db
 def test_booking_list_with_param_staff_true_as_manager(bookings_list, manager_user):
     client = APIClient()
@@ -207,7 +206,7 @@ def test_booking_list_with_param_staff_true_as_cashier_with_city_param(
     response = client.get(url, {"staff": "true", "city": city_berlin.id})
 
     assert response.status_code == status.HTTP_200_OK
-    
+
     assert "count" in response.data
     assert "next" in response.data
     assert "previous" in response.data

@@ -53,7 +53,7 @@ class CityListCreateView(generics.ListCreateAPIView):
         if self.request.method == "POST":
             return [IsManager()]
         return [AllowAny()]
-    
+
     @cached_property
     def staff_mode(self):
         """
@@ -79,7 +79,7 @@ class CityListCreateView(generics.ListCreateAPIView):
         if not self.staff_mode:
             return queryset.order_by("name")
         return super().filter_queryset(queryset)
-    
+
     def paginate_queryset(self, queryset):
         # Apply or ignore paginate param for staff or non-staff request
         if self.staff_mode:

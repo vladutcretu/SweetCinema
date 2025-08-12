@@ -77,7 +77,7 @@ class ShowtimeStaffListCreateView(generics.ListCreateAPIView):
     Only available to staff or 'Manager', 'Planner' role.\n
     GET: list all Showtime objects (all fields).\n
     POST: create Showtime object (all editable fields).\n
-    Ordering by id - default, movie, theater (city name), 
+    Ordering by id - default, movie, theater (city name),
     created_at, updated_at with standard pagination.\n
     """
 

@@ -196,7 +196,6 @@ class UserListView(generics.ListAPIView):
     pagination_class = StandardPagination
 
 
-
 @extend_schema(tags=["v1 - Users"])
 class UserRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     """

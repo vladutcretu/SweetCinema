@@ -109,7 +109,7 @@ def test_showtime_staff_list_as_manager(showtimes_list, manager_user):
     assert "next" in response.data
     assert "previous" in response.data
     assert "results" in response.data
-    
+
     data = response.data["results"]
     assert len(data) == 2
     assert "id" in data[0]
