@@ -9,6 +9,26 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ## Release Notes
 
+### ✅ v1.1.0-beta (completed on 12 August 2025, include Sprint #12)
+🚀 **Features:**
+- Tabels are now paginated and results can be ordered by relevant fields
+- Users can see and update personal informations and preferences on Profile page
+- Add Newsletter page to manage users choice to subscribe
+
+⚙️ **Backend:**
+- Create `User` model to include: `AbstractUser` model, fields `role, receive_promotions, receive_newsletter` and deleted `UserProfile` model
+- Groups authorization were replaced by User `role` field
+- Update permissions and `Employee` was renamed to `Planner`
+- Update UserUpdateView and PATCH /api/v1/users/{id}/ to `UserRetrieveUpdateView` and `GET & PATCH /api/v1/users/{id}/`
+- Every endpoint that needs authorization have now 1 less query (no longer joining groups table)
+- Add `ordering by fields and pagination` (params ordering, page, page_size) to GET endpoints that returns a list: /api/v1/locations/cities/ (add param staff=true for fetches made by staff), /api/v1/locations/theaters/, /api/v1/movies/staff/, /api/v1/movies/genres/, /api/v1/showtimes/staff/, /api/v1/tickets/bookings/, /api/v1/tickets/payments/, /api/v1/users/
+- Update tests for the affected endpoints
+
+🖼️ **Frontend:**
+- Create `Newsletter page`, `UserDetails component`
+- Update `ReusableTable component`, services and hooks for affected endpoints to include new params
+- Update hooks setError to include erorrs coming from backend response
+---
 ### ✅ v1.0.0-beta (completed on 29 July 2025, include Sprint #11)
 ⚙️♻️ **Backend Refactors:**
 - Add new fields to models to enhance user's realism, and audit fields (created_at, updated_at) for models that interact with POST / PATCH methods
@@ -216,12 +236,12 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ## Development Notes
 
-### 🔜 Sprint #12 (started on 8 August 2025; ended on <i>TBA</i>): "Backend & Frontend: User model, Endpoints filtering & pagination"
+### ✅ Sprint #12 (started on 8 August 2025; ended on 12 August 2025): "Backend & Frontend: User model, Endpoints filtering & pagination"
 - Create `User` model (extends `AbstractUser`) to merge `UserProfile` model and permissions logic from `Groups` (Manager, Employee, Cashier) to `role` field (Manager, Planner, Cashier) for optimizing database queries; also add `birthday` and boolean `promotions`, `newsletter` fields
 - Update `UserManagement component` and API endpoint to let staff set user's role and city
 - Update `Profile page` and API endpoint to let user set it's own city (except if user is Cashier), birthday (can not be updated) and promotions status (on/off)
 - Create `Newsletter page` and API endpoint to let user choose if wants to receive newsletter
-- Implement filtering and pagination for endpoints that returns a list presented in a table and update frontend accordingly
+- Implement ordering filters and pagination for endpoints that returns a list presented in a table and update frontend accordingly
 - Replace frontend setError text with backend validationError alert to provide more context when something bad happens
 ---
 ### ✅ Sprint #11 (started on 18 July 2025; ended on 29 July 2025): "Backend: Refactor & design"
