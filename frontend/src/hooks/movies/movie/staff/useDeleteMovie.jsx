@@ -15,21 +15,36 @@ export const useDeleteMovie = () => {
   const deleteMovie = async (movieId) => {
     setLoading(true)
     setError(null)
+
     try {
       const response = await movieService.deleteMovie(movieId)
       setData(response.data)
       alert(`✅ Movie deleted!`)
       console.log("Staff - Delete Movie successful:", response.data)
       return true
+
     } catch (error) {
-      setError("Something went wrong while deleting movie. Please try again.")
-      alert(`❌ Movie not deleted!`)
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Something went wrong while deleting movie: ${errorMessages}`)
+        alert(`❌ Movie not deleted!\n${errorMessages}`)
+      } else {
+        setError("Something went wrong while deleting movie. Please try again.")
+        alert(`❌ Movie not deleted!`)
+      }
       console.error("Staff - Delete Movie unsuccessful:", error)
       return false
+
     } finally {
       setLoading(false)
     }
   }
 
-  return { deleteMovie, loading, error, data }
+  return { 
+    deleteMovie, 
+    loading, 
+    error, 
+    data 
+  }
 }

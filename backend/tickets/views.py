@@ -2,12 +2,11 @@
 from django.db import transaction
 
 # DRF
-from rest_framework import generics
-from rest_framework.views import APIView
+from rest_framework import generics, views, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.validators import ValidationError
-from rest_framework import status
+from rest_framework.filters import OrderingFilter
 
 # 3rd party apps
 from drf_spectacular.utils import extend_schema
@@ -28,6 +27,7 @@ from .serializers import (
     PaymentCreateSerializer,
 )
 from users.permissions import IsManager
+from backend.helpers import StandardPagination
 
 # Create your views here.
 
@@ -40,19 +40,24 @@ from users.permissions import IsManager
 @extend_schema(tags=["v1 - Bookings"])
 class BookingListCreateView(generics.ListCreateAPIView):
     """
-    Available to authenticated users, staff and 'Manager', 'Cashier' group.\n
+    Available to authenticated users, staff and 'Manager', 'Cashier' role.\n
     GET without query params or param staff=false: list all Booking objects owned.\n
-    GET with param staff=true, without param city and 'Manager' group: list all
+    GET with param staff=true, without param city and 'Manager' role: list all
     Booking objects created by users.\n
-    GET with params staff=true, city=city_id and 'Cashier' group: list all
+    GET with params staff=true, city=city_id and 'Cashier' role: list all
     Booking objects created by users for showtimes in that city.\n
     Response contains expires_at for user instead of updated_at for staff, beside id,
     showtime (movie title, city and theater names, starts_at), status, booked_at.\n
     POST: create one or more Booking objects for Seats in a Showtime with specified
     status; only reserved and pending_payment allowed.
+    Ordering by id - default, showtime (movie title), created_at, updated_at with standard pagination.\n
     """
 
     permission_classes = [IsAuthenticated]
+    filter_backends = [OrderingFilter]
+    ordering_fields = ["id", "showtime", "booked_at", "updated_at"]
+    ordering = ["-id"]
+    pagination_class = StandardPagination
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -78,9 +83,9 @@ class BookingListCreateView(generics.ListCreateAPIView):
         )
 
         if is_allowed:
-            if user.is_staff or user.groups.filter(name="Manager").exists():
+            if user.is_staff or user.role == "manager":
                 return queryset
-            elif user.is_staff or user.groups.filter(name="Cashier").exists():
+            elif user.is_staff or user.role == "cashier":
                 city_id = self.request.query_params.get("city")
                 if not city_id:
                     raise ValidationError(
@@ -107,7 +112,7 @@ class BookingListCreateView(generics.ListCreateAPIView):
 @extend_schema(tags=["v1 - Bookings"])
 class BookingUpdateView(generics.UpdateAPIView):
     """
-    Available to authenticated users, staff and 'Cashier' group to update Booking
+    Available to authenticated users, staff and 'Cashier' role to update Booking
     object status to canceled/purchased for object that current status is 'reserved'.\n
     PATCH without query param or param staff=false: user, staff and 'Cashier
     can update his own Booking status to 'canceled'.\n
@@ -132,10 +137,7 @@ class BookingUpdateView(generics.UpdateAPIView):
         staff = self.request.query_params.get("staff", "false").lower()
 
         if staff == "true":
-            if (
-                self.request.user.is_staff
-                or self.request.user.groups.filter(name="Cashier").exists()
-            ):
+            if self.request.user.is_staff or self.request.user.role == "cashier":
                 return queryset
             else:
                 return queryset.none()
@@ -153,7 +155,7 @@ class BookingUpdateView(generics.UpdateAPIView):
                 }
             )
 
-        is_allowed = user.is_staff or user.groups.filter(name="Cashier").exists()
+        is_allowed = user.is_staff or user.role == "cashier"
         is_owner = booking.user == user
 
         if not is_allowed:
@@ -185,7 +187,7 @@ class BookingUpdateView(generics.UpdateAPIView):
 
 
 @extend_schema(tags=["v1 - Bookings"])
-class BookingPaymentTimeoutView(APIView):
+class BookingPaymentTimeoutView(views.APIView):
     """
     Available to authenticated users to update Booking objects status to
     'failed_payment' for objects that current status is 'pending_payment'.\n
@@ -210,7 +212,7 @@ class BookingPaymentTimeoutView(APIView):
 
 
 @extend_schema(tags=["v1 - Bookings"])
-class BookingListPaymentView(APIView):
+class BookingListPaymentView(views.APIView):
     """
     Available to authenticated users.\n
     POST: list Booking objects given their list of IDs.\n
@@ -244,16 +246,21 @@ class BookingListPaymentView(APIView):
 @extend_schema(tags=["v1 - Payments"])
 class PaymentListCreateView(generics.ListCreateAPIView):
     """
-    GET: list all Payment objects; available to staff / 'Manager' group.\n
+    GET: list all Payment objects; available to staff / 'Manager' role.\n
     POST: create a Payment object for single or multiple Booking objects; available to anyone.\n
     Receives a list of booking_ids, amount (sum paid by user) and method.
     Sums the prices of every showtime included in bookings,compare to amount value, and set the
     Payment status to accepted / declined, then for the Bookings as well.\n
+    Ordering by id - default, user, paid_at with standard pagination.\n
     """
 
     queryset = Payment.objects.select_related("user").prefetch_related(
         "bookings", "bookings__showtime", "bookings__seat"
     )
+    filter_backends = [OrderingFilter]
+    ordering_fields = ["id", "user", "paid_at"]
+    ordering = ["-id"]
+    pagination_class = StandardPagination
 
     def get_permissions(self):
         if self.request.method == "POST":

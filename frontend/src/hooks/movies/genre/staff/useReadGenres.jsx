@@ -8,30 +8,57 @@ import { genreService } from "@/services/movies/genreService"
 // Components here
 
 
-export const useReadGenres = () => {
+export const useReadGenres = (initialPage = 1, initialPageSize = 5) => {
   const { accessToken } = useAuthContext()
-  const [genres, setGenres] = useState([])
+  const [genres, setGenres] = useState({ count: 0, results: [] })
+  const [page, setPage] = useState(initialPage)
+  const [pageSize, setPageSize] = useState(initialPageSize)
+  const [sortField, setSortField] = useState("name")
+  const [sortOrder, setSortOrder] = useState("asc")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const readGenres = async () => {
+  const readGenres = async (pageNum = page) => {
+    setLoading(true)
+    setError(null)
+
     try {
-      setLoading(true)
-      setError(null)
-      const response = await genreService.readGenres()
+      const orderingParam = sortOrder === "desc" ? `-${sortField}` : sortField
+      const response = await genreService.readGenres(pageNum, pageSize, orderingParam)
       setGenres(response.data)
       console.log("Staff - Read Genres successful:", response.data)
+
     } catch (error) {
-      setError('Genres cannot be loaded. Please try again!')
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Something went wrong while reading genres: ${errorMessages}`)
+      } else {
+        setError("Something went wrong while reading genres. Please try again.")
+      }
       console.error('Staff - Read Genres unsuccessful:', error)
+
     } finally {
       setLoading(false)
     }
   }
   
   useEffect(() => {
-    readGenres()
-  }, [accessToken])
+    readGenres(page)
+  }, [accessToken, page, pageSize, sortField, sortOrder])
 
-  return { genres, loading, error, refetch: readGenres }
+  return { 
+    genres,
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+    sortField, 
+    setSortField,
+    sortOrder, 
+    setSortOrder,
+    loading, 
+    error, 
+    refetch: readGenres 
+  }
 }

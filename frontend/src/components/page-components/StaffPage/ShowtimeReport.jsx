@@ -13,7 +13,7 @@ import { formatDate, formatTime } from "@/utils/DateTimeFormat"
 
 
 const ShowtimeReport = () => {
-  const { showtimes, loading: loadingShowtimes, error: errorShowtimes } = useReadShowtimes()
+  const { showtimes, loading: loadingShowtimes, error: errorShowtimes } = useReadShowtimes(1, 10)
   const [selectedShowtimeId, setSelectedShowtimeId] = useState(null)
   const { showtimeReport, loading: loadingShowtimeReport, error: errorShowtimeReport, } = useReadShowtimeReport(selectedShowtimeId)
 
@@ -34,7 +34,7 @@ const ShowtimeReport = () => {
         maxW="max-content"
       >
         <NativeSelect.Field placeholder="Choose showtime to generate report">
-          {showtimes?.map((s) => (
+          {showtimes?.results?.map((s) => (
             <option key={s.id} value={s.id}>
               {s.movie_title}, {s.city_name}, {s.theater_name}, {formatDate(s.starts_at)}, {formatTime(s.starts_at)}
             </option>

@@ -15,21 +15,36 @@ export const useCreateCity = () => {
   const createCity = async (name, address) => {
     setLoading(true)
     setError(null)
+
     try {
       const response = await cityService.createCity(name, address)
       setData(response.data)
       alert(`✅ City ${name} created!`)
       console.log("Staff - Create City successful:", response.data)
       return response.data
+
     } catch (error) {
-      setError("Something went wrong while creating city. Please try again.")
-      alert(`❌ City ${name} not created!`)
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Something went wrong while creating city: ${errorMessages}`)
+        alert(`❌ City ${name} not created!\n${errorMessages}`)
+      } else {
+        setError("Something went wrong while creating city. Please try again.")
+        alert(`❌ City ${name} not created!`)
+      }
       console.error("Staff - Create City unsuccessful:", error)
       return null
+
     } finally {
       setLoading(false)
     }
   }
 
-  return { createCity, loading, error, data }
+  return { 
+    createCity, 
+    loading, 
+    error, 
+    data 
+  }
 }

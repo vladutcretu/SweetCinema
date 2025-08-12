@@ -13,15 +13,24 @@ export const useReadMovie = (movieId) => {
   const [error, setError] = useState(null)
 
   const getMovie = async (movieId) => {
+    setLoading(true)
+    setError(null)
+
     try {
-      setLoading(true)
-      setError(null)
       const response = await movieService.readMovie(movieId)
       setMovie(response.data)
       console.log("User - Read Movie successful:", response.data)
+
     } catch (error) {
-      setError('Movie cannot be loaded. Please try again!')
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Movie cannot be loaded: ${errorMessages}`)
+      } else {
+        setError("Movie cannot be loaded. Please try again.")
+      }
       console.error('User - Read Movie unsuccessful:', error)
+
     } finally {
       setLoading(false)
     }
@@ -31,5 +40,9 @@ export const useReadMovie = (movieId) => {
     getMovie(movieId)
   }, [movieId])
 
-  return { movie, loading, error }
+  return { 
+    movie, 
+    loading, 
+    error 
+  }
 }

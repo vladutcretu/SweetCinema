@@ -23,23 +23,19 @@ const StaffStatus = () => {
       mt={3}
     >
       <Heading size="xl">Your roles:</Heading>
-      {user?.groups.length > 0 && (
-        <SimpleGrid columns={3} spacing={2}>
-          <Text><b>Groups:</b> {user?.groups.join(", ")}</Text>
-          <Text><b>Password:</b> {user?.password.toString() === "true" ? "✅" : "❌"}</Text>
-          <Text><b>2FA active?</b> {twoFactorAuth.toString() ==="true" ? "✅" : "❌"}</Text>
+        <SimpleGrid columns={5} spacing={2}>
+          <Text><b>Role:</b> {user?.role}</Text>
+          <Text><b>Password:</b> {user?.password === true ? "✅" : "❌"}</Text>
+          <Text><b>2FA active?</b> {twoFactorAuth === true ? "✅" : "❌"}</Text>
+          <Text><b>Staff: </b> {user?.is_staff === true ? "✅" : "❌"}</Text>
+          <Text><b>Superuser: </b> {user?.is_superuser === true ? "✅" : "❌"}</Text>
         </SimpleGrid>
-      )}
-      {(user?.is_staff || user?.is_superuser) && (
-        <SimpleGrid columns={3} spacing={2}>
-          <Text><b>City ID:</b> {user?.city_id}</Text>
-          <Text><b>Staff: </b> {user?.is_staff.toString() === "true" ? "✅" : "❌"}</Text>
-          <Text><b>Superuser: </b> {user?.is_superuser.toString() === "true" ? "✅" : "❌"}</Text>
-        </SimpleGrid>
-      )}
-      {(user?.groups.length > 0 || user?.is_staff || user?.is_superuser) && (
-        <ForwardButton to={'/staff/'} text={"Staff Dashboard"}/>
-      )}
+
+        {
+          (user?.is_superuser || user?.is_staff || ["Manager", "Planner", "Cashier"].includes(user?.role)) 
+          &&
+          <ForwardButton to={'/staff/'} text={"Staff Dashboard"}/>
+        }
     </Box>
   )
 }

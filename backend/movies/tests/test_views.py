@@ -47,15 +47,21 @@ def test_genre_list_as_manager(genres_list, manager_user):
 
     assert response.status_code == status.HTTP_200_OK
 
-    assert len(response.data) == 3
-    assert "id" in response.data[0]
-    assert response.data[0]["name"] == "Comedy"
-    assert "created_at" in response.data[0]
-    assert "updated_at" in response.data[0]
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    data = response.data["results"]
+    assert len(data) == 3
+    assert "id" in data[0]
+    assert data[0]["name"] == "Comedy"
+    assert "created_at" in data[2]
+    assert "updated_at" in data[2]
 
 
 @pytest.mark.django_db
-def test_genre_list_as_employee(genres_list, manager_user):
+def test_genre_list_as_planner(genres_list, manager_user):
     client = APIClient()
     client.force_authenticate(user=manager_user)
     url = reverse("create-read-genres")
@@ -63,11 +69,17 @@ def test_genre_list_as_employee(genres_list, manager_user):
 
     assert response.status_code == status.HTTP_200_OK
 
-    assert len(response.data) == 3
-    assert "id" in response.data[1]
-    assert response.data[1]["name"] == "Drama"
-    assert "created_at" in response.data[1]
-    assert "updated_at" in response.data[1]
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    data = response.data["results"]
+    assert len(data) == 3
+    assert "id" in data[0]
+    assert data[1]["name"] == "Drama"
+    assert "created_at" in data[2]
+    assert "updated_at" in data[2]
 
 
 @pytest.mark.django_db
@@ -79,11 +91,17 @@ def test_genre_list_as_staff(genres_list, staff_user):
 
     assert response.status_code == status.HTTP_200_OK
 
-    assert len(response.data) == 3
-    assert "id" in response.data[2]
-    assert response.data[2]["name"] == "Thriller"
-    assert "created_at" in response.data[2]
-    assert "updated_at" in response.data[2]
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    data = response.data["results"]
+    assert len(data) == 3
+    assert "id" in data[0]
+    assert data[1]["name"] == "Drama"
+    assert "created_at" in data[2]
+    assert "updated_at" in data[2]
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -121,9 +139,9 @@ def test_genre_create_as_manager(manager_user):
 
 
 @pytest.mark.django_db
-def test_genre_create_as_employee(employee_user):
+def test_genre_create_as_planner(planner_user):
     client = APIClient()
-    client.force_authenticate(user=employee_user)
+    client.force_authenticate(user=planner_user)
     url = reverse("create-read-genres")
     response = client.post(url, data={"name": "Sport"})
 
@@ -151,9 +169,9 @@ def test_genre_create_as_manager_no_field(manager_user):
 
 
 @pytest.mark.django_db
-def test_genre_create_as_manager_invalid_field(employee_user):
+def test_genre_create_as_manager_invalid_field(planner_user):
     client = APIClient()
-    client.force_authenticate(user=employee_user)
+    client.force_authenticate(user=planner_user)
     url = reverse("create-read-genres")
     response = client.post(url, data={"type": "Horror"})
 
@@ -187,9 +205,9 @@ def test_genre_patch_as_manager(manager_user, genre_action):
 
 
 @pytest.mark.django_db
-def test_genre_patch_as_employee(employee_user, genre_action):
+def test_genre_patch_as_planner(planner_user, genre_action):
     client = APIClient()
-    client.force_authenticate(user=employee_user)
+    client.force_authenticate(user=planner_user)
     url = reverse("update-delete-genres", kwargs={"id": genre_action.id})
     response = client.patch(url, data={"name": "Updated"})
 
@@ -291,26 +309,38 @@ def test_movie_staff_list_as_manager(movies_list, manager_user):
     response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    # Expected: CompleteSerializer
-    assert len(response.data) == 2
-    assert "id" in response.data[0]
-    assert "title" in response.data[0]
-    assert "director" in response.data[0]
+
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    data = response.data["results"]
+    assert len(data) == 2
+    assert "id" in data[0]
+    assert "title" in data[0]
+    assert "director" in data[0]
 
 
 @pytest.mark.django_db
-def test_movie_staff_list_as_employee(movies_list, employee_user):
+def test_movie_staff_list_as_planner(movies_list, planner_user):
     client = APIClient()
-    client.force_authenticate(user=employee_user)
+    client.force_authenticate(user=planner_user)
     url = reverse("create-read-movies")
     response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    # Expected: CompleteSerializer
-    assert len(response.data) == 2
-    assert "id" in response.data[0]
-    assert "title" in response.data[0]
-    assert "director" in response.data[0]
+
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    data = response.data["results"]
+    assert len(data) == 2
+    assert "id" in data[0]
+    assert "title" in data[0]
+    assert "director" in data[0]
 
 
 @pytest.mark.django_db
@@ -321,11 +351,17 @@ def test_movie_staff_list_as_staff(movies_list, staff_user):
     response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    # Expected: CompleteSerializer
-    assert len(response.data) == 2
-    assert "id" in response.data[0]
-    assert "title" in response.data[0]
-    assert "director" in response.data[0]
+
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    data = response.data["results"]
+    assert len(data) == 2
+    assert "id" in data[1]
+    assert "title" in data[1]
+    assert "director" in data[1]
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -375,9 +411,9 @@ def test_movie_create_as_manager(manager_user, genre_action):
 
 
 @pytest.mark.django_db
-def test_movie_create_as_employee(employee_user, genre_action):
+def test_movie_create_as_planner(planner_user, genre_action):
     client = APIClient()
-    client.force_authenticate(user=employee_user)
+    client.force_authenticate(user=planner_user)
     url = reverse("create-read-movies")
     response = client.post(
         url,

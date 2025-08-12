@@ -8,7 +8,7 @@ from ..views import (
     # User
     UserDataView,
     UserListView,
-    UserUpdateView,
+    UserRetrieveUpdateView,
     UserSetPasswordView,
     UserVerifyPasswordView,
 )
@@ -59,17 +59,17 @@ def test_user_list_reverse():
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# UserUpdateView
+# UserRetrieveUpdateView
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
-def test_user_update_resolves():
+def test_user_retrieve_update_resolves():
     match = resolve("/api/v1/users/1/")
-    assert match.func.view_class == UserUpdateView
+    assert match.func.view_class == UserRetrieveUpdateView
 
 
-def test_user_update_reverse():
-    assert reverse("update-users", args=[1]) == "/api/v1/users/1/"
+def test_user_retrieve_update_reverse():
+    assert reverse("retrieve-update-users", args=[1]) == "/api/v1/users/1/"
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

@@ -13,15 +13,24 @@ export const useReadShowtimesByCityMovie = (cityId, movieId) => {
   const [error, setError] = useState(null)
 
   const readShowtimesByCityMovie = async (cityId, movieId) => {
+    setLoading(true)
+    setError(null)
+
     try {
-      setLoading(true)
-      setError(null)
       const response = await showtimeService.readShowtimesByCityMovie(cityId, movieId)
       setShowtimes(response.data)
       console.log("User - Read Showtimes by City and Movie successful:", response.data)
+    
     } catch (error) {
-      setError('Showtimes for City and Movie cannot be loaded. Please try again!')
-      console.error('User - Read Showtimes by City and Movie unsuccessful:', error)
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Showtimes for City and Movie cannot be loaded: ${errorMessages}`)
+      } else {
+        setError("Showtimes for City and Movie cannot be loaded. Please try again.")
+      }
+      console.error("User - Read Showtimes by City and Movie unsuccessful:", error)
+    
     } finally {
       setLoading(false)
     }
@@ -31,5 +40,9 @@ export const useReadShowtimesByCityMovie = (cityId, movieId) => {
     readShowtimesByCityMovie(cityId, movieId)
   }, [cityId, movieId])
 
-  return { showtimes, loading, error }
+  return { 
+    showtimes, 
+    loading, 
+    error 
+  }
 }

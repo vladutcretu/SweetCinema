@@ -62,8 +62,16 @@ def test_user_list_as_staff(users_list, staff_user):
 
     assert response.status_code == 200
 
-    assert len(response.data) == 6
-    assert "groups" not in response.data
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    data = response.data["results"]
+    assert len(data) == 5
+    # Expected: CompleteSerializer
+    assert "role" in data[0]
+    assert "groups" not in data[0]
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -75,30 +83,30 @@ def test_user_list_as_staff(users_list, staff_user):
 def test_user_update_as_user(normal_user2):
     client = APIClient()
     client.force_authenticate(user=normal_user2)
-    url = reverse("update-users", kwargs={"id": normal_user2.id})
+    url = reverse("retrieve-update-users", kwargs={"id": normal_user2.id})
     response = client.patch(url, {"city": "X"})
 
-    assert response.status_code == 403
+    assert response.status_code == 200
 
 
 @pytest.mark.django_db
-def test_user_update_as_staff(staff_user, cashier_group, normal_user2, city_london):
+def test_user_update_as_staff(staff_user, normal_user2, city_london):
     data = {
-        "groups": [cashier_group.name],
-        "city": city_london.name,
+        "role": "cashier",
+        "city_name": city_london.name,
         "username": "Updated",
     }
 
     client = APIClient()
     client.force_authenticate(user=staff_user)
-    url = reverse("update-users", kwargs={"id": normal_user2.id})
+    url = reverse("retrieve-update-users", kwargs={"id": normal_user2.id})
     response = client.patch(url, data, format="json")
 
     assert response.status_code == 200
     normal_user2.refresh_from_db()
     assert normal_user2.first_name != "Updated"
-    assert cashier_group in normal_user2.groups.all()
-    assert normal_user2.userprofile.city == city_london
+    assert normal_user2.role == "cashier"
+    assert normal_user2.city == city_london
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

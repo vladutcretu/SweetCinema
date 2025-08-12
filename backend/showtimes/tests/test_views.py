@@ -104,26 +104,38 @@ def test_showtime_staff_list_as_manager(showtimes_list, manager_user):
     response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    # Expected: CompleteSerializer
-    assert len(response.data) == 2
-    assert "id" in response.data[0]
-    assert "movie_title" in response.data[0]
-    assert "created_at" in response.data[0]
+
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    data = response.data["results"]
+    assert len(data) == 2
+    assert "id" in data[0]
+    assert "movie_title" in data[1]
+    assert "created_at" in data[1]
 
 
 @pytest.mark.django_db
-def test_showtime_staff_list_as_employee(showtimes_list, employee_user):
+def test_showtime_staff_list_as_planner(showtimes_list, planner_user):
     client = APIClient()
-    client.force_authenticate(user=employee_user)
+    client.force_authenticate(user=planner_user)
     url = reverse("create-read-showtimes")
     response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    # Expected: CompleteSerializer
-    assert len(response.data) == 2
-    assert "city_name" in response.data[0]
-    assert "format" in response.data[0]
-    assert "updated_at" in response.data[0]
+
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    data = response.data["results"]
+    assert len(data) == 2
+    assert "id" in data[0]
+    assert "movie_title" in data[1]
+    assert "created_at" in data[1]
 
 
 @pytest.mark.django_db
@@ -134,11 +146,17 @@ def test_showtime_staff_list_as_staff(showtimes_list, staff_user):
     response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    # Expected: CompleteSerializer
-    assert len(response.data) == 2
-    assert "city_name" in response.data[0]
-    assert "price" in response.data[0]
-    assert "presentation" in response.data[0]
+
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    data = response.data["results"]
+    assert len(data) == 2
+    assert "id" in data[1]
+    assert "movie_title" in data[1]
+    assert "created_at" in data[1]
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -199,9 +217,9 @@ def test_showtime_create_as_manager(manager_user, movie_f1, theater_london):
 
 
 @pytest.mark.django_db
-def test_showtime_create_as_employee(employee_user, movie_f1, theater_london):
+def test_showtime_create_as_planner(planner_user, movie_f1, theater_london):
     client = APIClient()
-    client.force_authenticate(user=employee_user)
+    client.force_authenticate(user=planner_user)
     url = reverse("create-read-showtimes")
     response = client.post(
         url,
@@ -321,9 +339,9 @@ def test_showtime_patch_as_manager(manager_user, showtime_f1_london):
 
 
 @pytest.mark.django_db
-def test_showtime_patch_as_employee(employee_user, showtime_f1_london):
+def test_showtime_patch_as_planner(planner_user, showtime_f1_london):
     client = APIClient()
-    client.force_authenticate(user=employee_user)
+    client.force_authenticate(user=planner_user)
     url = reverse(
         "retrieve-update-delete-showtimes", kwargs={"id": showtime_f1_london.id}
     )
@@ -405,9 +423,9 @@ def test_showtime_report_retrieve_as_manager(manager_user, showtime_f1_london):
 
 
 @pytest.mark.django_db
-def test_showtime_report_retrieve_as_employee(employee_user, showtime_f1_london):
+def test_showtime_report_retrieve_as_planner(planner_user, showtime_f1_london):
     client = APIClient()
-    client.force_authenticate(user=employee_user)
+    client.force_authenticate(user=planner_user)
     url = reverse("retrieve-showtimes-report", kwargs={"id": showtime_f1_london.id})
     response = client.get(url)
 

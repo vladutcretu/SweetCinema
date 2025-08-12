@@ -9,13 +9,12 @@ import { useCreateTheater } from '@/hooks/locations/theater/staff/useCreateTheat
 import { useReadTheaters } from '@/hooks/locations/theater/staff/useReadTheaters'
 import { useUpdateTheater } from '@/hooks/locations/theater/staff/useUpdateTheater'
 import { useDeleteTheater } from '@/hooks/locations/theater/staff/useDeleteTheater'
-import { useReadCities } from '@/hooks/locations/city/staff/useReadCities'
-import useSearchBar from '@/hooks/useSearchBar'
-import SearchBar from '@/components/common/SearchBar'
+import { useReadCities } from '@/hooks/locations/city/useReadCities'
 import SubmitButton from '@/components/common/SubmitButton'
 import ReusableTable from '@/components/common/ReusableTable'
 import FormWrapper from '@/components/common/FormWrapper'
 import useFormState from '@/hooks/useFormState'
+import { formatDate, formatTime } from '@/utils/DateTimeFormat'
 
 // Write components here
 
@@ -23,10 +22,22 @@ import useFormState from '@/hooks/useFormState'
 const TheaterManagement = () => {
   const { createTheater, loading: loadingCreateTheater, error: errorCreateTheater } = useCreateTheater()
   const { cities, loading: loadingCities, error: errorCities, refetch: readCities } = useReadCities()
-  const { theaters, loading: loadingTheaters, error: errorTheaters, refetch: readTheaters } = useReadTheaters()
+  const { 
+    theaters,
+    page, 
+    setPage, 
+    pageSize, 
+    setPageSize,
+    sortField, 
+    setSortField,
+    sortOrder,
+    setSortOrder,
+    loading: loadingTheaters, 
+    error: errorTheaters, 
+    refetch: readTheaters 
+  } = useReadTheaters()
   const { updateTheater, loading: loadingUpdateTheater, error: errorUpdateTheater } = useUpdateTheater()
   const { deleteTheater, loading: loadingDeleteTheater, error: errorDeleteTheater } = useDeleteTheater()
-  const { searchTerm, handleChangeSearch, filteredData: filteredTheaters } = useSearchBar(theaters, "name")
 
   // Create theater
   const { 
@@ -57,17 +68,21 @@ const TheaterManagement = () => {
 
   // Read theaters
   const columns = [
-    { key: "id", title: "ID" },
-    { key: "city_name", title: "City" },
+    { key: "id", title: "ID", sortable: true},
+    { key: "city", title: "City", sortable: true },
     { key: "name", title: "Name" },
-    { key: "r-c", title: "Rows-Columns" }
+    { key: "r-c", title: "Rows-Columns" },
+    { key: "created_at", title: "Created ", sortable: true },
+    { key: "updated_at", title: "Updated", sortable: true },
   ]
   const renderCell = (theater, column) => {
     switch (column.key) {
       case "id": return theater.id
-      case "city_name": return theater.city_name
+      case "city": return theater.city_name
       case "name": return theater.name
       case "r-c": return `R${theater.rows}-C${theater.columns}`
+      case "created_at": return (`${formatDate(theater.created_at)}, ${formatTime(theater.created_at)}`)
+      case "updated_at": return (`${formatDate(theater.updated_at)}, ${formatTime(theater.updated_at)}`)
     }
   }
   const renderActions = (theater) => (
@@ -134,19 +149,26 @@ const TheaterManagement = () => {
     <>
       <Center><Heading size="xl">Theater Management</Heading></Center>
 
-      {/* Search Bar */}
-      <SearchBar value={searchTerm} onChange={handleChangeSearch} text={"name"} />
-
       {/* Theater table & Update/Delete instance */}
       <ReusableTable
         loading={loadingTheaters}
         error={errorTheaters}
         additionalErrors={[errorUpdateTheater, errorDeleteTheater].filter(Boolean)}
-        data={filteredTheaters}
+        data={theaters}
         columns={columns}
         renderCell={renderCell}
         renderActions={renderActions}
         noDataMessage="No theaters found!"
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        sortField={sortField}
+        sortOrder={sortOrder}
+        onSortChange={(field, order) => {
+          setSortField(field)
+          setSortOrder(order)
+          setPage(1)
+        }}
       />
 
       {/* Create theater */}

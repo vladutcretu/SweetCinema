@@ -14,6 +14,14 @@ import SubmitButton from "@/components/common/SubmitButton"
 const BookingHistory = () => {
   const { 
     bookings, 
+    page, 
+    setPage, 
+    pageSize, 
+    setPageSize,
+    sortField, 
+    setSortField,
+    sortOrder,
+    setSortOrder,
     loading: loadingBookings, 
     error: errorBookings, 
     refetch: readBookings
@@ -33,8 +41,8 @@ const BookingHistory = () => {
 
   // Build table
   const columns = [
-    { key: "booking-time", title: "Booking Time" },
-    { key: "showtime", title: "Showtime" },
+    { key: "booked_at", title: "Booking on", sortable: true },
+    { key: "showtime", title: "Showtime", sortable: true },
     { key: "date-time", title: "Date/Time" },
     { key: "seat", title: "Seat" },
     { key: "status", title: "Status" },
@@ -42,7 +50,7 @@ const BookingHistory = () => {
   ]
   const renderCell = (booking, column) => {
     switch (column.key) {
-      case "booking-time": return `${formatDate(booking.booked_at)}, ${formatTime(booking.booked_at)}`
+      case "booked_at": return `${formatDate(booking.booked_at)}, ${formatTime(booking.booked_at)}`
       case "showtime": return (`
         ${booking.showtime.movie_title}
         ${booking.showtime.city_name}, 
@@ -83,6 +91,16 @@ const BookingHistory = () => {
         data={bookings}
         renderCell={renderCell}
         renderActions={renderActions}
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        sortField={sortField}
+        sortOrder={sortOrder}
+        onSortChange={(field, order) => {
+          setSortField(field)
+          setSortOrder(order)
+          setPage(1)
+        }}
       />
   </Box>
   )

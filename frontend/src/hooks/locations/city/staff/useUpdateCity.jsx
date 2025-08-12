@@ -15,15 +15,24 @@ export const useUpdateCity = () => {
   const updateCity = async (cityId, name, address) => {
     setLoading(true)
     setError(null)
+
     try {
       const response = await cityService.updateCity(cityId, name, address)
       setData(response.data)
       alert(`✅ City updated!`)
       console.log("Staff - Update City successful:", response.data)
       return response.data
+      
     } catch (error) {
-      setError("Something went wrong while updating city. Please try again.")
-      alert(`❌ City not updated!`)
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Something went wrong while updating city: ${errorMessages}`)
+        alert(`❌ City not updated!\n${errorMessages}`)
+      } else {
+        setError("Something went wrong while updating city. Please try again.")
+        alert(`❌ City not updated!`)
+      }
       console.error("Staff - Update City unsuccessful:", error)
       return null
     } finally {
@@ -31,5 +40,10 @@ export const useUpdateCity = () => {
     }
   }
 
-  return { updateCity, loading, error, data }
+  return { 
+    updateCity, 
+    loading, 
+    error, 
+    data 
+  }
 }

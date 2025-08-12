@@ -13,15 +13,24 @@ export const useReadShowtimesByCity = (cityId) => {
   const [error, setError] = useState(null)
 
   const readShowtimesByCity = async () => {
+    setLoading(true)
+    setError(null)
+
     try {
-      setLoading(true)
-      setError(null)
       const response = await showtimeService.readShowtimesByCity(cityId)
       setShowtimes(response.data)
       console.log("User - Read Showtimes by City successful:", response.data)
+
     } catch (error) {
-      setError('Showtimes for City cannot be loaded. Please try again!')
-      console.error('User - Read Showtimes by City unsuccessful:', error)
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Showtimes for City cannot be loaded: ${errorMessages}`)
+      } else {
+        setError("Showtimes for City cannot be loaded. Please try again.")
+      }
+      console.error("User - Read Showtimes by City unsuccessful:", error)
+
     } finally {
       setLoading(false)
     }
@@ -31,5 +40,9 @@ export const useReadShowtimesByCity = (cityId) => {
     readShowtimesByCity()
   }, [cityId])
 
-  return { showtimes, loading, error }
+  return { 
+    showtimes, 
+    loading, 
+    error 
+  }
 }

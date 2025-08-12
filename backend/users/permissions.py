@@ -4,66 +4,60 @@ from rest_framework.permissions import BasePermission
 # Write your permissions here.
 
 
-class IsAdminOrInGroup(BasePermission):
+class IsAdminOrHaveRole(BasePermission):
     """
-    Checks user to be Admin (SuperUser/Staff) OR
-    to be part of one of the specified group(s).
+    Allows access if user is superuser/staff OR
+    user.role is in allowed_roles list.
     """
 
-    groups_names = []
+    allowed_roles = []
 
     def has_permission(self, request, view):
         user = request.user
-        return user.is_authenticated and (
-            user.is_superuser
-            or user.is_staff
-            or (
-                self.groups_names
-                and user.groups.filter(name__in=self.groups_names).exists()
-            )
-        )
+        if not user or not user.is_authenticated:
+            return False
+
+        if user.is_superuser or user.is_staff:
+            return True
+
+        return user.role in self.allowed_roles
 
 
-class IsManager(IsAdminOrInGroup):
+class IsManager(IsAdminOrHaveRole):
     """
-    Checks user to be Admin (SuperUser/Staff) OR
-    to be part of the 'Manager' group.
+    Checks user to be Admin (SuperUser/Staff) OR to have 'Manager' role.
     """
 
-    groups_names = ["Manager"]
+    allowed_roles = ["manager"]
 
 
-class IsManagerOrEmployee(IsAdminOrInGroup):
+class IsManagerOrPlanner(IsAdminOrHaveRole):
     """
-    Checks user to be Admin (SuperUser/Staff) OR
-    to be part of one of the 'Manager', 'Employee' groups.
-    """
-
-    groups_names = ["Manager", "Employee"]
-
-
-class IsManagerOrCashier(IsAdminOrInGroup):
-    """
-    Checks user to be Admin (SuperUser/Staff) OR
-    to be part of one of the 'Manager', 'Cashier' groups.
+    Checks user to be Admin (SuperUser/Staff) OR to have 'Manager' OR 'Planner' role.
     """
 
-    groups_names = ["Manager", "Cashier"]
+    allowed_roles = ["manager", "planner"]
 
 
-class IsCashier(IsAdminOrInGroup):
+class IsManagerOrCashier(IsAdminOrHaveRole):
     """
-    Checks user to be Admin (SuperUser/Staff) OR
-    to be part of the 'Cashier' group.
-    """
-
-    groups_names = ["Cashier"]
-
-
-class IsManagerOrEmployeeOrCashier(IsAdminOrInGroup):
-    """
-    Checks user to be Admin (SuperUser/Staff) OR
-    to be part of one of the 'Manager', 'Employee' 'Cashier' groups.
+    Checks user to be Admin (SuperUser/Staff) OR to have 'Manager' OR 'Cashier' role.
     """
 
-    groups_names = ["Manager", "Employee", "Cashier"]
+    allowed_roles = ["manager", "cashier"]
+
+
+class IsCashier(IsAdminOrHaveRole):
+    """
+    Checks user to be Admin (SuperUser/Staff) OR to have 'Cashier' role.
+    """
+
+    allowed_roles = ["cashier"]
+
+
+class IsManagerOrPlannerOrCashier(IsAdminOrHaveRole):
+    """
+    Checks user to be Admin (SuperUser/Staff) OR to have 'Manager' OR 'Planner' OR 'Cashier' role.
+    """
+
+    allowed_roles = ["manager", "planner", "cashier"]

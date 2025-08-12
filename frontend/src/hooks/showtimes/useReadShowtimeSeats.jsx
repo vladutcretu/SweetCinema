@@ -13,15 +13,24 @@ export const useReadShowtimeSeats = (showtimeId) => {
   const [error, setError] = useState(null)
 
   const readShowtimeSeats = async () => {
+    setLoading(true)
+    setError(null)
+  
     try {
-      setLoading(true)
-      setError(null)
       const response = await showtimeService.readShowtimeSeats(showtimeId)
       setShowtimeSeats(response.data)
       console.log("User - Read Showtime Seats successful:", response.data)
+    
     } catch (error) {
-      setError('Showtime Seats cannot be loaded. Please try again!')
-      console.error('User - Read Showtime Seats unsuccessful:', error)
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Showtime Seats cannot be loaded: ${errorMessages}`)
+      } else {
+        setError("Showtime Seats cannot be loaded. Please try again.")
+      }
+      console.error("User - Read Showtime Seats unsuccessful:", error)
+    
     } finally {
       setLoading(false)
     }
@@ -31,5 +40,10 @@ export const useReadShowtimeSeats = (showtimeId) => {
     readShowtimeSeats(showtimeId)
   }, [showtimeId])
 
-  return { showtimeSeats, loading, error, refetch: readShowtimeSeats }
+  return { 
+    showtimeSeats, 
+    loading, 
+    error,
+     refetch: readShowtimeSeats 
+  }
 }

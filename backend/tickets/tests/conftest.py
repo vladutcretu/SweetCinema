@@ -1,5 +1,4 @@
 # Django
-from django.contrib.auth.models import Group, User
 from django.utils import timezone
 from datetime import timedelta
 
@@ -8,12 +7,18 @@ import pytest
 
 # App
 from ..models import Booking, BookingStatus, Payment, PaymentMethod, PaymentStatus
-from users.models import UserProfile
-from showtimes.models import Showtime
-from movies.models import Genre, Movie
 from locations.models import City, Theater, Seat
+from movies.models import Genre, Movie
+from showtimes.models import Showtime
+from users.models import User
 
 # Write your fixtures here.
+
+
+# @pytest.fixture(scope="session")
+# def django_db_setup():
+#     """Setup database for the entire test session."""
+#     pass
 
 
 @pytest.fixture
@@ -38,22 +43,41 @@ def theater_berlin(city_berlin):
 
 @pytest.fixture
 def seats_theater_london(theater_london):
-    seats = Seat.objects.filter(theater=theater_london)
-    seat1 = seats[0]
-    seat2 = seats[1]
-    seat3 = seats[2]
-    seat4 = seats[3]
-    return [seat1, seat2, seat3, seat4]
+    if not Seat.objects.filter(theater=theater_london).exists():
+        seats = []
+        for row in range(1, theater_london.rows + 1):
+            for col in range(1, theater_london.columns + 1):
+                seat = Seat.objects.create(
+                    theater=theater_london,
+                    row=row,
+                    column=col,
+                    seat_number=f"{row}{chr(64 + col)}",  # 1A, 1B
+                )
+                seats.append(seat)
+        return seats[:4]
+    else:
+        seats = list(Seat.objects.filter(theater=theater_london)[:4])
+        return seats
 
 
 @pytest.fixture
+@pytest.mark.django_db
 def seats_theater_berlin(theater_berlin):
-    seats = Seat.objects.filter(theater=theater_berlin)
-    seat1 = seats[0]
-    seat2 = seats[1]
-    seat3 = seats[2]
-    seat4 = seats[3]
-    return [seat1, seat2, seat3, seat4]
+    if not Seat.objects.filter(theater=theater_berlin).exists():
+        seats = []
+        for row in range(1, theater_berlin.rows + 1):
+            for col in range(1, theater_berlin.columns + 1):
+                seat = Seat.objects.create(
+                    theater=theater_berlin,
+                    row=row,
+                    column=col,
+                    seat_number=f"{row}{chr(64 + col)}",
+                )
+                seats.append(seat)
+        return seats[:4]
+    else:
+        seats = list(Seat.objects.filter(theater=theater_berlin)[:4])
+        return seats
 
 
 @pytest.fixture
@@ -88,6 +112,7 @@ def showtime_f1_london(movie_f1, theater_london):
 
 
 @pytest.fixture
+@pytest.mark.django_db
 def showtime_f1_berlin(movie_f1, theater_berlin):
     return Showtime.objects.create(
         movie=movie_f1,
@@ -97,36 +122,17 @@ def showtime_f1_berlin(movie_f1, theater_berlin):
 
 
 @pytest.fixture
-def manager_group():
-    return Group.objects.create(name="Manager")
-
-
-@pytest.fixture
-def cashier_group():
-    return Group.objects.create(name="Cashier")
-
-
-@pytest.fixture
-def manager_user(manager_group):
-    user = User.objects.create_user(
-        username="manager", password="test123", is_staff=False
+def manager_user():
+    return User.objects.create_user(
+        username="manager", password="test123", is_staff=False, role="manager"
     )
-    user.groups.add(manager_group)
-    return user
 
 
 @pytest.fixture
-def cashier_user(cashier_group):
-    user = User.objects.create_user(
-        username="cashier", password="test123", is_staff=False
+def cashier_user():
+    return User.objects.create_user(
+        username="cashier", password="test123", is_staff=False, role="cashier"
     )
-    user.groups.add(cashier_group)
-    return user
-
-
-@pytest.fixture
-def cashier_profile(cashier_user, city_berlin):
-    return UserProfile.objects.create(user=cashier_user, city=city_berlin)
 
 
 @pytest.fixture
@@ -245,41 +251,45 @@ def payments_list(
     cashier_user,
     booking_cashier,
 ):
-    payments = [
-        Payment(
+    payments = []
+    payments.append(
+        Payment.objects.create(
             user=normal_user,
             amount=35,
             method=PaymentMethod.VISA,
             status=PaymentStatus.ACCEPTED,
-        ),
-        Payment(
+        )
+    )
+    payments.append(
+        Payment.objects.create(
             user=staff_user,
             amount=50,
             method=PaymentMethod.VISA,
             status=PaymentStatus.DECLINED,
-        ),
-        Payment(
+        )
+    )
+    payments.append(
+        Payment.objects.create(
             user=manager_user,
             amount=45.5,
             method=PaymentMethod.MASTERCARD,
             status=PaymentStatus.ACCEPTED,
-        ),
-        Payment(
+        )
+    )
+    payments.append(
+        Payment.objects.create(
             user=cashier_user,
             amount=15.99,
             method=PaymentMethod.MASTERCARD,
             status=PaymentStatus.DECLINED,
-        ),
-    ]
+        )
+    )
 
-    Payment.objects.bulk_create(payments)
-    payments = Payment.objects.all()
-
-    for payment, bookings in zip(
-        payments,
-        [[booking_user], [booking_staff], [booking_manager], [booking_cashier]],
-    ):
-        payment.bookings.set(bookings)
+    # Set bookings many-to-many
+    payments[0].bookings.set([booking_user])
+    payments[1].bookings.set([booking_staff])
+    payments[2].bookings.set([booking_manager])
+    payments[3].bookings.set([booking_cashier])
 
     return payments
 

@@ -5,6 +5,7 @@ from django.utils import timezone
 from rest_framework import generics, mixins
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import ValidationError
+from rest_framework.filters import OrderingFilter
 
 # 3rd party apps
 from drf_spectacular.utils import extend_schema
@@ -21,7 +22,8 @@ from .serializers import (
     MovieCreateUpdateSerializer,
     MovieRetrieveSerializer,
 )
-from users.permissions import IsManagerOrEmployee
+from users.permissions import IsManagerOrPlanner
+from backend.helpers import StandardPagination
 
 # Create your views here.
 
@@ -34,18 +36,19 @@ from users.permissions import IsManagerOrEmployee
 @extend_schema(tags=["v1 - Genres"])
 class GenreListCreateView(generics.ListCreateAPIView):
     """
-    Only available to staff or 'Manager', 'Employee' group.\n
+    Only available to staff or 'Manager', 'Planner' role.\n
     GET: list all Genre objects, with complete fields on response.\n
     POST: create Genre object.\n
+    Ordering by id, name - default, created_at, updated_at with standard pagination.\n
     """
 
     queryset = Genre.objects.all()
-    permission_classes = [IsManagerOrEmployee]
-
-    def get_serializer_class(self):
-        if self.request.method == "POST":
-            return GenreCompleteSerializer
-        return GenreCompleteSerializer
+    permission_classes = [IsManagerOrPlanner]
+    serializer_class = GenreCompleteSerializer
+    filter_backends = [OrderingFilter]
+    ordering_fields = ["id", "name", "created_at", "updated_at"]
+    ordering = ["name"]
+    pagination_class = StandardPagination
 
 
 @extend_schema(tags=["v1 - Genres"])
@@ -53,14 +56,14 @@ class GenreUpdateDestroyView(
     mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView
 ):
     """
-    Only available to staff or 'Manager', 'Employee' group.\n
+    Only available to staff or 'Manager', 'Planner' role.\n
     PATCH: update name of Genre object.\n
     DELETE: delete Genre object.\n
     """
 
     queryset = Genre.objects.all()
     serializer_class = GenrePartialSerializer
-    permission_classes = [IsManagerOrEmployee]
+    permission_classes = [IsManagerOrPlanner]
     lookup_field = "id"
 
     def patch(self, request, *args, **kwargs):
@@ -114,13 +117,18 @@ class MovieListView(generics.ListAPIView):
 @extend_schema(tags=["v1 - Movies"])
 class MovieStaffListCreateView(generics.ListCreateAPIView):
     """
-    Only available to staff or 'Manager', 'Employee' group.\n
+    Only available to staff or 'Manager', 'Planner' role.\n
     GET: list all Movie objects (all fields).\n
     POST: create Movie object (all editable fields).\n
+    Ordering by id, title - default, created_at, updated_at with standard pagination.\n
     """
 
     queryset = Movie.objects.prefetch_related("genres")
-    permission_classes = [IsManagerOrEmployee]
+    permission_classes = [IsManagerOrPlanner]
+    filter_backends = [OrderingFilter]
+    ordering_fields = ["id", "title", "created_at", "updated_at"]
+    ordering = ["title"]
+    pagination_class = StandardPagination
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -132,8 +140,8 @@ class MovieStaffListCreateView(generics.ListCreateAPIView):
 class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     """
     GET: retrieve Movie object (id, all editable fields), available to anyone.\n
-    PATCH: partial update Movie object, available to staff or 'Manager', 'Employee' group.\n
-    DELETE: delete Movie object, available to staff or 'Manager', 'Employee' group.\n
+    PATCH: partial update Movie object, available to staff or 'Manager', 'Planner' role.\n
+    DELETE: delete Movie object, available to staff or 'Manager', 'Planner' role.\n
     """
 
     queryset = Movie.objects.prefetch_related("genres")
@@ -142,7 +150,7 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_permissions(self):
         if self.request.method in ["PATCH", "DELETE"]:
-            return [IsManagerOrEmployee()]
+            return [IsManagerOrPlanner()]
         return [AllowAny()]
 
     def get_serializer_class(self):

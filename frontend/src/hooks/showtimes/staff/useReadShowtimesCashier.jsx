@@ -15,15 +15,24 @@ export const useReadShowtimesCashier = (userCity) => {
   const [error, setError] = useState(null)
 
   const readShowtimesCashier = async (userCity) => {
+    setLoading(true)
+    setError(null)
+
     try {
-      setLoading(true)
-      setError(null)
       const response = await showtimeService.readShowtimesCashier(userCity)
       setShowtimes(response.data)
       console.log("Staff - Read Showtimes for Cashier successful:", response.data)
+
     } catch (error) {
-      setError('Showtimes for Cashier cannot be loaded. Please try again!')
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Showtimes for Cashier cannot be loaded: ${errorMessages}`)
+      } else {
+        setError("Showtimes for Cashier cannot be loaded. Please try again.")
+      }
       console.error('Staff - Read Showtimes for Cashier unsuccessful:', error)
+
     } finally {
       setLoading(false)
     }
@@ -33,5 +42,9 @@ export const useReadShowtimesCashier = (userCity) => {
     readShowtimesCashier(userCity)
   }, [accessToken, userCity])
 
-  return { showtimes, loading, error }
+  return { 
+    showtimes, 
+    loading, 
+    error 
+  }
 }

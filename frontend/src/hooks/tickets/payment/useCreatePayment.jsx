@@ -15,20 +15,35 @@ export const useCreatePayment = () => {
   const createPayment = async (bookingIds, paymentAmount, paymentMethod) => {
     setLoading(true)
     setError(null)
-    setData(null)
+
     try {
       const response = await paymentService.createPayment(bookingIds, paymentAmount, paymentMethod)
       setData(response.data)
       console.log("User - Create Payment successful:", response.data)
       return response.data
+    
     } catch (error) {
-      setError("Something went wrong while completing the payment. Please try again.")
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Something went wrong while creating payment: ${errorMessages}`)
+        alert(`❌ Payment not created!\n${errorMessages}`)
+      } else {
+        setError("Something went wrong while creating payment. Please try again.")
+        alert(`❌ Payment not created!`)
+      }
       console.error("User - Create Payment unsuccessful:", error)
       return null
+    
     } finally {
       setLoading(false)
     }
   }
 
-  return { createPayment, loading, error, data }
+  return { 
+    createPayment, 
+    loading, 
+    error, 
+    data 
+  }
 }

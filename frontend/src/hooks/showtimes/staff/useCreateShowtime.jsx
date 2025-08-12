@@ -22,6 +22,7 @@ export const useCreateShowtime = () => {
   ) => {
     setLoading(true)
     setError(null)
+
     try {
       const response = await showtimeService.createShowtime(
         movie, 
@@ -35,15 +36,29 @@ export const useCreateShowtime = () => {
       alert(`✅ Showtime created!`)
       console.log("Staff - Create Showtime successful:", response.data)
       return response.data
+
     } catch (error) {
-      setError("Something went wrong while creating showtime. Please try again.")
-      alert(`❌ Showtime not created!`)
+    if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Something went wrong while creating showtime: ${errorMessages}`)
+        alert(`❌ Showtime not created!\n${errorMessages}`)
+      } else {
+        setError("Something went wrong while creating showtime. Please try again.")
+        alert(`❌ Showtime not created!`)
+      }
       console.error("Staff - Create Showtime unsuccessful:", error)
       return null
+
     } finally {
       setLoading(false)
     }
   }
 
-  return { createShowtime, loading, error, data }
+  return { 
+    createShowtime, 
+    loading, 
+    error, 
+    data 
+  }
 }

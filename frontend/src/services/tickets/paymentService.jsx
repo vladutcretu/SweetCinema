@@ -5,7 +5,9 @@ import api from "../Api"
 
 
 export const paymentService = {
-  readPayments: () => api.get(`/v1/tickets/payments/`),
+  readPayments: (page = 1, pageSize = 5, ordering = "-id") => api.get(`/v1/tickets/payments/`, {
+    params: { page, page_size: pageSize, ordering }
+  }),
   createPayment: (
     bookingIds, 
     paymentAmount, 
