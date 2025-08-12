@@ -13,15 +13,24 @@ export const useReadShowtime = (showtimeId) => {
   const [error, setError] = useState(null)
 
   const readShowtime = async () => {
+    setLoading(true)
+    setError(null)
+
     try {
-      setLoading(true)
-      setError(null)
       const response = await showtimeService.readShowtime(showtimeId)
       setShowtime(response.data)
       console.log("User - Read Showtime successful:", response.data)
+    
     } catch (error) {
-      setError('Showtime cannot be loaded. Please try again!')
-      console.error('User - Read Showtime unsuccessful:', error)
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Showtimes cannot be loaded: ${errorMessages}`)
+      } else {
+        setError("Showtimes cannot be loaded. Please try again.")
+      }
+      console.error("User - Read Showtime unsuccessful:", error)
+    
     } finally {
       setLoading(false)
     }
@@ -31,5 +40,9 @@ export const useReadShowtime = (showtimeId) => {
     readShowtime(showtimeId)
   }, [showtimeId])
 
-  return { showtime, loading, error }
+  return { 
+    showtime, 
+    loading, 
+    error 
+  }
 }

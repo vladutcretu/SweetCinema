@@ -26,6 +26,7 @@ export const useCreateMovie = () => {
   ) => {
     setLoading(true)
     setError(null)
+    
     try {
       const response = await movieService.createMovie(
         title, 
@@ -43,15 +44,29 @@ export const useCreateMovie = () => {
       alert(`✅ Movie ${title} created!`)
       console.log("Staff - Create Movie successful:", response.data)
       return response.data
+
     } catch (error) {
-      setError("Something went wrong while creating movie. Please try again.")
-      alert(`❌ Movie ${title} not created!`)
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Something went wrong while creating movie: ${errorMessages}`)
+        alert(`❌ Movie ${title} not created!\n${errorMessages}`)
+      } else {
+        setError("Something went wrong while creating movie. Please try again.")
+        alert(`❌ Movie ${title}} not created!`)
+      }
       console.error("Staff - Create Movie unsuccessful:", error)
       return null
+
     } finally {
       setLoading(false)
     }
   }
 
-  return { createMovie, loading, error, data }
+  return { 
+    createMovie, 
+    loading, 
+    error, 
+    data 
+  }
 }

@@ -17,15 +17,24 @@ export const useReadUser = (userId) => {
   const readUser = async (userId) => {
     setLoading(true)
     setError(null)
+    
     try {
       const response = await userService.readUser(userId)
       setUser(response.data)
       console.log("User - Read User successful:", response.data)
       return response.data
+    
     } catch (error) {
-      setError("Something went wrong while reading user. Please try again.")
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Something went wrong while reading user: ${errorMessages}`)
+      } else {
+        setError("Something went wrong while reading user. Please try again.")
+      }
       console.error("User - Read User unsuccessful:", error)
       return null
+    
     } finally {
       setLoading(false)
     }
@@ -36,5 +45,10 @@ export const useReadUser = (userId) => {
     readUser(userId)
   }, [accessToken, authUser?.id])
 
-  return { user, loading, error, refetch: readUser }
+  return { 
+    user, 
+    loading, 
+    error, 
+    refetch: readUser 
+  }
 }

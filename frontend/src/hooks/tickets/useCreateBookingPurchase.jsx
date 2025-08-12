@@ -15,20 +15,36 @@ export const useCreateBookingPurchase = () => {
   const createBookingPurchase = async (showtimeId, seatIds, status) => {
     setLoading(true)
     setError(null)
-    setData(null)
+
     try {
       const response = await bookingService.createBooking(showtimeId, seatIds, status)
       setData(response.data)
+      alert(`✅ Booking created!`)
       console.log("User - Create Booking with status=pending_payment successful:", response.data)
       return response.data
+
     } catch (error) {
-      setError("Something went wrong while purchasing the seats. Please try again.")
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Something went wrong while purchasing the seats: ${errorMessages}`)
+        alert(`❌ Booking not created!\n${errorMessages}`)
+      } else {
+        setError("Something went wrong while purchasing the seats. Please try again.")
+        alert(`❌ Booking not created!`)
+      }
       console.error("User - Create Booking with status=pending_payment unsuccessful:", error)
       return null
+    
     } finally {
       setLoading(false)
     }
   }
 
-  return { createBookingPurchase, loading, error, data }
+  return { 
+    createBookingPurchase, 
+    loading, 
+    error, 
+    data 
+  }
 }

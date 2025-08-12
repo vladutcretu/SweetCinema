@@ -19,16 +19,25 @@ export const useReadShowtimes = (initialPage = 1, initialPageSize = 5) => {
   const [error, setError] = useState(null)
 
   const readShowtimes = async (pageNum = page) => {
+    setLoading(true)
+    setError(null)
+
     try {
-      setLoading(true)
-      setError(null)
       const orderingParam = sortOrder === "desc" ? `-${sortField}` : sortField
       const response = await showtimeService.readShowtimes(pageNum, pageSize, orderingParam)
       setShowtimes(response.data)
       console.log("Staff - Read Showtimes successful:", response.data)
+
     } catch (error) {
-      setError('Showtimes cannot be loaded. Please try again!')
-      console.error('Staff - Read Showtimes unsuccessful:', error)
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Showtimes cannot be loaded: ${errorMessages}`)
+      } else {
+        setError("Showtimes cannot be loaded. Please try again.")
+      }
+      console.error("Staff - Read Showtimes unsuccessful:", error)
+
     } finally {
       setLoading(false)
     }

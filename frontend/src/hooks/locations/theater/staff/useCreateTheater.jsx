@@ -15,21 +15,36 @@ export const useCreateTheater = () => {
   const createTheater = async (name, city, rows, columns) => {
     setLoading(true)
     setError(null)
+
     try {
       const response = await theaterService.createTheater(name, city, rows, columns)
       setData(response.data)
       alert(`✅ Theater ${name}, ${city} created!`)
       console.log("Staff - Create Theater successful:", response.data)
       return response.data
+
     } catch (error) {
-      setError("Something went wrong while creating theater. Please try again.")
-      alert(`❌ Theater ${name}, ${city} not created!`)
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Something went wrong while creating theater: ${errorMessages}`)
+        alert(`❌ Theater ${name}, ${city} not created!\n${errorMessages}`)
+      } else {
+        setError("Something went wrong while creating theater. Please try again.")
+        alert(`❌ Theater ${name}, ${city} not created!`)
+      }
       console.error("Staff - Create Theater unsuccessful:", error)
       return null
+
     } finally {
       setLoading(false)
     }
   }
 
-  return { createTheater, loading, error, data }
+  return { 
+    createTheater, 
+    loading, 
+    error, 
+    data 
+  }
 }

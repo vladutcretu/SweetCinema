@@ -21,14 +21,23 @@ export const useReadPayments = (initialPage = 1, initialPageSize = 5) => {
   const readPayments = async (pageNum = page) => {
     setLoading(true)
     setError(null)
+
     try {
       const orderingParam = sortOrder === "desc" ? `-${sortField}` : sortField
       const response = await paymentService.readPayments(pageNum, pageSize, orderingParam)
       setPayments(response.data)
       console.log("Staff - Read Payments successful:", response.data)
+    
     } catch (error) {
-      setError('Payments cannot be loaded. Please try again!')
-      console.error('Staff - Read Payments unsuccessful:', error)
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Payments cannot be loaded: ${errorMessages}`)
+      } else {
+        setError("Payments cannot be loaded. Please try again.")
+      }
+      console.error("Staff - Read Payments unsuccessful:", error)
+    
     } finally {
       setLoading(false)
     }

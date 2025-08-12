@@ -28,6 +28,7 @@ export const useUpdateMovie = () => {
   ) => {
     setLoading(true)
     setError(null)
+
     try {
       const response = await movieService.updateMovie(
         movieId, 
@@ -47,15 +48,29 @@ export const useUpdateMovie = () => {
       alert(`✅ Movie ${title} updated!`)
       console.log("Staf - Update Movie successful:", response.data)
       return response.data
+
     } catch (error) {
-      setError("Something went wrong while updating movie. Please try again.")
-      alert(`❌ Movie ${title} not updated!`)
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Something went wrong while updating movie: ${errorMessages}`)
+        alert(`❌ Movie not updated!\n${errorMessages}`)
+      } else {
+        setError("Something went wrong while updating movie. Please try again.")
+        alert(`❌ Movie not updated!`)
+      }
       console.error("Staff - Update Movie unsuccessful:", error)
       return null
+
     } finally {
       setLoading(false)
     }
   }
 
-  return { updateMovie, loading, error, data }
+  return { 
+    updateMovie, 
+    loading, 
+    error, 
+    data 
+  }
 }

@@ -17,7 +17,7 @@ export const useVerifyPass = () => {
   const verifyPasswordStaff = async (password) => {
     setLoading(true)
     setError(null)
-    setData(null)
+
     try {
       const response = await authService.verifyPassword(password)
       setData(response.data)
@@ -26,16 +26,30 @@ export const useVerifyPass = () => {
       alert(`✅ You entered the correct pass and activate 2FA successful!`)
       location.reload()
       return response.data
+    
     } catch (error) {
-      setError("Something went wrong while verifying password. Please try again.")
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Something went wrong while verifying password: ${errorMessages}`)
+        alert(`❌ Password not correct!\n${errorMessages}`)
+      } else {
+        setError("Something went wrong while verifying password. Please try again.")
+        alert(`❌ Password not correct!`)
+      }
       console.error("Staff - Verify Password unsuccessful:", error)
-      alert(`❌ You entered a wrong pass. Try again please!`)
       location.reload()
       return null
+    
     } finally {
       setLoading(false)
     }
   }
 
-  return { verifyPasswordStaff, loading, error, data }
+  return { 
+    verifyPasswordStaff, 
+    loading, 
+    error, 
+    data 
+  }
 }

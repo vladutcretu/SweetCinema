@@ -21,14 +21,23 @@ export const useReadBookingsCashier = (cashierCity, initialPage = 1, initialPage
   const readBookingsCashier = async (cashierCity, pageNum = page) => {
     setLoading(true)
     setError(null)
+
     try {
       const orderingParam = sortOrder === "desc" ? `-${sortField}` : sortField
       const response = await bookingService.readBookingsCashier(cashierCity, pageNum, pageSize, orderingParam)
       setBookings(response.data)
       console.log("Staff / Cashier - Read Bookings Cashier successful:", response.data)
+    
     } catch (error) {
-      setError('Bookings for Cashier cannot be loaded. Please try again!')
-      console.error('Staff / Cashier - Read Bookings Cashier unsuccessful:', error)
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Bookings for Cashier cannot be loaded: ${errorMessages}`)
+      } else {
+        setError("Bookings for Cashier cannot be loaded. Please try again.")
+      }
+      console.error("Staff / Cashier - Read Bookings Cashier unsuccessful:", error)
+    
     } finally {
       setLoading(false)
     }

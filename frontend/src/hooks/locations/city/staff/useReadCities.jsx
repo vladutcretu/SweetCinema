@@ -19,16 +19,25 @@ export const useReadCities = (initialPage = 1, initialPageSize = 5) => {
   const [error, setError] = useState(null)
 
   const readCities = async (pageNum = page) => {
+    setLoading(true)
+    setError(null)
+
     try {
-      setLoading(true)
-      setError(null)
       const orderingParam = sortOrder === "desc" ? `-${sortField}` : sortField
       const response = await cityService.readCitiesManager(pageNum, pageSize, orderingParam)
       setCities(response.data)
       console.log("Staff - Read Cities successful:", response.data)
+
     } catch (error) {
-      setError('Something went wrong while reading cities. Please try again.')
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Something went wrong while reading cities: ${errorMessages}`)
+      } else {
+        setError("Something went wrong while reading cities. Please try again.")
+      }
       console.error('Staff - Read Cities unsuccessful:', error)
+
     } finally {
       setLoading(false)
     }

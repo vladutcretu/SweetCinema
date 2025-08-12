@@ -19,16 +19,25 @@ export const useReadMovies = (initialPage = 1, initialPageSize = 5) => {
   const [error, setError] = useState(null)
 
   const readMovies = async (pageNum = page) => {
+    setLoading(true)
+    setError(null)
+
     try {
-      setLoading(true)
-      setError(null)
       const orderingParam = sortOrder === "desc" ? `-${sortField}` : sortField
       const response = await movieService.readMoviesStaff(pageNum, pageSize, orderingParam)
       setMovies(response.data)
       console.log("Staff - Read Movies successful:", response.data)
+
     } catch (error) {
-      setError("Something went wrong while reading movies. Please try again.")
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Something went wrong while reading movies: ${errorMessages}`)
+      } else {
+        setError("Something went wrong while reading movies. Please try again.")
+      }
       console.error('Staff - Read Movies unsuccessful:', error)
+
     } finally {
       setLoading(false)
     }

@@ -15,21 +15,36 @@ export const useUpdateUser = () => {
   const updateUser = async (userId, fieldsToUpdate) => {
     setLoading(true)
     setError(null)
+    
     try {
       const response = await userService.updateUser(userId, fieldsToUpdate)
       setData(response.data)
       alert(`✅ User updated!`)
       console.log("Staff / User - Update user successful:", response.data)
       return response.data
+    
     } catch (error) {
-      setError("Something went wrong while updating user. Please try again.")
-      alert(`❌ User not updated!`)
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Something went wrong while updating user: ${errorMessages}`)
+        alert(`❌ User not updated!\n${errorMessages}`)
+      } else {
+        setError("Something went wrong while updating user. Please try again.")
+        alert(`❌ User not updated!`)
+      }
       console.error("Staff / User - Update user unsuccessful:", error)
       return null
+    
     } finally {
       setLoading(false)
     }
   }
 
-  return { updateUser, loading, error, data }
+  return { 
+    updateUser, 
+    loading, 
+    error, 
+    data 
+  }
 }

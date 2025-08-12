@@ -19,16 +19,25 @@ export const useReadGenres = (initialPage = 1, initialPageSize = 5) => {
   const [error, setError] = useState(null)
 
   const readGenres = async (pageNum = page) => {
+    setLoading(true)
+    setError(null)
+
     try {
-      setLoading(true)
-      setError(null)
       const orderingParam = sortOrder === "desc" ? `-${sortField}` : sortField
       const response = await genreService.readGenres(pageNum, pageSize, orderingParam)
       setGenres(response.data)
       console.log("Staff - Read Genres successful:", response.data)
+
     } catch (error) {
-      setError('Genres cannot be loaded. Please try again!')
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Something went wrong while reading genres: ${errorMessages}`)
+      } else {
+        setError("Something went wrong while reading genres. Please try again.")
+      }
       console.error('Staff - Read Genres unsuccessful:', error)
+
     } finally {
       setLoading(false)
     }

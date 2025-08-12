@@ -21,16 +21,25 @@ export const useReadUsers = (initialPage = 1, initialPageSize = 5) => {
   const readUsers = async (pageNum = page) => {
     setLoading(true)
     setError(null)
+    
     try {
       const orderingParam = sortOrder === "desc" ? `-${sortField}` : sortField
       const response = await userService.readUsers(pageNum, pageSize, orderingParam)
       setUsers(response.data)
       console.log("Staff - Read Users successful:", response.data)
       return response.data
+    
     } catch (error) {
-      setError("Something went wrong while reading users. Please try again.")
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Something went wrong while reading users: ${errorMessages}`)
+      } else {
+        setError("Something went wrong while reading users. Please try again.")
+      }
       console.error("Staff - Read Users unsuccessful:", error)
       return null
+    
     } finally {
       setLoading(false)
     }

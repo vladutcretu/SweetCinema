@@ -15,17 +15,25 @@ export const useReadCities = (shouldFetch = false) => {
 
   const readCities = async () => {
     if (hasFetched) return 
+    setLoading(true)
+    setError(null)
 
     try {
-      setLoading(true)
-      setError(null)
       const response = await cityService.readCities()
       setCities(response.data)
       setHasFetched(true)
       console.log("User - Read Cities successful:", response.data)
+
     } catch (error) {
-      setError("Cities cannot be loaded. Please try again!")
-      console.log("User - Get Cities unsuccessful:", error)
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Cities cannot be loaded: ${errorMessages}`)
+      } else {
+        setError("Cities cannot be loaded. Please try again.")
+      }
+      console.log("User - Read Cities unsuccessful:", error)
+    
     } finally {
       setLoading(false)
     }

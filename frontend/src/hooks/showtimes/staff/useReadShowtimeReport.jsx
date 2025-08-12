@@ -15,16 +15,26 @@ export const useReadShowtimeReport = (showtimeId) => {
 
   useEffect(() => {
     if (!showtimeId) return
+
     const readShowtimeReport = async () => {
       setLoading(true)
       setError(null)
+
       try {
         const response = await showtimeService.readShowtimeReport(showtimeId)
         setShowtimeReport(response.data)
         console.log("Staff - Read Showtime Report successful:", response.data)
+
       } catch (error) {
-        setError("Showtime Report cannot be loaded. Please try again!")
+        if (error.response?.data) {
+          const backendErrors = error.response.data
+          const errorMessages = Object.values(backendErrors).flat().join("\n")
+          setError(`Showtime Report cannot be loaded: ${errorMessages}`)
+        } else {
+          setError("Showtime Report cannot be loaded. Please try again.")
+        }
         console.error("Staff - Read Showtime Report unsuccessful:", error)
+
       } finally {
         setLoading(false)
       }
@@ -33,5 +43,9 @@ export const useReadShowtimeReport = (showtimeId) => {
     readShowtimeReport()
   }, [accessToken, showtimeId])
 
-  return { showtimeReport, loading, error }
+  return { 
+    showtimeReport, 
+    loading, 
+    error 
+  }
 }

@@ -17,7 +17,7 @@ export const useSetPass = () => {
   const setPasswordStaff = async (password) => {
     setLoading(true)
     setError(null)
-    setData(null)
+
     try {
       const response = await authService.setPassword(password)
       setData(response.data)
@@ -26,16 +26,30 @@ export const useSetPass = () => {
       alert(`✅ You set your account password (2FA) successful!`)
       location.reload()
       return response.data
+    
     } catch (error) {
-      setError("Something went wrong while setting password. Please try again.")
+      if (error.response?.data) {
+        const backendErrors = error.response.data
+        const errorMessages = Object.values(backendErrors).flat().join("\n")
+        setError(`Something went wrong while setting password: ${errorMessages}`)
+        alert(`❌ Password not created!\n${errorMessages}`)
+      } else {
+        setError("Something went wrong while setting password. Please try again.")
+        alert(`❌ Password not created!`)
+      }
       console.error("Staff - Set Password unsuccessful:", error)
-      alert(`❌ You do not set your account password (2FA). Try again please!`)
       location.reload()
       return null
+    
     } finally {
       setLoading(false)
     }
   }
 
-  return { setPasswordStaff, loading, error, data }
+  return { 
+    setPasswordStaff, 
+    loading, 
+    error, 
+    data 
+  }
 }
