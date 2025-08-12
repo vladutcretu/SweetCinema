@@ -10,10 +10,8 @@ import { useReadMovies } from '@/hooks/movies/movie/staff/useReadMovies'
 import { useReadShowtimes } from '@/hooks/showtimes/staff/useReadShowtimes'
 import { useUpdateShowtime } from '@/hooks/showtimes/staff/useUpdateShowtime'
 import { useDeleteShowtime } from '@/hooks/showtimes/staff/useDeleteShowtime'
-import useFormState from '@/hooks/useFormState'
 import { useReadTheaters } from '@/hooks/locations/theater/staff/useReadTheaters'
-import useSearchBar from '@/hooks/useSearchBar'
-import SearchBar from '@/components/common/SearchBar'
+import useFormState from '@/hooks/useFormState'
 import { formatDate, formatTime } from '@/utils/DateTimeFormat'
 import SubmitButton from '@/components/common/SubmitButton'
 import ReusableTable from '@/components/common/ReusableTable'
@@ -24,12 +22,24 @@ import FormWrapper from '@/components/common/FormWrapper'
 
 const ShowtimeManagement = () => {
   const { createShowtime, loading: loadingCreateShowtime, error: errorCreateShowtime } = useCreateShowtime()
-  const { movies, loading: loadingMovies, error: errorMovies, refetch: getMovies } = useReadMovies()
-  const { theaters, loading: loadingTheaters, error: errorTheaters, refetch: readTheaters } = useReadTheaters()
-  const { showtimes, loading: loadingShowtimes, error: errorShowtimes, refetch: readShowtimes } = useReadShowtimes()
+  const { movies, loading: loadingMovies, error: errorMovies, refetch: getMovies } = useReadMovies(1, 10)
+  const { theaters, loading: loadingTheaters, error: errorTheaters, refetch: readTheaters } = useReadTheaters(1, 10)
+  const { 
+    showtimes,
+    page, 
+    setPage, 
+    pageSize, 
+    setPageSize,
+    sortField, 
+    setSortField,
+    sortOrder,
+    setSortOrder,  
+    loading: loadingShowtimes, 
+    error: errorShowtimes, 
+    refetch: readShowtimes 
+  } = useReadShowtimes()
   const { updateShowtime, loading: loadingUpdateShowtime, error: errorUpdateShowtime } = useUpdateShowtime()
   const { deleteShowtime, loading: loadingDeleteShowtime, error: errorDeleteShowtime } = useDeleteShowtime()
-  const { searchTerm, handleChangeSearch, filteredData: filteredShowtimes } = useSearchBar(showtimes, (showtime) => showtime.movie_title)
 
   // Create / Update values and names to not fetch from db
   const formats = [
@@ -92,28 +102,25 @@ const ShowtimeManagement = () => {
 
   // Read showtimes
   const columns = [
-    { key: "id", title: "ID" },
-    { key: "movie", title: "Movie Title" },
-    { key: "location", title: "Location" },
+    { key: "id", title: "ID", sortable: true },
+    { key: "movie", title: "Movie Title", sortable: true },
+    { key: "theater", title: "City", sortable: true },
     { key: "price", title: "Price" },
     { key: "starts", title: "Starts at" },
     { key: "details", title: "Details" },
-    { key: "created-updated", title: "Created / Updated" },
+    { key: "created_at", title: "Created ", sortable: true },
+    { key: "updated_at", title: "Updated", sortable: true }, 
   ]
   const renderCell = (showtime, column) => {
     switch (column.key) {
       case "id": return showtime.id
       case "movie": return showtime.movie_title
-      case "location": return `${showtime.city_name}, ${showtime.theater_name}`
+      case "theater": return `${showtime.city_name}, ${showtime.theater_name}`
       case "price": return `$${showtime.price}`
       case "starts": return `${formatDate(showtime.starts_at)}, ${formatTime(showtime.starts_at)}`
       case "details": return `${showtime.format}, ${showtime.presentation}`
-      case "created-updated": return (`
-        ${formatDate(showtime.created_at)}, 
-        ${formatTime(showtime.created_at)} /
-        ${formatDate(showtime.updated_at)}, 
-        ${formatTime(showtime.updated_at)}
-      `)
+      case "created_at": return (`${formatDate(showtime.created_at)}, ${formatTime(showtime.created_at)}`)
+      case "updated_at": return (`${formatDate(showtime.updated_at)}, ${formatTime(showtime.updated_at)}`)
     }
   }
   const renderActions = (showtime) => (
@@ -189,19 +196,26 @@ const ShowtimeManagement = () => {
     <>
       <Center><Heading size="xl">Showtime Management</Heading></Center>
 
-      {/* Search Bar */}
-      <SearchBar value={searchTerm} onChange={handleChangeSearch} text={"movie"} />
-
       {/* Showtime table & Update/Delete instance */}
       <ReusableTable
         loading={loadingShowtimes}
         error={errorShowtimes}
         additionalErrors={[errorUpdateShowtime, errorDeleteShowtime].filter(Boolean)}
-        data={filteredShowtimes}
+        data={showtimes}
         columns={columns}
         renderCell={renderCell}
         renderActions={renderActions}
         noDataMessage="No showtimes found!"
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        sortField={sortField}
+        sortOrder={sortOrder}
+        onSortChange={(field, order) => {
+          setSortField(field)
+          setSortOrder(order)
+          setPage(1)
+        }}
       />
 
       {/* Create showtime */}
@@ -215,12 +229,12 @@ const ShowtimeManagement = () => {
           <Field.Label>Movie:</Field.Label>
             <select type="text" name="movie" value={showtimeCreateForm.movie} onChange={handleMovieChangeCreate} required>
               <option value="" disabled>Select movie</option>
-              {movies.map((movie) => (<option key={movie.id} value={movie.id}>{movie.title}</option>))}
+              {movies?.results?.map((movie) => (<option key={movie.id} value={movie.id}>{movie.title}</option>))}
             </select>
           <Field.Label>Showtime:</Field.Label>
             <select type="text" name="theater" value={showtimeCreateForm.theater} onChange={handleTheaterChangeCreate} required>
               <option value="" disabled>Select theater</option>
-              {theaters.map((theater) => (<option key={theater.id} value={theater.id}>{theater.city_name}, {theater.name}</option>))}
+              {theaters?.results.map((theater) => (<option key={theater.id} value={theater.id}>{theater.city_name}, {theater.name}</option>))}
             </select>
           <Field.Label>Price:</Field.Label>
             <Input 

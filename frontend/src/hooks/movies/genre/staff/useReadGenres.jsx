@@ -8,17 +8,22 @@ import { genreService } from "@/services/movies/genreService"
 // Components here
 
 
-export const useReadGenres = () => {
+export const useReadGenres = (initialPage = 1, initialPageSize = 5) => {
   const { accessToken } = useAuthContext()
-  const [genres, setGenres] = useState([])
+  const [genres, setGenres] = useState({ count: 0, results: [] })
+  const [page, setPage] = useState(initialPage)
+  const [pageSize, setPageSize] = useState(initialPageSize)
+  const [sortField, setSortField] = useState("name")
+  const [sortOrder, setSortOrder] = useState("asc")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const readGenres = async () => {
+  const readGenres = async (pageNum = page) => {
     try {
       setLoading(true)
       setError(null)
-      const response = await genreService.readGenres()
+      const orderingParam = sortOrder === "desc" ? `-${sortField}` : sortField
+      const response = await genreService.readGenres(pageNum, pageSize, orderingParam)
       setGenres(response.data)
       console.log("Staff - Read Genres successful:", response.data)
     } catch (error) {
@@ -30,8 +35,21 @@ export const useReadGenres = () => {
   }
   
   useEffect(() => {
-    readGenres()
-  }, [accessToken])
+    readGenres(page)
+  }, [accessToken, page, pageSize, sortField, sortOrder])
 
-  return { genres, loading, error, refetch: readGenres }
+  return { 
+    genres,
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+    sortField, 
+    setSortField,
+    sortOrder, 
+    setSortOrder,
+    loading, 
+    error, 
+    refetch: readGenres 
+  }
 }

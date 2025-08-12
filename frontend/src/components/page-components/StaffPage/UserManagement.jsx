@@ -8,8 +8,6 @@ import { Center, Field, Heading, Input } from '@chakra-ui/react'
 import { useReadUsers } from '@/hooks/users/staff/useReadUsers'
 import { useUpdateUser } from '@/hooks/users/useUpdateUser'
 import useFormState from '@/hooks/useFormState'
-import useSearchBar from '@/hooks/useSearchBar'
-import SearchBar from '@/components/common/SearchBar'
 import SubmitButton from '@/components/common/SubmitButton'
 import ReusableTable from '@/components/common/ReusableTable'
 import FormWrapper from '@/components/common/FormWrapper'
@@ -18,15 +16,27 @@ import FormWrapper from '@/components/common/FormWrapper'
 
 
 const UserManagement = () => {
-  const { users, loading: loadingUsers, error: errorUsers, refetch: readUsers } = useReadUsers()
+  const { 
+    users,
+    page, 
+    setPage, 
+    pageSize, 
+    setPageSize,
+    sortField, 
+    setSortField,
+    sortOrder,
+    setSortOrder,
+    loading: loadingUsers, 
+    error: errorUsers, 
+    refetch: readUsers 
+  } = useReadUsers()
   const { updateUser, loading: loadingUpdateUser, error: errorUpdateUser } = useUpdateUser()
-  const { searchTerm, handleChangeSearch, filteredData: filteredUsers } = useSearchBar(users, "username")
 
   // Build table
   const columns = [
-    { key: 'id', title: 'ID' },
+    { key: 'id', title: 'ID', sortable: true },
     { key: 'user', title: 'User' },
-    { key: 'staff', title: 'Role / Staff / Superuser' },
+    { key: 'role', title: 'Role / Staff / Superuser', sortable: true },
     { key: 'city', title: 'City' },
     { key: 'preferences', title: 'Preferences' }
   ]
@@ -34,7 +44,7 @@ const UserManagement = () => {
     switch (column.key) {
       case 'id': return user.id
       case 'user': return `${user.username} / ${user.email}`
-      case 'staff' : return `${user.role} / ${user.is_staff} / ${user.is_superuser}`
+      case 'role' : return `${user.role} / ${user.is_staff} / ${user.is_superuser}`
       case 'city': return user.city_name
       case 'preferences': return `Birthday: ${user.birthday}, Promotions: ${user.receive_promotions}, Newsletter: ${user.receive_newsletter}`
     }
@@ -92,19 +102,26 @@ const UserManagement = () => {
     <>
       <Center><Heading size="xl">User Management</Heading></Center>
 
-      {/* Search Bar */}
-      <SearchBar value={searchTerm} onChange={handleChangeSearch} text={"username"} />
-
       {/* User table & Update user role */}
       <ReusableTable
         loading={loadingUsers}
         error={errorUsers}
         additionalErrors={[errorUpdateUser].filter(Boolean)}
-        data={filteredUsers}
+        data={users}
         columns={columns}
         renderCell={renderCell}
         renderActions={renderActions}
         noDataMessage="No users found!"
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        sortField={sortField}
+        sortOrder={sortOrder}
+        onSortChange={(field, order) => {
+          setSortField(field)
+          setSortOrder(order)
+          setPage(1)
+        }}
       />
 
       {/* Update city */}

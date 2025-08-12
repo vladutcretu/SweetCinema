@@ -3,29 +3,36 @@ import { Center, Heading } from '@chakra-ui/react'
 
 // App
 import { useReadBookingsManager } from '@/hooks/tickets/booking/staff/useReadBookingsManager'
-import useSearchBar from '@/hooks/useSearchBar'
 import { formatDate, formatTime } from '@/utils/DateTimeFormat'
-import SearchBar from '@/components/common/SearchBar'
 import ReusableTable from '@/components/common/ReusableTable'
 
 // Write components here
 
 
 const BookingManagement = () => {
-  const { bookings, loading: loadingBookings, error: errorBookings } = useReadBookingsManager()
-  const { searchTerm, handleChangeSearch, filteredData: filteredBookings } = useSearchBar(
-    bookings, 
-    (booking) => booking.showtime.movie_title
-  )
+  const { 
+    bookings,
+    page, 
+    setPage, 
+    pageSize, 
+    setPageSize,
+    sortField, 
+    setSortField,
+    sortOrder,
+    setSortOrder,  
+    loading: loadingBookings, 
+    error: errorBookings 
+  } = useReadBookingsManager()
   
   // Read bookings
   const columns = [
-    { key: "id", title: "ID" },
+    { key: "id", title: "ID", sortable: true },
     { key: "user", title: "User" },
-    { key: "showtime", title: "Showtime" },
+    { key: "showtime", title: "Showtime", sortable: true },
     { key: "seat", title: "Seat" },
     { key: "status", title: "Status" },
-    { key: "time", title: "Created / Updated" }
+    { key: "booked_at", title: "Booked", sortable: true },
+    { key: "updated_at", title: "Updated", sortable: true }, 
   ]
 
   const renderCell = (booking, column) => {
@@ -41,10 +48,8 @@ const BookingManagement = () => {
       `)
       case "seat": return `R${booking.seat.row}-C${booking.seat.column}`
       case "status": return booking.status
-      case "time": return (`
-        Booked: ${formatDate(booking.booked_at)}, ${formatTime(booking.booked_at)} / 
-        Updated: ${formatDate(booking.updated_at)}, ${formatTime(booking.updated_at)}
-      `)
+      case "booked_at": return (`${formatDate(booking.booked_at)}, ${formatTime(booking.booked_at)}`)
+      case "updated_at": return (`${formatDate(booking.updated_at)}, ${formatTime(booking.updated_at)}`)
     }
   }
 
@@ -52,17 +57,24 @@ const BookingManagement = () => {
     <>
       <Center><Heading size="xl">Booking Management</Heading></Center>
 
-      {/* Search Bar */}
-      <SearchBar value={searchTerm} onChange={handleChangeSearch} text={"movie title"} />
-
       {/* Booking table & Update/Delete instance */}
       <ReusableTable
         loading={loadingBookings}
         error={errorBookings}
-        data={filteredBookings}
+        data={bookings}
         columns={columns}
         renderCell={renderCell}
         noDataMessage="No bookings found!"
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        sortField={sortField}
+        sortOrder={sortOrder}
+        onSortChange={(field, order) => {
+          setSortField(field)
+          setSortOrder(order)
+          setPage(1)
+        }}
       />
     </>
   )

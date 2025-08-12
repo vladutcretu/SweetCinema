@@ -8,17 +8,22 @@ import { bookingService } from "@/services/tickets/bookingService"
 // Components here
 
 
-export const useReadBookings = () => {
+export const useReadBookings = (initialPage = 1, initialPageSize = 5) => {
   const { accessToken } = useAuthContext()
-  const [bookings, setBookings] = useState([])
+  const [bookings, setBookings] = useState({ count: 0, results: [] })
+  const [page, setPage] = useState(initialPage)
+  const [pageSize, setPageSize] = useState(initialPageSize)
+  const [sortField, setSortField] = useState("booked_at")
+  const [sortOrder, setSortOrder] = useState("desc")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const readBookings = async () => {
+  const readBookings = async (pageNum = page) => {
     setLoading(true)
     setError(null)
     try {
-      const response = await bookingService.readBookings()
+      const orderingParam = sortOrder === "desc" ? `-${sortField}` : sortField
+      const response = await bookingService.readBookings(pageNum, pageSize, orderingParam)
       setBookings(response.data)
       console.log("User - Read Booking History successful:", response.data)
     } catch (error) {
@@ -31,8 +36,21 @@ export const useReadBookings = () => {
 
   useEffect(() => {
     if (!accessToken) return
-    readBookings()
-  }, [accessToken])
+    readBookings(page)
+  }, [accessToken, page, pageSize, sortField, sortOrder])
 
-  return { bookings, loading, error, refetch: readBookings }
+  return { 
+    bookings, 
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+    sortField, 
+    setSortField,
+    sortOrder, 
+    setSortOrder, 
+    loading, 
+    error, 
+    refetch: readBookings 
+  }
 }

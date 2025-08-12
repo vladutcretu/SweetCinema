@@ -5,8 +5,6 @@
 import { useAuthContext } from "@/contexts/AuthContext"
 import { useReadBookingsCashier } from "@/hooks/tickets/booking/staff/useReadBookingsCashier"
 import { useUpdateBookingCashier } from "@/hooks/tickets/booking/staff/useUpdateBookingCashier"
-import useSearchBar from "@/hooks/useSearchBar"
-import SearchBar from "@/components/common/SearchBar"
 import { formatDate, formatTime } from "@/utils/DateTimeFormat"
 import SubmitButton from "@/components/common/SubmitButton"
 import ReusableTable from "@/components/common/ReusableTable"
@@ -17,7 +15,15 @@ import ReusableTable from "@/components/common/ReusableTable"
 const BookingDashboard = () => {
   const { user } = useAuthContext()
   const { 
-    bookings, 
+    bookings,
+    page, 
+    setPage, 
+    pageSize, 
+    setPageSize,
+    sortField, 
+    setSortField,
+    sortOrder,
+    setSortOrder,
     loading: loadingBookings, 
     error: errorBookings, 
     refetch: readBookingsCashier 
@@ -27,10 +33,6 @@ const BookingDashboard = () => {
     loading: loadingUpdateBooking, 
     error: errorUpdateBooking
   } = useUpdateBookingCashier()
-  const { searchTerm, handleChangeSearch, filteredData: filteredBookings } = useSearchBar(
-    bookings, 
-    (booking) => booking.showtime.movie_title
-  )
 
   if (loadingBookings || loadingUpdateBooking) return <Spinner />
   if (errorBookings) return <Text color="red.400">{errorBookings}</Text>
@@ -43,12 +45,12 @@ const BookingDashboard = () => {
 
   // Read bookings
   const columns = [
-    { key: "id", title: "ID" },
+    { key: "id", title: "ID", sortable: true },
     { key: "user", title: "User" },
-    { key: "showtime", title: "Showtime" },
+    { key: "showtime", title: "Showtime", sortable: true },
     { key: "seat", title: "Seat" },
     { key: "status", title: "Status" },
-    { key: "time", title: "Booked on" }
+    { key: "booked_at", title: "Booked on", sortable: true }
   ]
   const renderCell = (booking, column) => {
     switch (column.key) {
@@ -63,10 +65,7 @@ const BookingDashboard = () => {
       `)
       case "seat": return `R${booking.seat.row}-C${booking.seat.column}`
       case "status": return booking.status
-      case "time": return (`
-        ${formatDate(booking.booked_at)}, 
-        ${formatTime(booking.booked_at)}
-      `)
+      case "booked_at": return (`${formatDate(booking.booked_at)}, ${formatTime(booking.booked_at)}`)
     }
   }
   const renderActions = (booking) => {
@@ -83,18 +82,25 @@ const BookingDashboard = () => {
     <>
       <Center><Heading size="xl">Booking Dashboard</Heading></Center>
 
-      {/* Search Bar */}
-      <SearchBar value={searchTerm} onChange={handleChangeSearch} text={"movie title"} />
-
       {/* Booking table & Update/Delete instance */}
       <ReusableTable
         loading={loadingBookings}
         error={errorBookings}
-        data={filteredBookings}
+        data={bookings}
         columns={columns}
         renderCell={renderCell}
         renderActions={renderActions}
         noDataMessage="No bookings found!"
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        sortField={sortField}
+        sortOrder={sortOrder}
+        onSortChange={(field, order) => {
+          setSortField(field)
+          setSortOrder(order)
+          setPage(1)
+        }}
       />
     </>
   )

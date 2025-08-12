@@ -10,7 +10,9 @@ export const showtimeService = {
     readShowtime: (showtimeId) => api.get(`/v1/showtimes/${showtimeId}`),
     readShowtimeSeats: (showtimeId) => api.get(`/v1/showtimes/${showtimeId}/seats/`),
 
-    readShowtimes: () => api.get(`/v1/showtimes/staff/`),
+    readShowtimes: (page = 1, pageSize = 5, ordering = "-id") => api.get(`/v1/showtimes/staff/`, {
+      params: { page, page_size: pageSize, ordering }
+    }),
     createShowtime: (movie, theater, price, starts_at, format, presentation) => api.post(`/v1/showtimes/staff/`, {
       movie: movie,
       theater: theater, 

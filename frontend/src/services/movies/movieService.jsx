@@ -7,7 +7,9 @@ import api from "../Api"
 export const movieService = {
     readMovies: (cityId) => api.get(`/v1/movies/?city=${cityId}`),
     readMovie: (movieId) => api.get(`/v1/movies/${movieId}/`),
-    readMoviesStaff: () => api.get(`/v1/movies/staff/`),
+    readMoviesStaff: (page = 1, pageSize = 5, ordering = "-id") => api.get(`/v1/movies/staff/`, {
+        params: { page, page_size: pageSize, ordering }
+    }),
     createMovie: (
         title, 
         description, 

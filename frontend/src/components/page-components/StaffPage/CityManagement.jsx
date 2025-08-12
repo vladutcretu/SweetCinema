@@ -9,9 +9,7 @@ import { useCreateCity } from '@/hooks/locations/city/staff/useCreateCity'
 import { useReadCities } from '@/hooks/locations/city/staff/useReadCities'
 import { useUpdateCity } from '@/hooks/locations/city/staff/useUpdateCity'
 import { useDeleteCity } from '@/hooks/locations/city/staff/useDeleteCity'
-import useSearchBar from '@/hooks/useSearchBar'
 import SubmitButton from '@/components/common/SubmitButton'
-import SearchBar from '@/components/common/SearchBar'
 import ReusableTable from '@/components/common/ReusableTable'
 import FormWrapper from '@/components/common/FormWrapper'
 import useFormState from '@/hooks/useFormState'
@@ -22,10 +20,22 @@ import { formatDate, formatTime } from '@/utils/DateTimeFormat'
 
 const CityManagement = () => {
   const { createCity, loading: loadingCreateCity, error: errorCreateCity } = useCreateCity()
-  const { cities, loading: loadingCities, error: errorCities, refetch: readCities } = useReadCities()
+  const { 
+    cities, 
+    page, 
+    setPage, 
+    pageSize, 
+    setPageSize,
+    sortField, 
+    setSortField,
+    sortOrder,
+    setSortOrder,
+    loading: loadingCities,
+    error: errorCities,
+    refetch: readCities 
+  } = useReadCities()
   const { updateCity, loading: loadingUpdateCity, error: errorUpdateCity } = useUpdateCity()
   const { deleteCity, loading: loadingDeleteCity, error: errorDeleteCity } = useDeleteCity()
-  const { searchTerm, handleChangeSearch, filteredData: filteredCities } = useSearchBar(cities, "name")
   
   // Create city
   const { 
@@ -46,22 +56,19 @@ const CityManagement = () => {
 
   // Read cities
   const columns = [
-    { key: "id", title: "ID" },
-    { key: "name", title: "Name" },
+    { key: "id", title: "ID", sortable: true },
+    { key: "name", title: "Name", sortable: true },
     { key: "address", title: "Address"},
-    { key: "created-updated", title: "Created / Updated"},
+    { key: "created_at", title: "Created ", sortable: true },
+    { key: "updated_at", title: "Updated", sortable: true },
   ]
   const renderCell = (city, column) => {
     switch (column.key) {
       case "id": return city.id
       case "name": return city.name
       case "address": return city.address
-      case "created-updated": return (`
-        ${formatDate(city.created_at)}, 
-        ${formatTime(city.created_at)} /
-        ${formatDate(city.updated_at)}, 
-        ${formatTime(city.updated_at)}
-      `)
+      case "created_at": return (`${formatDate(city.created_at)}, ${formatTime(city.created_at)}`)
+      case "updated_at": return (`${formatDate(city.updated_at)}, ${formatTime(city.updated_at)}`)
     }
   }
   const renderActions = (city) => (
@@ -120,19 +127,26 @@ const CityManagement = () => {
     <>
       <Center><Heading size="xl">City Management</Heading></Center>
 
-      {/* Search Bar */}
-      <SearchBar value={searchTerm} onChange={handleChangeSearch} text={"name"} />
-
       {/* City table & Update/Delete instance */}
       <ReusableTable
         loading={loadingCities}
         error={errorCities}
         additionalErrors={[errorUpdateCity, errorDeleteCity].filter(Boolean)}
-        data={filteredCities}
+        data={cities}
         columns={columns}
         renderCell={renderCell}
         renderActions={renderActions}
         noDataMessage="No cities found!"
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        sortField={sortField}
+        sortOrder={sortOrder}
+        onSortChange={(field, order) => {
+          setSortField(field)
+          setSortOrder(order)
+          setPage(1)
+        }}
       />
 
       {/* Create city */}

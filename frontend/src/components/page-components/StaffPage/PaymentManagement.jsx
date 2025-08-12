@@ -3,31 +3,37 @@ import { Center, Heading } from '@chakra-ui/react'
 
 // App
 import { useReadPayments } from '@/hooks/tickets/payment/staff/useReadPayments'
-import useSearchBar from '@/hooks/useSearchBar'
 import { formatDate, formatTime } from '@/utils/DateTimeFormat'
-import SearchBar from '@/components/common/SearchBar'
 import ReusableTable from '@/components/common/ReusableTable'
 
 // Write components here
 
 
 const PaymentManagement = () => {
-  const { payments, loading: loadingPayments, error: errorPayments } = useReadPayments()
-  const { searchTerm, handleChangeSearch, filteredData: filteredPayments } = useSearchBar(
-    payments, 
-    (payment) => payment.bookings[0].showtime.movie_title
-  )
+  const { 
+    payments,
+    page, 
+    setPage, 
+    pageSize, 
+    setPageSize,
+    sortField, 
+    setSortField,
+    sortOrder,
+    setSortOrder,  
+    loading: loadingPayments, 
+    error: errorPayments 
+  } = useReadPayments()
   
   // Read payments
   const columns = [
-    { key: "id", title: "ID" },
-    { key: "user", title: "User" },
+    { key: "id", title: "ID", sortable: true },
+    { key: "user", title: "User", sortable: true },
     { key: "booking", title: "Booking" },
     { key: "seat", title: "Seat" },
     { key: "amount", title: "Amount" },
     { key: "method", title: "Method" },
     { key: "status", title: "Status" },
-    { key: "time", title: "Created" }
+    { key: "paid_at", title: "Paid", sortable: true },
   ]
 
   const renderCell = (payment, column) => {
@@ -49,7 +55,7 @@ const PaymentManagement = () => {
       case "amount": return payment.amount
       case "method": return payment.method 
       case "status": return payment.status
-      case "time": return `${formatDate(payment.paid_at)}, ${formatTime(payment.paid_at)}`
+      case "paid_at": return `${formatDate(payment.paid_at)}, ${formatTime(payment.paid_at)}`
     }
   }
 
@@ -57,17 +63,24 @@ const PaymentManagement = () => {
     <>
       <Center><Heading size="xl">Payment Management</Heading></Center>
 
-      {/* Search Bar */}
-      <SearchBar value={searchTerm} onChange={handleChangeSearch} text={"movie title"} />
-
       {/* Payment table & Update/Delete instance */}
       <ReusableTable
         loading={loadingPayments}
         error={errorPayments}
-        data={filteredPayments}
+        data={payments}
         columns={columns}
         renderCell={renderCell}
         noDataMessage="No payments found!"
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        sortField={sortField}
+        sortOrder={sortOrder}
+        onSortChange={(field, order) => {
+          setSortField(field)
+          setSortOrder(order)
+          setPage(1)
+        }}
       />
     </>
   )
