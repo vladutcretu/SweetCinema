@@ -8,17 +8,22 @@ import { paymentService } from "@/services/tickets/paymentService"
 // Components here
 
 
-export const useReadPayments = () => {
+export const useReadPayments = (initialPage = 1, initialPageSize = 5) => {
   const { accessToken } = useAuthContext()
-  const [payments, setPayments] = useState([])
+  const [payments, setPayments] = useState({ count: 0, results: [] })
+  const [page, setPage] = useState(initialPage)
+  const [pageSize, setPageSize] = useState(initialPageSize)
+  const [sortField, setSortField] = useState("id")
+  const [sortOrder, setSortOrder] = useState("desc")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const readPayments = async () => {
+  const readPayments = async (pageNum = page) => {
+    setLoading(true)
+    setError(null)
     try {
-      setLoading(true)
-      setError(null)
-      const response = await paymentService.readPayments()
+      const orderingParam = sortOrder === "desc" ? `-${sortField}` : sortField
+      const response = await paymentService.readPayments(pageNum, pageSize, orderingParam)
       setPayments(response.data)
       console.log("Staff - Read Payments successful:", response.data)
     } catch (error) {
@@ -30,8 +35,20 @@ export const useReadPayments = () => {
   }
   
   useEffect(() => {
-    readPayments()
-  }, [accessToken])
+    readPayments(page)
+  }, [accessToken, page, pageSize, sortField, sortOrder])
 
-  return { payments, loading, error }
+  return { 
+    payments,
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+    sortField, 
+    setSortField,
+    sortOrder, 
+    setSortOrder,  
+    loading, 
+    error 
+  }
 }

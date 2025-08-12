@@ -8,17 +8,22 @@ import { cityService } from "@/services/locations/cityService"
 // Components here
 
 
-export const useReadCities = () => {
+export const useReadCities = (initialPage = 1, initialPageSize = 5) => {
   const { accessToken } = useAuthContext()
-  const [cities, setCities] = useState([])
+  const [cities, setCities] = useState({ count: 0, results: [] })
+  const [page, setPage] = useState(initialPage)
+  const [pageSize, setPageSize] = useState(initialPageSize)
+  const [sortField, setSortField] = useState("name")
+  const [sortOrder, setSortOrder] = useState("asc")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const readCities = async () => {
+  const readCities = async (pageNum = page) => {
     try {
       setLoading(true)
       setError(null)
-      const response = await cityService.readCities()
+      const orderingParam = sortOrder === "desc" ? `-${sortField}` : sortField
+      const response = await cityService.readCitiesManager(pageNum, pageSize, orderingParam)
       setCities(response.data)
       console.log("Staff - Read Cities successful:", response.data)
     } catch (error) {
@@ -30,8 +35,21 @@ export const useReadCities = () => {
   }
   
   useEffect(() => {
-    readCities()
-  }, [accessToken])
+    readCities(page)
+  }, [accessToken, page, pageSize, sortField, sortOrder])
 
-  return { cities, loading, error, refetch: readCities }
+  return { 
+    cities,
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+    sortField, 
+    setSortField,
+    sortOrder, 
+    setSortOrder,
+    loading, 
+    error, 
+    refetch: readCities 
+  }
 }

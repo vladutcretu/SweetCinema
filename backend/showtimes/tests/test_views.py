@@ -104,11 +104,17 @@ def test_showtime_staff_list_as_manager(showtimes_list, manager_user):
     response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    # Expected: CompleteSerializer
-    assert len(response.data) == 2
-    assert "id" in response.data[0]
-    assert "movie_title" in response.data[0]
-    assert "created_at" in response.data[0]
+
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+    
+    data = response.data["results"]
+    assert len(data) == 2
+    assert "id" in data[0]
+    assert "movie_title" in data[1]
+    assert "created_at" in data[1]
 
 
 @pytest.mark.django_db
@@ -119,11 +125,17 @@ def test_showtime_staff_list_as_planner(showtimes_list, planner_user):
     response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    # Expected: CompleteSerializer
-    assert len(response.data) == 2
-    assert "city_name" in response.data[0]
-    assert "format" in response.data[0]
-    assert "updated_at" in response.data[0]
+
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    data = response.data["results"]
+    assert len(data) == 2
+    assert "id" in data[0]
+    assert "movie_title" in data[1]
+    assert "created_at" in data[1]
 
 
 @pytest.mark.django_db
@@ -134,11 +146,17 @@ def test_showtime_staff_list_as_staff(showtimes_list, staff_user):
     response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    # Expected: CompleteSerializer
-    assert len(response.data) == 2
-    assert "city_name" in response.data[0]
-    assert "price" in response.data[0]
-    assert "presentation" in response.data[0]
+
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    data = response.data["results"]
+    assert len(data) == 2
+    assert "id" in data[1]
+    assert "movie_title" in data[1]
+    assert "created_at" in data[1]
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

@@ -10,8 +10,6 @@ import { useReadGenres } from '@/hooks/movies/genre/staff/useReadGenres'
 import { useReadMovies } from '@/hooks/movies/movie/staff/useReadMovies'
 import { useUpdateMovie } from '@/hooks/movies/movie/staff/useUpdateMovie'
 import { useDeleteMovie } from '@/hooks/movies/movie/staff/useDeleteMovie'
-import useSearchBar from '@/hooks/useSearchBar'
-import SearchBar from '@/components/common/SearchBar'
 import SubmitButton from '@/components/common/SubmitButton'
 import ReusableTable from '@/components/common/ReusableTable'
 import FormWrapper from '@/components/common/FormWrapper'
@@ -23,11 +21,23 @@ import { formatDate, formatTime } from '@/utils/DateTimeFormat'
 
 const MovieManagement = () => {
   const { createMovie, loading: loadingCreateMovie, error: errorCreateMovie } = useCreateMovie()
-  const { genres, loading: loadingGenres, error: errorGenres, refetch: getGenres } = useReadGenres()
-  const { movies, loading: loadingMovies, error: errorMovies, refetch: readMovies } = useReadMovies()
+  const { genres, loading: loadingGenres, error: errorGenres, refetch: getGenres } = useReadGenres(1, 10)
+  const { 
+    movies,
+    page, 
+    setPage, 
+    pageSize, 
+    setPageSize,
+    sortField, 
+    setSortField,
+    sortOrder,
+    setSortOrder, 
+    loading: loadingMovies, 
+    error: errorMovies, 
+    refetch: readMovies 
+  } = useReadMovies()
   const { updateMovie, loading: loadingUpdateMovie, error: errorUpdateMovie } = useUpdateMovie()
   const { deleteMovie, loading: loadingDeleteMovie, error: errorDeleteMovie } = useDeleteMovie()
-  const { searchTerm, handleChangeSearch, filteredData: filteredMovies } = useSearchBar(movies, "title")
 
   // Create / Update values and names to not fetch from db
   const parental_guides = [
@@ -99,13 +109,13 @@ const MovieManagement = () => {
 
   // Read movies
   const columns = [
-    { key: "id", title: "ID" },
-    { key: "title", title: "Title" },
+    { key: "id", title: "ID", sortable: true},
+    { key: "title", title: "Title", sortable: true},
     { key: "description", title: "Description" },
     { key: "genres", title: "Genres" },
     { key: "info", title: "Informations" },
-    { key: "created-updated", title: "Created / Updated"},
-
+    { key: "created_at", title: "Created ", sortable: true },
+    { key: "updated_at", title: "Updated", sortable: true }, 
   ]
   const renderCell = (movie, column) => {
     switch (column.key) {
@@ -124,12 +134,8 @@ const MovieManagement = () => {
           <b>Language:</b> {movie.language}<br />
         </>
       )
-      case "created-updated": return (`
-        ${formatDate(movie.created_at)}, 
-        ${formatTime(movie.created_at)} /
-        ${formatDate(movie.updated_at)}, 
-        ${formatTime(movie.updated_at)}
-      `)
+      case "created_at": return (`${formatDate(movie.created_at)}, ${formatTime(movie.created_at)}`)
+      case "updated_at": return (`${formatDate(movie.updated_at)}, ${formatTime(movie.updated_at)}`)
     }
   }
   const renderActions = (movie) => (
@@ -235,19 +241,26 @@ const MovieManagement = () => {
     <>
       <Center><Heading size="xl">Movie Management</Heading></Center>
 
-      {/* Search Bar */}
-      <SearchBar value={searchTerm} onChange={handleChangeSearch} text={"title"} />
-
       {/* Movie table & Update/Delete instance */}
       <ReusableTable
         loading={loadingMovies}
         error={errorMovies}
         additionalErrors={[errorUpdateMovie, errorDeleteMovie].filter(Boolean)}
-        data={filteredMovies}
+        data={movies}
         columns={columns}
         renderCell={renderCell}
         renderActions={renderActions}
         noDataMessage="No movies found!"
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        sortField={sortField}
+        sortOrder={sortOrder}
+        onSortChange={(field, order) => {
+          setSortField(field)
+          setSortOrder(order)
+          setPage(1)
+        }}
       />
 
       {/* Create movie */}
@@ -280,9 +293,10 @@ const MovieManagement = () => {
             placeholder="Type description..."
             required
           />
+          {loadingGenres && <div>Loading genres...</div>}
           <Field.Label>Select Genre(s): </Field.Label>
             <select multiple value={movieCreateForm.genres} onChange={handleGenreChange} required>
-              {genres.map(genre => (
+              {genres?.results?.map(genre => (
                 <option key={genre.id} value={genre.id}>{genre.name}</option>
               ))}
             </select>
@@ -405,7 +419,7 @@ const MovieManagement = () => {
           />
           <Field.Label>Select Genre(s): </Field.Label>
             <select multiple value={updatedForm.genres} onChange={handleGenreChangeUpdate} required>
-              {genres.map(genre => (
+              {genres?.results?.map(genre => (
                 <option key={genre.id} value={genre.id}>{genre.name}</option>
               ))}
             </select>

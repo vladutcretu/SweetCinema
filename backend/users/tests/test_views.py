@@ -62,8 +62,16 @@ def test_user_list_as_staff(users_list, staff_user):
 
     assert response.status_code == 200
 
-    assert len(response.data) == 6
-    assert "groups" not in response.data
+    assert "count" in response.data
+    assert "next" in response.data
+    assert "previous" in response.data
+    assert "results" in response.data
+
+    data = response.data["results"]
+    assert len(data) == 5
+    # Expected: CompleteSerializer
+    assert "role" in data[0]
+    assert "groups" not in data[0]
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

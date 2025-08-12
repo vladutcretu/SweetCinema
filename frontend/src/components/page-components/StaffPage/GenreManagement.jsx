@@ -9,9 +9,7 @@ import { useCreateGenre } from '@/hooks/movies/genre/staff/useCreateGenre'
 import { useReadGenres } from '@/hooks/movies/genre/staff/useReadGenres'
 import { useUpdateGenre } from '@/hooks/movies/genre/staff/useUpdateGenre'
 import { useDeleteGenre } from '@/hooks/movies/genre/staff/useDeleteGenre'
-import useSearchBar from '@/hooks/useSearchBar'
 import SubmitButton from '@/components/common/SubmitButton'
-import SearchBar from '@/components/common/SearchBar'
 import ReusableTable from '@/components/common/ReusableTable'
 import FormWrapper from '@/components/common/FormWrapper'
 import { formatDate, formatTime } from '@/utils/DateTimeFormat'
@@ -21,10 +19,22 @@ import { formatDate, formatTime } from '@/utils/DateTimeFormat'
 
 const GenreManagement = () => {
   const { createGenre, loading: loadingCreateGenre, error: errorCreateGenre } = useCreateGenre()
-  const { genres, loading: loadingGenres, error: errorGenres, refetch: readGenres } = useReadGenres()
+  const { 
+    genres,
+    page, 
+    setPage, 
+    pageSize, 
+    setPageSize,
+    sortField, 
+    setSortField,
+    sortOrder,
+    setSortOrder,
+    loading: loadingGenres, 
+    error: errorGenres, 
+    refetch: readGenres
+  } = useReadGenres()
   const { updateGenre, loading: loadingUpdateGenre, error: errorUpdateGenre } = useUpdateGenre()
   const { deleteGenre, loading: loadingDeleteGenre, error: errorDeletingGenre } = useDeleteGenre()
-  const { searchTerm, handleChangeSearch, filteredData: filteredGenres } = useSearchBar(genres, "name")
   
   // Create genre
   const [genreNameCreate, setGenreNameCreate] = useState("")
@@ -38,20 +48,17 @@ const GenreManagement = () => {
 
   // Read genres
   const columns = [
-    { key: "id", title: "ID" },
-    { key: "name", title: "Name" },
-    { key: "created-updated", title: "Created / Updated"}
+    { key: "id", title: "ID" , sortable: true},
+    { key: "name", title: "Name", sortable: true},
+    { key: "created_at", title: "Created ", sortable: true },
+    { key: "updated_at", title: "Updated", sortable: true },
   ]
   const renderCell = (genre, column) => {
     switch (column.key) {
       case "id": return genre.id
       case "name": return genre.name
-      case "created-updated": return (`
-        ${formatDate(genre.created_at)}, 
-        ${formatTime(genre.created_at)} /
-        ${formatDate(genre.updated_at)}, 
-        ${formatTime(genre.updated_at)}
-      `)
+      case "created_at": return (`${formatDate(genre.created_at)}, ${formatTime(genre.created_at)}`)
+      case "updated_at": return (`${formatDate(genre.updated_at)}, ${formatTime(genre.updated_at)}`)
     }
   }
   const renderActions = (genre) => (
@@ -99,19 +106,26 @@ const GenreManagement = () => {
     <>
       <Center><Heading size="xl">Genre Management</Heading></Center>
 
-      {/* Search Bar */}
-      <SearchBar value={searchTerm} onChange={handleChangeSearch} text={"name"} />
-
       {/* Genre table & Update/Delete instance */}
       <ReusableTable
         loading={loadingGenres}
         error={errorGenres}
         additionalErrors={[errorUpdateGenre, errorDeletingGenre].filter(Boolean)}
-        data={filteredGenres}
+        data={genres}
         columns={columns}
         renderCell={renderCell}
         renderActions={renderActions}
         noDataMessage="No genres found!"
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        sortField={sortField}
+        sortOrder={sortOrder}
+        onSortChange={(field, order) => {
+          setSortField(field)
+          setSortOrder(order)
+          setPage(1)
+        }}
       />
 
       {/* Create genre */}

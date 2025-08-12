@@ -3,11 +3,10 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 
 # DRF
-from rest_framework import views, generics
-from rest_framework.generics import ListAPIView
+from rest_framework import views, generics, status
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.filters import OrderingFilter
 
 # 3rd party
 import requests
@@ -27,6 +26,7 @@ from .serializers import (
     UserPassworderializer,
 )
 from .permissions import IsManagerOrPlannerOrCashier
+from backend.helpers import StandardPagination
 
 # Create your views here.
 
@@ -181,14 +181,20 @@ class UserDataView(views.APIView):
 
 
 @extend_schema(tags=["v1 - Users"])
-class UserListView(ListAPIView):
+class UserListView(generics.ListAPIView):
     """
     GET:  list all User objects; available to staff only.\n
+    Ordering by id - default, role with standard pagination.\n
     """
 
     permission_classes = [IsAdminUser]
     serializer_class = UserCompleteSerializer
     queryset = User.objects.all()
+    filter_backends = [OrderingFilter]
+    ordering_fields = ["id", "role"]
+    ordering = ["-id"]
+    pagination_class = StandardPagination
+
 
 
 @extend_schema(tags=["v1 - Users"])

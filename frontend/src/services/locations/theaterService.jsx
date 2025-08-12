@@ -5,7 +5,9 @@ import api from "../Api"
 
 
 export const theaterService = {
-  readTheaters: () => api.get(`/v1/locations/theaters/`),
+  readTheaters: (page = 1, pageSize = 5, ordering = "city") => api.get(`/v1/locations/theaters/`, {
+    params: { page, page_size: pageSize, ordering }
+  }),
   createTheater: (name, city, rows, columns) => api.post(`/v1/locations/theaters/`, { 
     name: name, 
     city: city, 
