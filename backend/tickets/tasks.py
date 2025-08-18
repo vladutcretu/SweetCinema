@@ -57,3 +57,29 @@ def send_email_confirm_purchase(user_email, context):
         recipient_list=[user_email],
         html_message=html_message,
     )
+
+
+@shared_task(name="email-cancel-reservation")
+def send_email_cancel_reservation(user_email, context):
+    subject = f"Your reservation for {context['movie_title']} ({context['showtime_starts']}) is canceled"
+    html_message = render_to_string("emails/cancel_reservation.html", context)
+    send_mail(
+        subject=subject,
+        message="This is an HTML email. Please view it in a client that supports HTML!",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user_email],
+        html_message=html_message,
+    )
+
+
+@shared_task(name="email-expire-reservation")
+def send_email_expire_reservation(user_email, context):
+    subject = f"Your reservation for {context['movie_title']} ({context['showtime_starts']}) is expired"
+    html_message = render_to_string("emails/expire_reservation.html", context)
+    send_mail(
+        subject=subject,
+        message="This is an HTML email. Please view it in a client that supports HTML!",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user_email],
+        html_message=html_message,
+    )
