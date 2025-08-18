@@ -221,7 +221,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = "SweetCinema <no-reply@sweet-cinema.com>"
+DEFAULT_FROM_EMAIL = "SweetCinema <vladutcretu98@gmail.com>"
 
 
 # Importing Environment (ENV) variables from .env file from main director

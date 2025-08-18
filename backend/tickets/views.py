@@ -28,6 +28,7 @@ from .serializers import (
 )
 from users.permissions import IsManager
 from backend.helpers import StandardPagination
+from .tasks import send_email_confirm_reservation, send_email_confirm_purchase
 
 # Create your views here.
 
@@ -105,6 +106,24 @@ class BookingListCreateView(generics.ListCreateAPIView):
 
         bookings = serializer.save()
         booking_ids = [booking.id for booking in bookings]
+
+        # Call celery task to send confirmation email for bookings=reserved
+        reserved_bookings = [booking for booking in bookings if booking.status == BookingStatus.RESERVED]
+        if reserved_bookings:
+            user = request.user
+            booking = bookings[0]
+            showtime = booking.showtime
+
+            context = {
+            "user_name": user.first_name,
+            "movie_title": showtime.movie.title,
+            "theater_name": showtime.theater.name,
+            "theater_city": showtime.theater.city.name,
+            "showtime_starts": showtime.starts_at.strftime("%d.%m.%Y %H:%M"),
+            "seats": ", ".join(f"R{booking.seat.row}-C{booking.seat.column}" for booking in bookings),
+            "price": sum(booking.showtime.price for booking in bookings),
+            }   
+            send_email_confirm_reservation.delay(user.email, context)
 
         return Response({"booking_ids": booking_ids}, status=status.HTTP_201_CREATED)
 
@@ -290,6 +309,24 @@ class PaymentListCreateView(generics.ListCreateAPIView):
         payment_status = self.get_payment_status(amount, total_price)
         payment = self.create_payment(user, amount, method, payment_status, bookings)
         self.update_booking_status(bookings, payment_status)
+
+        # Call celery task to send confirmation email for payment.status=accepted
+        if payment_status == PaymentStatus.ACCEPTED:
+            payment_bookings = list(payment.bookings.all().select_related("showtime", "seat"))
+            if payment_bookings:
+                showtime = payment_bookings[0].showtime
+
+                context = {
+                    "user_name": user.first_name,
+                    "movie_title": showtime.movie.title,
+                    "theater_name": showtime.theater.name,
+                    "theater_city": showtime.theater.city.name,
+                    "showtime_starts": showtime.starts_at.strftime("%d.%m.%Y %H:%M"),
+                    "seats": ", ".join(f"R{booking.seat.row}-C{booking.seat.column}" for booking in payment_bookings),
+                    "price": total_price,
+                }   
+                send_email_confirm_purchase.delay(user.email, context)
+
         return self.build_reponse_success(payment, bookings)
 
     def get_bookings(self, booking_ids, user):
