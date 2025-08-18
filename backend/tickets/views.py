@@ -27,7 +27,7 @@ from .serializers import (
     PaymentCreateSerializer,
 )
 from users.permissions import IsManager
-from backend.helpers import StandardPagination
+from backend.helpers import StandardPagination, send_email_context
 from .tasks import (
     send_email_confirm_reservation, 
     send_email_confirm_purchase,
@@ -116,18 +116,7 @@ class BookingListCreateView(generics.ListCreateAPIView):
         reserved_bookings = [booking for booking in bookings if booking.status == BookingStatus.RESERVED]
         if reserved_bookings:
             user = request.user
-            booking = bookings[0]
-            showtime = booking.showtime
-
-            context = {
-            "user_name": user.first_name,
-            "movie_title": showtime.movie.title,
-            "theater_name": showtime.theater.name,
-            "theater_city": showtime.theater.city.name,
-            "showtime_starts": showtime.starts_at.strftime("%d.%m.%Y %H:%M"),
-            "seats": ", ".join(f"R{booking.seat.row}-C{booking.seat.column}" for booking in bookings),
-            "price": sum(booking.showtime.price for booking in bookings),
-            }   
+            context = send_email_context(user, bookings)
             send_email_confirm_reservation.delay(user.email, context)
 
         return Response({"booking_ids": booking_ids}, status=status.HTTP_201_CREATED)
@@ -212,18 +201,7 @@ class BookingUpdateView(generics.UpdateAPIView):
         # Call celery task to send email
         booking = serializer.instance
         user = booking.user
-        showtime = booking.showtime
-
-        context = {
-            "user_name": user.first_name,
-            "movie_title": showtime.movie.title,
-            "theater_name": showtime.theater.name,
-            "theater_city": showtime.theater.city.name,
-            "showtime_starts": showtime.starts_at.strftime("%d.%m.%Y %H:%M"),
-            "seats": f"R{booking.seat.row}-C{booking.seat.column}",
-            "price": booking.showtime.price,
-        }
-
+        context = send_email_context(user, booking)
         if serializer.instance.status == BookingStatus.CANCELED:
             send_email_cancel_reservation.delay(user.email, context)
         elif serializer.instance.status == BookingStatus.PURCHASED:
@@ -339,17 +317,7 @@ class PaymentListCreateView(generics.ListCreateAPIView):
         if payment_status == PaymentStatus.ACCEPTED:
             payment_bookings = list(payment.bookings.all().select_related("showtime", "seat"))
             if payment_bookings:
-                showtime = payment_bookings[0].showtime
-
-                context = {
-                    "user_name": user.first_name,
-                    "movie_title": showtime.movie.title,
-                    "theater_name": showtime.theater.name,
-                    "theater_city": showtime.theater.city.name,
-                    "showtime_starts": showtime.starts_at.strftime("%d.%m.%Y %H:%M"),
-                    "seats": ", ".join(f"R{booking.seat.row}-C{booking.seat.column}" for booking in payment_bookings),
-                    "price": total_price,
-                }   
+                context = send_email_context(user, payment_bookings)
                 send_email_confirm_purchase.delay(user.email, context)
 
         return self.build_reponse_success(payment, bookings)
