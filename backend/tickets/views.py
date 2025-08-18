@@ -32,6 +32,7 @@ from .tasks import (
     send_email_confirm_reservation, 
     send_email_confirm_purchase,
     send_email_cancel_reservation,
+    send_email_complete_reservation,
 )
 
 # Create your views here.
@@ -208,23 +209,25 @@ class BookingUpdateView(generics.UpdateAPIView):
 
         serializer.save(expires_at=None)
 
-        # Call celery task to send email for bookings.status=reserved
+        # Call celery task to send email
+        booking = serializer.instance
+        user = booking.user
+        showtime = booking.showtime
+
+        context = {
+            "user_name": user.first_name,
+            "movie_title": showtime.movie.title,
+            "theater_name": showtime.theater.name,
+            "theater_city": showtime.theater.city.name,
+            "showtime_starts": showtime.starts_at.strftime("%d.%m.%Y %H:%M"),
+            "seats": f"R{booking.seat.row}-C{booking.seat.column}",
+            "price": booking.showtime.price,
+        }
+
         if serializer.instance.status == BookingStatus.CANCELED:
-            booking = serializer.instance
-            user = booking.user
-            showtime = booking.showtime
-
-            context = {
-                "user_name": user.first_name,
-                "movie_title": showtime.movie.title,
-                "theater_name": showtime.theater.name,
-                "theater_city": showtime.theater.city.name,
-                "showtime_starts": showtime.starts_at.strftime("%d.%m.%Y %H:%M"),
-                "seats": f"R{booking.seat.row}-C{booking.seat.column}",
-                "price": booking.showtime.price,
-            }
-
             send_email_cancel_reservation.delay(user.email, context)
+        elif serializer.instance.status == BookingStatus.PURCHASED:
+            send_email_complete_reservation.delay(user.email, context)
 
 
 @extend_schema(tags=["v1 - Bookings"])

@@ -83,3 +83,16 @@ def send_email_expire_reservation(user_email, context):
         recipient_list=[user_email],
         html_message=html_message,
     )
+
+
+@shared_task(name="email-complete-reservation")
+def send_email_complete_reservation(user_email, context):
+    subject = f"Your reservation for {context['movie_title']} ({context['showtime_starts']}) is completed"
+    html_message = render_to_string("emails/complete_reservation.html", context)
+    send_mail(
+        subject=subject,
+        message="This is an HTML email. Please view it in a client that supports HTML!",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user_email],
+        html_message=html_message,
+    )
