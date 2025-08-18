@@ -6,12 +6,15 @@ import { Box, Heading, Stack, Text, Input, Button, Spinner } from "@chakra-ui/re
 
 // App
 import { useVerifyPass } from "@/hooks/users/staff/useVerifyPass"
+import { useResetPass } from "@/hooks/users/staff/useResetPass"
+import SubmitButton from "@/components/common/SubmitButton"
 
 // Components here
 
 
 const StaffVerifyPass = () => {
   const { verifyPasswordStaff, loading, error } = useVerifyPass()
+  const { resetPasswordStaff, loading: loadingReset, error: errorReset} = useResetPass()
   const [password, setPassword] = useState("")
     
   const handleChange = (event) => {
@@ -25,7 +28,7 @@ const StaffVerifyPass = () => {
   }
     
   if (loading) return <Spinner />
-  if (error) return <Text color="red.400">{error}</Text>
+  if (error || errorReset) return <Text color="red.400">{error || errorReset}</Text>
     
   return (
     <Box px={6} py={10}>
@@ -44,6 +47,15 @@ const StaffVerifyPass = () => {
               <Button type="submit">{loading ? <Spinner size="sm" mr={2} /> : "Verify password"}</Button>
             </Stack>
           </form>
+          <br />
+          <Stack align="inherit" maxW="max-content">
+            <Text>Did you forget your password or you want to change it?</Text>
+            <SubmitButton 
+              onClick={() => resetPasswordStaff()}
+              loading={loadingReset} 
+              text={"Change / Recover password"}
+            />
+          </Stack>
         </Box>
       </Stack>
     </Box>

@@ -14,4 +14,5 @@ export const authService = {
   // Staff
   setPassword: (password) => api.post(`/v1/users/set-password/`, { password: password }),
   verifyPassword: (password) => api.post(`/v1/users/verify-password/`, { password: password }),
+  resetPassword: () => api.post(`v1/users/reset-password/`),
 }
