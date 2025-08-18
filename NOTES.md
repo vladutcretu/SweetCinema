@@ -236,6 +236,26 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ## Development Notes
 
+### 🔜 Sprint #13 (started on 18 August 2025; ended on <i>TBA</i>): "Backend & Frontend: Email notifications"
+- Implement email notifications using Celery, Celery-Beat and a free SMTP (probably https://www.brevo.com/ or https://www.mailjet.com/)
+- Will send emails (with HTML template) for:
+    - complete reservation / ticket purchase
+    - cancel / expire reservation
+    - complete a reservation by cashier
+    - change / recover 2FA password
+        - add `Change / Recover password button` on `Profile page`, which after pressed:
+            1. will set the current password to unusable via new endpoint `POST /api/v1/users/reset-password/`
+            2. will send an email that include link to `Staff page`, where user will need to set a new password via existing `POST /api/v1/users/set-password/`
+    - promotions (birthday, city, movie)
+        - birthday: send to a specific user when current date (MM/DD) is the same as `user.birthday` (MM/DD)
+        - city: send to all users that have specific `user.city`
+        - movie: send to all users that have a showtime for a specific movie in their `user.city`
+        - *for now sending for city / movie will be triggered by a scheduled task that runs daily with a different (random) city / movie; in the future will be sending when a promotion is created*
+    - newsletter 
+        - will be send every Sunday using a scheduled task to every `user.receive_newsletter` == true 
+        - will contain next week showtimes for `user.city`
+- Initialize Flower to monitor Celery tasks
+---
 ### ✅ Sprint #12 (started on 8 August 2025; ended on 12 August 2025): "Backend & Frontend: User model, Endpoints filtering & pagination"
 - Create `User` model (extends `AbstractUser`) to merge `UserProfile` model and permissions logic from `Groups` (Manager, Employee, Cashier) to `role` field (Manager, Planner, Cashier) for optimizing database queries; also add `birthday` and boolean `promotions`, `newsletter` fields
 - Update `UserManagement component` and API endpoint to let staff set user's role and city
