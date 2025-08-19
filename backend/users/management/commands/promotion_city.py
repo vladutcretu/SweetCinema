@@ -25,7 +25,7 @@ class Command(BaseCommand):
             context = {
                 "user_name": user.first_name, 
                 "city_name": user.city.name, 
-                "promocode_birthday": f"{user.city.name}_CITY30",
+                "promocode_city": f"{user.city.name}_CITY30",
             }
             send_email_promotion_city.delay(user.email, context)
         
