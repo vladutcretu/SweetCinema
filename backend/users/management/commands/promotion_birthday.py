@@ -14,12 +14,21 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         todays_date = date.today()
-        users_birthday = User.objects.filter(receive_promotions=True, birthday__day=todays_date.day,birthday__month=todays_date.month,)
+        users_birthday = User.objects.filter(
+            receive_promotions=True,
+            birthday__day=todays_date.day,
+            birthday__month=todays_date.month,
+        )
 
         # Call celery task to send promotional email
         for user in users_birthday:
-            context = {"user_name": user.first_name, "promocode_birthday": f"{user.first_name}_BDAY50"}
+            context = {
+                "user_name": user.first_name,
+                "promocode_birthday": f"{user.first_name}_BDAY50",
+            }
             send_email_promotion_birthday.delay(user.email, context)
-        
+
         count = users_birthday.count()
-        self.stdout.write(f"{count} celebrating their birthday on {todays_date.strftime('%d %B')}!")
+        self.stdout.write(
+            f"{count} celebrating their birthday on {todays_date.strftime('%d %B')}!"
+        )

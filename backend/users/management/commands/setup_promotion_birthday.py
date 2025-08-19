@@ -6,6 +6,7 @@ from django_celery_beat.models import PeriodicTask, CrontabSchedule
 
 # Write command here
 
+
 class Command(BaseCommand):
     help = "Set up promotion_birthday command to run daily at 12:05 AM"
 
@@ -28,6 +29,12 @@ class Command(BaseCommand):
         )
 
         if created:
-            self.stdout.write(self.style.SUCCESS("Periodic task (users birthday) created successfully!"))
+            self.stdout.write(
+                self.style.SUCCESS(
+                    "Periodic task (users birthday) created successfully!"
+                )
+            )
         else:
-            self.stdout.write(self.style.WARNING("Periodic task (users birthday) already exists!"))
+            self.stdout.write(
+                self.style.WARNING("Periodic task (users birthday) already exists!")
+            )

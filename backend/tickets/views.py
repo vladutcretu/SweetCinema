@@ -29,7 +29,7 @@ from .serializers import (
 from users.permissions import IsManager
 from backend.helpers import StandardPagination, send_email_context
 from .tasks import (
-    send_email_confirm_reservation, 
+    send_email_confirm_reservation,
     send_email_confirm_purchase,
     send_email_cancel_reservation,
     send_email_complete_reservation,
@@ -113,7 +113,9 @@ class BookingListCreateView(generics.ListCreateAPIView):
         booking_ids = [booking.id for booking in bookings]
 
         # Call celery task to send confirmation email for bookings=reserved
-        reserved_bookings = [booking for booking in bookings if booking.status == BookingStatus.RESERVED]
+        reserved_bookings = [
+            booking for booking in bookings if booking.status == BookingStatus.RESERVED
+        ]
         if reserved_bookings:
             user = request.user
             context = send_email_context(user, bookings)
@@ -315,7 +317,9 @@ class PaymentListCreateView(generics.ListCreateAPIView):
 
         # Call celery task to send confirmation email for payment.status=accepted
         if payment_status == PaymentStatus.ACCEPTED:
-            payment_bookings = list(payment.bookings.all().select_related("showtime", "seat"))
+            payment_bookings = list(
+                payment.bookings.all().select_related("showtime", "seat")
+            )
             if payment_bookings:
                 context = send_email_context(user, payment_bookings)
                 send_email_confirm_purchase.delay(user.email, context)

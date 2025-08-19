@@ -11,7 +11,7 @@ from ..views import (
     UserRetrieveUpdateView,
     UserSetPasswordView,
     UserVerifyPasswordView,
-    UserResetPasswordView
+    UserResetPasswordView,
 )
 
 # Write your tests here.

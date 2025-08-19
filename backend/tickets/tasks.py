@@ -46,6 +46,7 @@ def send_email_confirm_reservation(user_email, context):
         html_message=html_message,
     )
 
+
 @shared_task(name="email-confirm-purchase")
 def send_email_confirm_purchase(user_email, context):
     subject = f"Your purchase for {context['movie_title']} ({context['showtime_starts']}) is confirmed"

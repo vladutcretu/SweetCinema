@@ -11,6 +11,7 @@ class StandardPagination(PageNumberPagination):
     """
     Class for pagination with standard values: page_size=5, max_page_size=10.
     """
+
     page_size = 5
     page_size_query_param = "page_size"
     max_page_size = 10
@@ -34,7 +35,9 @@ def send_email_context(user, bookings):
         "theater_name": showtime.theater.name,
         "theater_city": showtime.theater.city.name,
         "showtime_starts": showtime.starts_at.strftime("%d.%m.%Y %H:%M"),
-        "seats": ", ".join(f"R{booking.seat.row}-C{booking.seat.column}" for booking in bookings),
+        "seats": ", ".join(
+            f"R{booking.seat.row}-C{booking.seat.column}" for booking in bookings
+        ),
         "price": sum(booking.showtime.price for booking in bookings),
     }
 

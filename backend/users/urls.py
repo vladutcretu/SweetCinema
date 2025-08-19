@@ -33,5 +33,7 @@ urlpatterns = [
         UserVerifyPasswordView.as_view(),
         name="user-verify-password",
     ),
-    path("reset-password/", UserResetPasswordView.as_view(), name="user-reset-password"),
+    path(
+        "reset-password/", UserResetPasswordView.as_view(), name="user-reset-password"
+    ),
 ]

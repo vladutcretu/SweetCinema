@@ -21,15 +21,20 @@ class Command(BaseCommand):
         # Get all cities that have a showtime next week
         cities = City.objects.prefetch_related("theaters__showtime_set__movie")
 
-        city_showtimes = defaultdict(list) # dict {city_id: list(showtimes_next_week)}
+        city_showtimes = defaultdict(list)  # dict {city_id: list(showtimes_next_week)}
         for city in cities:
             for theater in city.theaters.all():
                 for showtime in theater.showtime_set.all():
-                    if timezone.now() <= showtime.starts_at <= timezone.now() + timedelta(days=300): # update days to 7 
+                    if (
+                        timezone.now()
+                        <= showtime.starts_at
+                        <= timezone.now() + timedelta(days=300)
+                    ):  # update days to 7
                         city_showtimes[city.id].append(showtime)
 
-
-        users_subscribed = User.objects.filter(receive_promotions=True).select_related("city")
+        users_subscribed = User.objects.filter(receive_promotions=True).select_related(
+            "city"
+        )
 
         # Call celery task to send promotional email
         for user in users_subscribed:

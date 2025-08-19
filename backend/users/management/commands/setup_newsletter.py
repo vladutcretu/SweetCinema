@@ -6,6 +6,7 @@ from django_celery_beat.models import PeriodicTask, CrontabSchedule
 
 # Write command here
 
+
 class Command(BaseCommand):
     help = "Set up newsletter command to run every Sunday at 12:00 PM"
 
@@ -28,6 +29,10 @@ class Command(BaseCommand):
         )
 
         if created:
-            self.stdout.write(self.style.SUCCESS("Periodic task (newsletter) created successfully!"))
+            self.stdout.write(
+                self.style.SUCCESS("Periodic task (newsletter) created successfully!")
+            )
         else:
-            self.stdout.write(self.style.WARNING("Periodic task (newsletter) already exists!"))
+            self.stdout.write(
+                self.style.WARNING("Periodic task (newsletter) already exists!")
+            )

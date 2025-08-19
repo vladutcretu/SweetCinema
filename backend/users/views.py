@@ -293,11 +293,11 @@ class UserResetPasswordView(views.APIView):
     def post(self, request):
         user = request.user
 
-        try: 
+        try:
             user.set_unusable_password()
             user.save(update_fields=["password"])
             send_email_reset_password.delay(
-                user.email, 
+                user.email,
                 {"user_name": user.first_name, "user_role": user.role},
             )
             return Response(

@@ -17,8 +17,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # Randomize a showtime scheduled in the future to extract a specific movie
         showtime = (
-            Showtime.objects
-            .filter(starts_at__gte=timezone.now())
+            Showtime.objects.filter(starts_at__gte=timezone.now())
             .select_related("movie", "theater", "theater__city")
             .order_by("?")
             .first()
@@ -30,17 +29,14 @@ class Command(BaseCommand):
         movie = showtime.movie
 
         # Get all cities that have a showtime for the specific movie
-        cities_with_movie_showtime = (
-            City.objects.filter(theaters__showtime__movie=movie)
-            .distinct()
-        )
+        cities_with_movie_showtime = City.objects.filter(
+            theaters__showtime__movie=movie
+        ).distinct()
 
         # Get all users that have a showtime for the specific movie in their city
-        users_movie = (
-            User.objects
-            .filter(receive_promotions=True, city__in=cities_with_movie_showtime)
-            .select_related("city")
-        )
+        users_movie = User.objects.filter(
+            receive_promotions=True, city__in=cities_with_movie_showtime
+        ).select_related("city")
 
         # Call celery task to send promotional email
         for user in users_movie:
@@ -52,4 +48,6 @@ class Command(BaseCommand):
             send_email_promotion_movie.delay(user.email, context)
 
         count = users_movie.count()
-        self.stdout.write(f"{count} users have movie '{movie.title}' in their set city.")
+        self.stdout.write(
+            f"{count} users have movie '{movie.title}' in their set city."
+        )

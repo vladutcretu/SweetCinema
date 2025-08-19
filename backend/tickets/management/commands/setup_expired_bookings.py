@@ -30,6 +30,14 @@ class Command(BaseCommand):
         )
 
         if created:
-            self.stdout.write(self.style.SUCCESS("Periodic task (setup expired booking) created successfully!"))
+            self.stdout.write(
+                self.style.SUCCESS(
+                    "Periodic task (setup expired booking) created successfully!"
+                )
+            )
         else:
-            self.stdout.write(self.style.WARNING("Periodic task (setup expired booking) already exists!"))
+            self.stdout.write(
+                self.style.WARNING(
+                    "Periodic task (setup expired booking) already exists!"
+                )
+            )

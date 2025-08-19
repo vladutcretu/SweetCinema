@@ -25,9 +25,9 @@ class Command(BaseCommand):
 
         # Call celery task to send email for bookings.status=reserved > booking.status=expired
         for booking in expired_bookings.filter(status=BookingStatus.RESERVED):
-                user = booking.user
-                context = send_email_context(user, booking)
-                send_email_expire_reservation.delay(user.email, context)
+            user = booking.user
+            context = send_email_context(user, booking)
+            send_email_expire_reservation.delay(user.email, context)
 
         count = expired_bookings.update(status=BookingStatus.EXPIRED)
         self.stdout.write(f"{count} bookings expired!")
