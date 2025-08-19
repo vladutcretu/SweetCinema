@@ -1,6 +1,7 @@
 # Django
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
+from django.core.management import call_command
 from django.conf import settings
 
 # 3rd party apps
@@ -33,3 +34,28 @@ def send_email_promotion_birthday(user_email, context):
         recipient_list=[user_email],
         html_message=html_message,
     )
+
+
+@shared_task
+def users_promotion_birthday():
+    # Run the Django command that handles users and sending emails
+    call_command("promotion_birthday")
+
+
+@shared_task(name="email-promotion-city")
+def send_email_promotion_city(user_email, context):
+    subject = f"Promocode for SweetCinema {context['city_name']}"
+    html_message = render_to_string("emails/promotion_city.html", context)
+    send_mail(
+        subject=subject,
+        message="This is an HTML email. Please view it in a client that supports HTML!",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user_email],
+        html_message=html_message,
+    )
+
+
+@shared_task
+def users_promotion_city():
+    # Run the Django command that handles users and sending emails
+    call_command("promotion_city")
