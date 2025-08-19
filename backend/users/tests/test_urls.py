@@ -11,6 +11,7 @@ from ..views import (
     UserRetrieveUpdateView,
     UserSetPasswordView,
     UserVerifyPasswordView,
+    UserResetPasswordView,
 )
 
 # Write your tests here.
@@ -98,3 +99,17 @@ def test_user_verify_password_resolves():
 
 def test_user_verify_password_reverse():
     assert reverse("user-verify-password") == "/api/v1/users/verify-password/"
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# UserResetPasswordView
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+def test_user_reset_password_resolves():
+    match = resolve("/api/v1/users/reset-password/")
+    assert match.func.view_class == UserResetPasswordView
+
+
+def test_user_reset_password_reverse():
+    assert reverse("user-reset-password") == "/api/v1/users/reset-password/"

@@ -58,6 +58,21 @@ services:
     depends_on:
       - db
       - redis
+
+  flower:
+    build:
+      context: ./backend
+    container_name: flower
+    command: celery -A backend flower --port=5555 --address=0.0.0.0
+    volumes:
+      - ./backend:/app
+    ports:
+      - "5555:5555"
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - backend
   
   frontend:
     build:

@@ -27,7 +27,13 @@ from .serializers import (
     PaymentCreateSerializer,
 )
 from users.permissions import IsManager
-from backend.helpers import StandardPagination
+from backend.helpers import StandardPagination, send_email_context
+from .tasks import (
+    send_email_confirm_reservation,
+    send_email_confirm_purchase,
+    send_email_cancel_reservation,
+    send_email_complete_reservation,
+)
 
 # Create your views here.
 
@@ -105,6 +111,15 @@ class BookingListCreateView(generics.ListCreateAPIView):
 
         bookings = serializer.save()
         booking_ids = [booking.id for booking in bookings]
+
+        # Call celery task to send confirmation email for bookings=reserved
+        reserved_bookings = [
+            booking for booking in bookings if booking.status == BookingStatus.RESERVED
+        ]
+        if reserved_bookings:
+            user = request.user
+            context = send_email_context(user, bookings)
+            send_email_confirm_reservation.delay(user.email, context)
 
         return Response({"booking_ids": booking_ids}, status=status.HTTP_201_CREATED)
 
@@ -184,6 +199,15 @@ class BookingUpdateView(generics.UpdateAPIView):
                 )
 
         serializer.save(expires_at=None)
+
+        # Call celery task to send email
+        booking = serializer.instance
+        user = booking.user
+        context = send_email_context(user, booking)
+        if serializer.instance.status == BookingStatus.CANCELED:
+            send_email_cancel_reservation.delay(user.email, context)
+        elif serializer.instance.status == BookingStatus.PURCHASED:
+            send_email_complete_reservation.delay(user.email, context)
 
 
 @extend_schema(tags=["v1 - Bookings"])
@@ -290,6 +314,16 @@ class PaymentListCreateView(generics.ListCreateAPIView):
         payment_status = self.get_payment_status(amount, total_price)
         payment = self.create_payment(user, amount, method, payment_status, bookings)
         self.update_booking_status(bookings, payment_status)
+
+        # Call celery task to send confirmation email for payment.status=accepted
+        if payment_status == PaymentStatus.ACCEPTED:
+            payment_bookings = list(
+                payment.bookings.all().select_related("showtime", "seat")
+            )
+            if payment_bookings:
+                context = send_email_context(user, payment_bookings)
+                send_email_confirm_purchase.delay(user.email, context)
+
         return self.build_reponse_success(payment, bookings)
 
     def get_bookings(self, booking_ids, user):

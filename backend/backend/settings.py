@@ -213,6 +213,17 @@ if DEBUG:
     SILKY_PYTHON_PROFILER = True
 
 
+# SMTP settings
+# https://app-smtp.brevo.com/real-time
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp-relay.brevo.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = "SweetCinema <vladutcretu98@gmail.com>"
+
+
 # Importing Environment (ENV) variables from .env file from main director
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")

@@ -27,6 +27,7 @@ from .serializers import (
 )
 from .permissions import IsManagerOrPlannerOrCashier
 from backend.helpers import StandardPagination
+from .tasks import send_email_reset_password
 
 # Create your views here.
 
@@ -249,6 +250,7 @@ class UserSetPasswordView(views.APIView):
             return Response(
                 {"success": "Password set successfully."}, status=status.HTTP_200_OK
             )
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -265,7 +267,7 @@ class UserVerifyPasswordView(views.APIView):
         if serializer.is_valid():
             password = serializer.validated_data["password"]
             user = request.user
-            user.check_password(password)
+
             if user.check_password(password):
                 return Response(
                     {"success": "Password matches."}, status=status.HTTP_200_OK
@@ -275,4 +277,35 @@ class UserVerifyPasswordView(views.APIView):
                     {"failure": "Password do not match."},
                     status=status.HTTP_401_UNAUTHORIZED,
                 )
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@extend_schema(tags=["v1 - Users"])
+class UserResetPasswordView(views.APIView):
+    """
+    POST: staff / 'Manager', 'Planner', 'Cashier' role reset an account password.\n
+    This should sent an email to request.user.\n
+    """
+
+    permission_classes = [IsManagerOrPlannerOrCashier]
+
+    def post(self, request):
+        user = request.user
+
+        try:
+            user.set_unusable_password()
+            user.save(update_fields=["password"])
+            send_email_reset_password.delay(
+                user.email,
+                {"user_name": user.first_name, "user_role": user.role},
+            )
+            return Response(
+                {"success": "Password set to unusable and an email should be sent!"},
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            return Response(
+                {"failure": f"Could not reset password: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )

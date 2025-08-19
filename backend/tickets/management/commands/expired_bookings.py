@@ -4,6 +4,8 @@ from django.utils import timezone
 
 # App
 from tickets.models import Booking, BookingStatus
+from tickets.tasks import send_email_expire_reservation
+from backend.helpers import send_email_context
 
 # Write command here
 
@@ -20,5 +22,12 @@ class Command(BaseCommand):
             status__in=[BookingStatus.RESERVED, BookingStatus.PENDING_PAYMENT],
             expires_at__lt=now(),
         )  # less than now
+
+        # Call celery task to send email for bookings.status=reserved > booking.status=expired
+        for booking in expired_bookings.filter(status=BookingStatus.RESERVED):
+            user = booking.user
+            context = send_email_context(user, booking)
+            send_email_expire_reservation.delay(user.email, context)
+
         count = expired_bookings.update(status=BookingStatus.EXPIRED)
         self.stdout.write(f"{count} bookings expired!")

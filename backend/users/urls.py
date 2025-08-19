@@ -12,6 +12,7 @@ from .views import (
     UserRetrieveUpdateView,
     UserSetPasswordView,
     UserVerifyPasswordView,
+    UserResetPasswordView,
 )
 
 # Create your urls here.
@@ -31,5 +32,8 @@ urlpatterns = [
         "verify-password/",
         UserVerifyPasswordView.as_view(),
         name="user-verify-password",
+    ),
+    path(
+        "reset-password/", UserResetPasswordView.as_view(), name="user-reset-password"
     ),
 ]

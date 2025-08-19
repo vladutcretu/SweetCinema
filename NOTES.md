@@ -9,6 +9,20 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ## Release Notes
 
+### ✅ v1.2.0-beta (completed on 19 August 2025, include Sprint #13)
+🚀 **Features:**
+- Email notifications for transactional activities (confirmation for completing reservation, purchase, canceling or expiring bookings), with promotional scope (promotions for birthday, specific city or movie) and for newsletter (next week showtimes for a specific city)
+
+⚙️ **Backend:**
+- Initilize flower for logging tasks and do the settings for an 3rd party SMTP
+- Create new tasks in tickets.tasks and users.tasks files to send emails
+- Create method `send_email_context` to provide context for the transactional emails
+- Create command files to serve as cronjobs for promotional emails and newsletter
+- Create `POST /api/v1/users/reset-password/` endpoint for staff / role members to set their password to unusable
+
+🖼️ **Frontend:**
+- Add a `SubmitButton component` as Change/Recover password to `StaffVerifyPass component` to fetch the new endpoint
+---
 ### ✅ v1.1.0-beta (completed on 12 August 2025, include Sprint #12)
 🚀 **Features:**
 - Tabels are now paginated and results can be ordered by relevant fields
@@ -236,7 +250,7 @@ This document tracks versioned release notes (features, fixes, refactors, etc.) 
 
 ## Development Notes
 
-### 🔜 Sprint #13 (started on 18 August 2025; ended on <i>TBA</i>): "Backend & Frontend: Email notifications"
+### ✅ Sprint #13 (started on 18 August 2025; ended on 19 August 2025): "Backend & Frontend: Email notifications"
 - Implement email notifications using Celery, Celery-Beat and a free SMTP (probably https://www.brevo.com/ or https://www.mailjet.com/)
 - Will send emails (with HTML template) for:
     - complete reservation / ticket purchase

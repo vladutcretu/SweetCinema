@@ -8,23 +8,22 @@ from django_celery_beat.models import PeriodicTask, CrontabSchedule
 
 
 class Command(BaseCommand):
-    help = "Set up expired_bookings command to run on every 5 minutes."
+    help = "Set up promotion_birthday command to run daily at 12:05 AM"
 
     def handle(self, *args, **options):
         schedule, created = CrontabSchedule.objects.get_or_create(
-            minute="*/5",
-            hour="*",
+            minute="5",
+            hour="0",
             day_of_week="*",
-            day_of_month="*",
             month_of_year="*",
             timezone="Europe/Bucharest",
         )
 
         task, created = PeriodicTask.objects.get_or_create(
-            name="Cleanup expired bookings",
+            name="Scan for users who celebrate their birthday on todays date",
             defaults={
                 "crontab": schedule,
-                "task": "tickets.tasks.clean_expired_bookings",
+                "task": "users.tasks.users_promotion_birthday",
                 "enabled": True,
             },
         )
@@ -32,12 +31,10 @@ class Command(BaseCommand):
         if created:
             self.stdout.write(
                 self.style.SUCCESS(
-                    "Periodic task (setup expired booking) created successfully!"
+                    "Periodic task (users birthday) created successfully!"
                 )
             )
         else:
             self.stdout.write(
-                self.style.WARNING(
-                    "Periodic task (setup expired booking) already exists!"
-                )
+                self.style.WARNING("Periodic task (users birthday) already exists!")
             )
