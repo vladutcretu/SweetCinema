@@ -78,3 +78,22 @@ def send_email_promotion_movie(user_email, context):
 def users_promotion_movie():
     # Run the Django command that handles users and sending emails
     call_command("promotion_movie")
+
+
+@shared_task(name="email-newsletter")
+def send_email_newsletter(user_email, context):
+    subject = "Newsletter has arrived"
+    html_message = render_to_string("emails/newsletter.html", context)
+    send_mail(
+        subject=subject,
+        message="This is an HTML email. Please view it in a client that supports HTML!",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user_email],
+        html_message=html_message,
+    )
+
+
+@shared_task
+def users_newsletter():
+    # Run the Django command that handles users and sending emails
+    call_command("newsletter")
