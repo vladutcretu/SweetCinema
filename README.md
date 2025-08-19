@@ -34,7 +34,7 @@ Check the file [NOTES.md](NOTES.md) to see Release Notes or Development Notes. I
     - 🗓️ [Jira](https://www.atlassian.com/software/jira) for planning work.
     - 🐋 [Docker Compose](https://www.docker.com/) for local development.
     - 🔐[@react-oauth/google](https://www.npmjs.com/package/@react-oauth/google), [google-auth](https://pypi.org/project/google-auth/) and [djangorestframework-simplejwt](https://pypi.org/project/djangorestframework-simplejwt/) for authentication and authorization with Google OAuth2.0 and JWT.
-    - 🥬[Celery](https://docs.celeryq.dev/en/stable/index.html), with [Redis](https://pypi.org/project/redis/) as broker/backend, and [django-celery-beat](https://django-celery-beat.readthedocs.io/en/latest/) for scheduling tasks.
+    - 🥬[Celery](https://docs.celeryq.dev/en/stable/index.html), with [Redis](https://pypi.org/project/redis/) as broker/backend, [django-celery-beat](https://django-celery-beat.readthedocs.io/en/latest/) for scheduling tasks and [flower](https://flower.readthedocs.io/en/latest) for logs.
     
 
 ## Technical architecture
@@ -56,6 +56,10 @@ Check the file [NOTES.md](NOTES.md) to see Release Notes or Development Notes. I
    - Staff-assisted sales and completed reservation (Cashier)
 5. **Reporting**
    - Report with showtime metrics for Manager: revenue, tickets sold, and occupancy rate
+6. **Email notifications & Scheduled tasks**
+    - Transactional (confirmation for completing reservation, purchase, canceling or expiring bookings)
+    - Promotional (promotions for birthday, specific city or movie)
+    - Newsletter (next week showtimes for a specific city)
 
 ### Users workflow
 ![Users workflow](https://i.imgur.com/TqFAPnF.jpeg)
@@ -89,6 +93,9 @@ Images for presentation of the application are present in the [demo directory](.
     GOOGLE_CLIENT_ID=your_app_client_id # Read https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid
     GOOGLE_CLIENT_SECRET=your_app_client_secret # Copy from the same place as client_id
 
+    EMAIL_HOST_USER=your_app_user # Frm your SMTP service
+    EMAIL_HOST_PASSWORD=you_app_password # Frm your SMTP service
+
     VITE_API_URL=http://127.0.0.1:8000/api
     VITE_GOOGLE_CLIENT_ID=your_app_client_id # Same value as the GOOGLE_CLIENT_ID variable
     ```
@@ -107,6 +114,9 @@ Images for presentation of the application are present in the [demo directory](.
     ```
 
 5. Open your web browser and navigate to:
-- [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/) for admin panel
-- [http://127.0.0.1:8000/api/schema/swagger/](http://127.0.0.1:8000/api/schema/swagger/) for OpenAPI documentation
-- [http://127.0.0.1:5173](http://127.0.0.1:5173) for frontend
+- http://127.0.0.1:8000/admin/ for admin panel
+- http://127.0.0.1:8000/api/schema/swagger/ for OpenAPI documentation
+- http://127.0.0.1:5173 for frontend 
+- Other links are: 
+    - http://127.0.0.1:8000/silk/ (logs for requests/queries)
+    - http://127.0.0.1:5555/ (logs for tasks)
